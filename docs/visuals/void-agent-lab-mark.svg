@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="72" fill="#071015"/>
+<g fill="none" stroke="#9fb3ba" stroke-width="8">
+<path d="M176 92h160l84 84v160l-84 84H176l-84-84V176z"/>
+<circle cx="256" cy="256" r="70"/>
+</g>
+<circle cx="256" cy="256" r="34" fill="#dfe8eb"/>
+<g stroke="#e9a43b" stroke-width="8">
+<path d="M256 38v54M256 420v54M38 256h54M420 256h54"/>
+</g>
+<g fill="#dfe8eb" font-family="monospace" text-anchor="middle">
+<text x="256" y="410" font-size="27" letter-spacing="5">VOID //</text>
+<text x="256" y="442" font-size="22" letter-spacing="3">AGENT LAB</text>
+</g>
+</svg>
