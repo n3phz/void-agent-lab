@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 400">
+<defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#071015"/><stop offset=".55" stop-color="#0b1820"/><stop offset="1" stop-color="#071015"/></linearGradient></defs>
+<rect width="1280" height="400" fill="url(#g)"/>
+<g opacity=".18" stroke="#4d6973"><path d="M0 80h1280M0 160h1280M0 240h1280M0 320h1280M80 0v400M160 0v400M240 0v400M320 0v400M400 0v400M480 0v400M560 0v400M640 0v400M720 0v400M800 0v400M880 0v400M960 0v400M1040 0v400M1120 0v400M1200 0v400"/></g>
+<g fill="none" stroke="#35b8c8" opacity=".7"><path d="M650 198h120l70-70h150"/><circle cx="650" cy="198" r="12"/><circle cx="840" cy="128" r="7"/></g>
+<g fill="none" stroke="#e9a43b" stroke-width="4"><path d="M650 92v45M650 263v45M544 198h45M711 198h45"/><circle cx="650" cy="198" r="43"/></g>
+<circle cx="650" cy="198" r="20" fill="#dfe8eb"/>
+<g fill="#dfe8eb" font-family="monospace"><text x="80" y="170" font-size="62" letter-spacing="8">VOID //</text><text x="80" y="235" font-size="58" letter-spacing="5">AGENT LAB</text><text x="84" y="278" font-size="18" letter-spacing="4" fill="#8fa5ad">AUTONOMOUS SYSTEMS. REAL CONSEQUENCES.</text></g>
+<g fill="#82969d" font-family="monospace" font-size="13"><text x="82" y="340">BUILD</text><text x="170" y="340">DEPLOY</text><text x="270" y="340">OBSERVE</text><text x="390" y="340">OPTIMIZE</text><text x="520" y="340">EXPAND</text></g>
+</svg>
