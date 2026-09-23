@@ -1170,100 +1170,102 @@ function MissionReport({ state, setState }: { state: GameState; setState: React.
   // Maintenance cost computed for display: getMaintenanceCostFromResult(result.finalHullPct)
   
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Mission Report</h1>
-        <p>Station Commander</p>
-      </div>
-      
-      <div style={{ padding: '24px', maxWidth: '800px' }}>
-        <div style={{ 
-          padding: '16px',
-          border: '2px solid var(--accent)',
-          borderRadius: '4px',
-          marginBottom: '24px',
-          textAlign: 'center'
-        }}>
-          <h2 style={{ margin: '0 0 12px 0' }}>Outcome: {result.outcome.toUpperCase()}</h2>
-          <p style={{ margin: '0' }}>
-            Net Result: <strong>{result.netResult} CR</strong> | 
-            XP Gained: <strong>{result.xpEarned}</strong>
-          </p>
+    <section className="report-root">
+      <header className="report-header">
+        <div className="report-header__left">
+          <h1 className="report-header__title">MISSION REPORT</h1>
+          <p className="report-header__subtitle">Deployment debrief</p>
         </div>
-        
-        <div style={{ marginBottom: '24px' }}>
-          <h3>Agent Status</h3>
-          <div style={{ 
-            padding: '12px',
-            border: '1px solid var(--border)',
-            borderRadius: '4px'
-          }}>
-            <p><strong>{getAgentName(agent)} (Level {agent.level})</strong></p>
-            <p>
-              Hull: {result.finalHullPct}% | Fuel: {result.fuelRemainingPct}% | Credits: {agent.credits} CR
+        <div className="report-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
+        </div>
+      </header>
+
+      <div className={`report-outcome report-outcome--${result.outcome}`}>
+        <div className="report-outcome__label mono">OUTCOME</div>
+        <div className="report-outcome__value">{result.outcome.toUpperCase()}</div>
+        <div className="report-outcome__stats mono">
+          <span>{result.netResult >= 0 ? `+${result.netResult.toLocaleString()}` : result.netResult.toLocaleString()} CR</span>
+          <span>+{result.xpEarned} XP</span>
+        </div>
+      </div>
+
+      <main className="report-deck">
+        <div className="report-panel report-panel--agent">
+          <h3 className="section-title">AGENT STATUS</h3>
+          <div className="report-agent__head">
+            <span className="report-agent__name">{getAgentName(agent)}</span>
+            {!result.agentSurvives && <span className="agent-status agent-status--destroyed">DESTROYED</span>}
+          </div>
+          <div className="report-agent__type mono">{agent.type} · LEVEL {agent.level}</div>
+
+          <div className="report-bar">
+            <div className="report-bar__row mono"><span>HULL</span><span>{result.finalHullPct}%</span></div>
+            <div className="report-bar__track">
+              <div className={`report-bar__fill${result.finalHullPct < 30 ? ' is-critical' : ''}`} style={{ width: `${Math.max(0, Math.min(100, result.finalHullPct))}%` }} />
+            </div>
+          </div>
+          <div className="report-bar">
+            <div className="report-bar__row mono"><span>FUEL</span><span>{result.fuelRemainingPct}%</span></div>
+            <div className="report-bar__track">
+              <div className="report-bar__fill" style={{ width: `${Math.max(0, Math.min(100, result.fuelRemainingPct))}%` }} />
+            </div>
+          </div>
+
+          <dl className="report-specs mono">
+            <div><dt>CREDITS</dt><dd>{agent.credits.toLocaleString()} CR</dd></div>
+            <div><dt>EARNED</dt><dd>{result.creditsEarned.toLocaleString()} CR</dd></div>
+            <div><dt>EXPENSES</dt><dd>{result.creditsExpenses.toLocaleString()} CR</dd></div>
+            <div><dt>MAINTENANCE</dt><dd>{result.maintenanceCost.toLocaleString()} CR</dd></div>
+          </dl>
+
+          {(result.outcome === 'success' && (missionObj?.type === 'SALVAGE' || missionObj?.type === 'COURIER')) && (
+            <p className="report-note">
+              Cargo impact: capacity {agent.cargo} influenced mission reward for {missionObj?.type}.
             </p>
-            {(result.outcome === 'success' && (missionObj?.type === 'SALVAGE' || missionObj?.type === 'COURIER')) && (
-              <p style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-h)' }}>
-                Cargo impact: capacity {agent.cargo} influenced mission reward for {missionObj?.type}.
-              </p>
-            )}
-          </div>
+          )}
         </div>
-        
-        <div style={{ marginBottom: '24px' }}>
-          <h3>Notable Events ({result.eventLog.length})</h3>
-          <div style={{ 
-            maxHeight: '200px',
-            overflowY: 'auto',
-            border: '1px solid var(--border)',
-            borderRadius: '4px',
-            padding: '8px'
-          }}>
-            {result.eventLog.slice(0, 30).map((event: EventRecord, i: number) => (
-              <p key={i} style={{ 
-                fontFamily: 'var(--mono)',
-                fontSize: '12px',
-                margin: '2px 0',
-                padding: '2px 4px',
-                backgroundColor: 'var(--code-bg)'
-              }}>
-                Tick {event.tick}: {event.action} — {event.event}
-              </p>
-            ))}
-          </div>
+
+        <div className="report-panel report-panel--events">
+          <h3 className="section-title">MISSION EVENTS ({result.eventLog.length})</h3>
+          {result.eventLog.length === 0 ? (
+            <div className="empty-state">No events recorded.</div>
+          ) : (
+            <ol className="report-events mono">
+              {result.eventLog.slice(0, 30).map((event: EventRecord, i: number) => (
+                <li key={i} className="report-event">
+                  <span className="report-event__tick">T{event.tick} {event.time}</span>
+                  <span className="report-event__action">{event.action}</span>
+                  <span className="report-event__text">{event.event}</span>
+                </li>
+              ))}
+            </ol>
+          )}
         </div>
-        
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={() => {
-              setState(s => ({
-                ...s,
-                simulationResult: null,
-                screen: 'station'
-              }));
-            }}
-            style={{
-              padding: '12px 24px',
-              flex: 1,
-              fontWeight: '500',
-              fontSize: '16px'
-            }}
-          >
-            RETURN TO STATION
-          </button>
-          <button
-            onClick={() => setState(s => ({ ...s, screen: 'agent_blueprint' }))}
-            style={{
-              padding: '12px 24px',
-              flex: 1,
-              fontWeight: '500',
-              fontSize: '16px'
-            }}
-          >
-            VIEW AGENT BLUEPRINT
-          </button>
-        </div>
-      </div>
+      </main>
+
+      <footer className="report-actions">
+        <button
+          type="button"
+          className="report-action report-action--primary"
+          onClick={() => {
+            setState(s => ({
+              ...s,
+              simulationResult: null,
+              screen: 'station'
+            }));
+          }}
+        >
+          ← RETURN TO STATION
+        </button>
+        <button
+          type="button"
+          className="report-action"
+          onClick={() => setState(s => ({ ...s, screen: 'agent_blueprint' }))}
+        >
+          VIEW AGENT BLUEPRINT
+        </button>
+      </footer>
     </section>
   );
 }
