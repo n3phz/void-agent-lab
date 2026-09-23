@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { Rules, EventRecord, AgentType } from './core/types';
+import type { Rules, EventRecord, AgentType, FuelThreshold, AnomalyResponse, HostileReaction } from './core/types';
 import { simulateMission } from './core/simulation';
 import { THRESHOLDS } from './core/types';
 import type { GameState } from './gameState';
@@ -622,115 +622,156 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
 
 function AgentConfiguration({ state, setState }: { state: GameState; setState: React.Dispatch<React.SetStateAction<GameState>> }) {
   const rules = state.rules;
-  
+
   const handleRuleChange = (category: keyof Rules, value: string) => {
     setState(s => ({ ...s, rules: { ...s.rules, [category]: value as Rules[typeof category] } }));
   };
-  
+
+  const selectedAgent = state.selectedAgentIndex !== null && state.agents[state.selectedAgentIndex]
+    ? state.agents[state.selectedAgentIndex]
+    : null;
+
+  const FUEL_LEVELS: readonly FuelThreshold[] = ['CONSERVATIVE', 'BALANCED', 'AGGRESSIVE', 'RECKLESS'];
+  const ANOMALY_RESPONSES: readonly AnomalyResponse[] = ['IGNORE', 'SCAN_ONLY', 'INVESTIGATE_LOW_RISK', 'INVESTIGATE_ANY_RISK'];
+  const HOSTILE_REACTIONS: readonly HostileReaction[] = ['FLEE_IMMEDIATELY', 'EVADE_AND_SCAN', 'DEFEND', 'BRIBE'];
+
+  const anomalySummary: Record<AnomalyResponse, string> = {
+    IGNORE: 'Detected anomalies are left untouched.',
+    SCAN_ONLY: 'All anomalies are scanned for data.',
+    INVESTIGATE_LOW_RISK: 'Only low-risk anomalies are investigated.',
+    INVESTIGATE_ANY_RISK: 'Every anomaly is investigated regardless of risk.',
+  };
+  const hostileSummary: Record<HostileReaction, string> = {
+    FLEE_IMMEDIATELY: 'Disengage at first contact — minimal exposure.',
+    EVADE_AND_SCAN: 'Slip past hostiles and scan them on the way out.',
+    DEFEND: 'Stand and fight; hull damage accepted.',
+    BRIBE: 'Attempt a 100 CR bribe; failed bribes turn to combat.',
+  };
+
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Configure Agent Rules</h1>
-        <p>{state.selectedAgentIndex !== null && state.agents[state.selectedAgentIndex] ? getAgentName(state.agents[state.selectedAgentIndex]!) : 'Station Commander'}</p>
-      </div>
-      
-      <div style={{ padding: '24px', maxWidth: '800px' }}>
-        <h2>Fuel Threshold</h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-h)' }}>
-          When fuel drops to this percentage, the agent automatically returns to station.
-        </p>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {(['CONSERVATIVE', 'BALANCED', 'AGGRESSIVE', 'RECKLESS'] as const).map((level) => (
-            <label key={level} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              padding: '8px 12px',
-              border: `2px solid ${rules.fuelThreshold === level ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer',
-              backgroundColor: rules.fuelThreshold === level ? 'var(--accent-bg)' : 'transparent'
-            }}>
-              <input
-                type="radio"
-                name="fuelThreshold"
-                checked={rules.fuelThreshold === level}
-                onChange={() => handleRuleChange('fuelThreshold', level)}
-              />
-              <span>{level} ({level === 'CONSERVATIVE' ? '50%' : level === 'BALANCED' ? '30%' : level === 'AGGRESSIVE' ? '15%' : '5%'})</span>
-            </label>
-          ))}
+    <section className="rules-root">
+      <header className="rules-header">
+        <div className="rules-header__left">
+          <h1 className="rules-header__title">AGENT RULES</h1>
+          <p className="rules-header__subtitle">Configure autonomous behaviour</p>
         </div>
-        
-        <h2 style={{ marginTop: '24px' }}>Anomaly Response</h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-h)' }}>
-          How the agent handles detected anomalies.
-        </p>
-        <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-          {(['IGNORE', 'SCAN_ONLY', 'INVESTIGATE_LOW_RISK', 'INVESTIGATE_ANY_RISK'] as const).map((response) => (
-            <label key={response} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px',
-              padding: '8px 12px',
-              border: `2px solid ${rules.anomalyResponse === response ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer',
-              backgroundColor: rules.anomalyResponse === response ? 'var(--accent-bg)' : 'transparent'
-            }}>
-              <input
-                type="radio"
-                name="anomalyResponse"
-                checked={rules.anomalyResponse === response}
-                onChange={() => handleRuleChange('anomalyResponse', response)}
-              />
-              <span>{response.replace(/_/g, ' ')}</span>
-            </label>
-          ))}
+        <div className="rules-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
         </div>
-        
-        <h2 style={{ marginTop: '24px' }}>Hostile Reaction</h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-h)' }}>
-          How the agent responds when encountering hostiles.
-        </p>
-        <div style={{ display: 'flex', gap: '16px', flexDirection: 'column' }}>
-          {(['FLEE_IMMEDIATELY', 'EVADE_AND_SCAN', 'DEFEND', 'BRIBE'] as const).map((reaction) => (
-            <label key={reaction} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px',
-              padding: '8px 12px',
-              border: `2px solid ${rules.hostileReaction === reaction ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer',
-              backgroundColor: rules.hostileReaction === reaction ? 'var(--accent-bg)' : 'transparent'
-            }}>
-              <input
-                type="radio"
-                name="hostileReaction"
-                checked={rules.hostileReaction === reaction}
-                onChange={() => handleRuleChange('hostileReaction', reaction)}
-              />
-              <span>{reaction.replace(/_/g, ' ')}</span>
-            </label>
-          ))}
+      </header>
+
+      <main className="rules-deck">
+        <div className="rules-panel rules-panel--config">
+          <h3 className="section-title">RULE CONFIGURATION</h3>
+
+          <div className="rules-agent-tag mono">
+            {selectedAgent
+              ? <>UNIT {state.selectedAgentIndex! + 1} · {selectedAgent.type} · LEVEL {selectedAgent.level}</>
+              : <>NO AGENT SELECTED · STATION-WIDE DEFAULTS</>}
+          </div>
+
+          <fieldset className="rule-group">
+            <legend className="rule-group__name">Fuel Threshold</legend>
+            <p className="rule-group__desc">When fuel drops to this percentage, the agent automatically returns to station.</p>
+            <div className="rule-options rule-options--grid">
+              {FUEL_LEVELS.map((level) => (
+                <label key={level} className={`rule-option${rules.fuelThreshold === level ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="fuelThreshold"
+                    checked={rules.fuelThreshold === level}
+                    onChange={() => handleRuleChange('fuelThreshold', level)}
+                  />
+                  <span className="rule-option__text">{level}</span>
+                  <span className="rule-option__hint mono">{THRESHOLDS[level]}%</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rule-group">
+            <legend className="rule-group__name">Anomaly Response</legend>
+            <p className="rule-group__desc">How the agent handles detected anomalies.</p>
+            <div className="rule-options">
+              {ANOMALY_RESPONSES.map((response) => (
+                <label key={response} className={`rule-option${rules.anomalyResponse === response ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="anomalyResponse"
+                    checked={rules.anomalyResponse === response}
+                    onChange={() => handleRuleChange('anomalyResponse', response)}
+                  />
+                  <span className="rule-option__text">{response.replace(/_/g, ' ')}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <fieldset className="rule-group">
+            <legend className="rule-group__name">Hostile Reaction</legend>
+            <p className="rule-group__desc">How the agent responds when encountering hostiles.</p>
+            <div className="rule-options">
+              {HOSTILE_REACTIONS.map((reaction) => (
+                <label key={reaction} className={`rule-option${rules.hostileReaction === reaction ? ' is-selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="hostileReaction"
+                    checked={rules.hostileReaction === reaction}
+                    onChange={() => handleRuleChange('hostileReaction', reaction)}
+                  />
+                  <span className="rule-option__text">{reaction.replace(/_/g, ' ')}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
         </div>
-        
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-          <button
-            onClick={() => setState(s => ({ ...s, rules: rules, screen: 'station' }))}
-            style={{ padding: '12px 24px', flex: 1 }}
-          >
-            Save & Return
-          </button>
-          <button
-            onClick={() => setState(s => ({ ...s, screen: 'station' }))}
-            style={{ padding: '12px 24px', flex: 1 }}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+
+        <aside className="rules-panel rules-panel--summary">
+          <h3 className="section-title">BEHAVIOUR SUMMARY</h3>
+
+          {selectedAgent && (
+            <div className="summary-agent">
+              <div className="summary-agent__name">{getAgentName(selectedAgent)}</div>
+              <div className="summary-agent__type mono">{selectedAgent.type} · LEVEL {selectedAgent.level}</div>
+            </div>
+          )}
+
+          <div className="summary-block">
+            <div className="summary-block__head mono">TRAVEL</div>
+            <div className="summary-block__value">{rules.fuelThreshold}</div>
+            <div className="summary-block__detail">Auto-return home at ≤ {THRESHOLDS[rules.fuelThreshold]}% fuel.</div>
+          </div>
+
+          <div className="summary-block">
+            <div className="summary-block__head mono">ANOMALIES</div>
+            <div className="summary-block__value">{rules.anomalyResponse.replace(/_/g, ' ')}</div>
+            <div className="summary-block__detail">{anomalySummary[rules.anomalyResponse]}</div>
+          </div>
+
+          <div className="summary-block">
+            <div className="summary-block__head mono">ENCOUNTER</div>
+            <div className="summary-block__value">{rules.hostileReaction.replace(/_/g, ' ')}</div>
+            <div className="summary-block__detail">{hostileSummary[rules.hostileReaction]}</div>
+          </div>
+        </aside>
+      </main>
+
+      <footer className="rules-footer">
+        <button
+          type="button"
+          className="rules-back"
+          onClick={() => setState(s => ({ ...s, screen: 'station' }))}
+        >
+          ← BACK TO STATION
+        </button>
+        <button
+          type="button"
+          className="rules-save"
+          onClick={() => setState(s => ({ ...s, rules: rules, screen: 'station' }))}
+        >
+          SAVE &amp; RETURN
+        </button>
+      </footer>
     </section>
   );
 }
