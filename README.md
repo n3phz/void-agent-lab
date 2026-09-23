@@ -57,7 +57,7 @@ The visual signature is the **Agent Blueprint** — a live schematic of the auto
 
 ![VOID // AGENT LAB simulation blueprint](docs/visuals/simulation-blueprint.svg)
 
-The full visual specification is documented in **[Visual Direction →](VISUAL_DIRECTION.md)**.
+The full visual specification is documented in **[Visual Direction →](VISUAL_DIRECTION.md)**, with visual references for the Simulation, Station, Agent Configuration, Mission Selection, and Mission Report screens.
 
 The visual design principle is simple:
 
