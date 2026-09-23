@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+<rect width="1200" height="700" fill="#071015"/>
+<g stroke="#25404a" fill="none">
+<rect x="20" y="20" width="1160" height="60"/><rect x="20" y="100" width="270" height="500"/>
+<rect x="310" y="100" width="540" height="500"/><rect x="870" y="100" width="310" height="500"/>
+<path stroke="#287f8e" stroke-dasharray="10 8" d="M380 500 C500 360 590 430 690 250"/>
+<circle cx="545" cy="385" r="22" stroke="#35b8c8"/><circle cx="690" cy="250" r="9" stroke="#e9a43b"/>
+<path stroke="#e9a43b" d="M940 180h170v50H940zM940 280h170v50H940zM940 380h170v50H940z"/>
+<path stroke="#35b8c8" d="M1025 230v50M1025 330v50"/>
+</g>
+<g fill="#d5e0e3" font-family="monospace">
+<text x="42" y="58" font-size="28">VOID // AGENT LAB</text>
+<text x="335" y="135" font-size="18">MISSION MAP</text>
+<text x="895" y="135" font-size="18">AGENT BLUEPRINT</text>
+<text x="55" y="135" font-size="18">SCOUT-01</text>
+<text x="400" y="530" font-size="16">SCOUT-01</text>
+<text x="895" y="210" font-size="15">FUEL &lt; 30% ?</text>
+<text x="895" y="310" font-size="15">ANOMALY ?</text>
+<text x="895" y="410" font-size="15" fill="#e9a43b">SCAN ONLY</text>
+<text x="335" y="575" font-size="18">EVENT LOG</text>
+<text x="335" y="600" font-size="13">18:42:14  ANOMALY DETECTED</text>
+<text x="335" y="622" font-size="13">18:42:14  RULE → SCAN ONLY</text>
+<text x="335" y="644" font-size="13">18:42:16  LOW-YIELD SIGNAL</text>
+</g>
+<g fill="#7b9aa2" font-family="monospace" font-size="12">
+<text x="42" y="170">NAV 75</text><text x="42" y="200">OPS 55</text><text x="42" y="230">HULL 86%</text><text x="42" y="260">FUEL 71%</text>
+<text x="900" y="475">CONFIGURATION → DECISION</text><text x="900" y="495">→ ACTION → CONSEQUENCE</text>
+</g>
+</svg>
