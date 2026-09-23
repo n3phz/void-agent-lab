@@ -312,178 +312,196 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
   const opsMod = Math.round((agent.ops / 100) * 100) / 100;
 
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Agent Blueprint</h1>
-        <p>Tactical Engineering File</p>
-      </div>
-
-      <div style={{ padding: '24px', maxWidth: '800px' }}>
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h2 style={{ margin: '0 0 4px 0' }}>{getAgentName(agent)}</h2>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: '13px', color: 'var(--text)' }}>
-                {agent.type} — Level {agent.level}
-              </div>
-            </div>
-            <div style={{
-              padding: '4px 12px',
-              borderRadius: '4px',
-              background: isDestroyed ? 'rgba(255,0,0,0.1)' :
-                needsUpgrade ? 'var(--accent-bg)' : 'var(--code-bg)',
-              border: `1px solid ${isDestroyed ? 'red' : needsUpgrade ? 'var(--accent)' : 'var(--border)'}`,
-              fontFamily: 'var(--mono)',
-              fontSize: '12px',
-              fontWeight: 'bold'
-            }}>
-              {status}
-            </div>
-          </div>
+    <section className="blueprint-root">
+      <header className="blueprint-header">
+        <div className="blueprint-header__left">
+          <h1 className="blueprint-header__title">AGENT BLUEPRINT</h1>
+          <p className="blueprint-header__subtitle">Tactical Engineering File</p>
         </div>
+        <div className="blueprint-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
+        </div>
+      </header>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '4px' }}>CREDITS</div>
-            <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: 'var(--mono)' }}>{agent.credits} CR</div>
+      <main className="blueprint-deck">
+        <div className="blueprint-col blueprint-col--left">
+          <div className="blueprint-panel blueprint-identity">
+            <div className="blueprint-identity__head">
+              <h2 className="blueprint-identity__name">{getAgentName(agent)}</h2>
+              <span
+                className={`blueprint-status${isDestroyed ? ' is-destroyed' : needsUpgrade ? ' is-levelup' : ''}`}
+              >
+                {status}
+              </span>
+            </div>
+            <div className="blueprint-identity__type mono">{agent.type} — Level {agent.level}</div>
+            <div className="blueprint-identity__credits mono">
+              <span>CREDITS</span>
+              <span>{agent.credits.toLocaleString()} CR</span>
+            </div>
           </div>
-          <div style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '4px' }}>XP</div>
-                <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: 'var(--mono)' }}>{agent.xp} / 50</div>
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--text)', fontFamily: 'var(--mono)' }}>Level {agent.level}</div>
+
+          <div className="blueprint-panel">
+            <h3 className="section-title">PROGRESSION</h3>
+            <div className="bp-xp__row mono">
+              <span>XP {agent.xp} / 50</span>
+              <span>LEVEL {agent.level}</span>
             </div>
-            <div style={{ height: '6px', background: 'var(--border)', borderRadius: '3px', marginTop: '10px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.min(100, (agent.xp / 50) * 100)}%`, background: needsUpgrade ? 'var(--accent)' : 'var(--accent-border)', transition: 'width 0.3s' }} />
+            <div className="bp-xp__track">
+              <div
+                className={`bp-xp__fill${needsUpgrade ? ' is-ready' : ''}`}
+                style={{ width: `${Math.min(100, (agent.xp / 50) * 100)}%` }}
+              />
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text)', marginTop: '6px' }}>
+            <div className="bp-xp__hint">
               {needsUpgrade ? 'Level up available — deploy a mission to apply upgrade' : `${50 - agent.xp} XP to next level`}
             </div>
           </div>
-          <div style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '4px' }}>HULL</div>
-            <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: 'var(--mono)', color: isLowHull ? 'red' : 'var(--text-h)' }}>
-              {agent.hullCurrent.toFixed(1)}%
+
+          <div className="blueprint-panel">
+            <h3 className="section-title">CONDITION</h3>
+            <div className="bp-bar">
+              <div className="bp-bar__row mono">
+                <span>HULL</span>
+                <span className={isLowHull ? 'is-critical' : ''}>{agent.hullCurrent.toFixed(1)}%</span>
+              </div>
+              <div className="bp-bar__track">
+                <div
+                  className={`bp-bar__fill bp-bar__fill--hull${isDestroyed || isLowHull ? ' is-critical' : ''}`}
+                  style={{ width: `${Math.max(0, agent.hullCurrent)}%` }}
+                />
+              </div>
             </div>
-            <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.max(0, agent.hullCurrent)}%`, background: isDestroyed ? 'red' : isLowHull ? 'red' : 'var(--accent)', transition: 'width 0.3s' }} />
+            <div className="bp-bar">
+              <div className="bp-bar__row mono">
+                <span>FUEL</span>
+                <span className={isLowFuel ? 'is-low' : ''}>{agent.fuel.toFixed(1)}%</span>
+              </div>
+              <div className="bp-bar__track">
+                <div
+                  className={`bp-bar__fill bp-bar__fill--fuel${isLowFuel ? ' is-low' : ''}`}
+                  style={{ width: `${Math.max(0, agent.fuel)}%` }}
+                />
+              </div>
             </div>
           </div>
-          <div style={{ padding: '16px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text)', marginBottom: '4px' }}>FUEL</div>
-            <div style={{ fontSize: '22px', fontWeight: 'bold', fontFamily: 'var(--mono)', color: isLowFuel ? 'var(--accent)' : 'var(--text-h)' }}>
-              {agent.fuel.toFixed(1)}%
-            </div>
-            <div style={{ height: '4px', background: 'var(--border)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${Math.max(0, agent.fuel)}%`, background: isLowFuel ? 'var(--accent)' : 'var(--accent-border)', transition: 'width 0.3s' }} />
+
+          <div className="blueprint-panel">
+            <h3 className="section-title">TRAITS</h3>
+            <div className="bp-traits">
+              {agent.traits.slice(1).length === 0 ? (
+                <span className="empty-state">No traits gained yet.</span>
+              ) : (
+                agent.traits.slice(1).map((trait, i) => (
+                  <span key={i} className="bp-trait mono">{trait}</span>
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text)', marginBottom: '8px' }}>ATTRIBUTES</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px' }}>
-            <div style={{ padding: '8px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-              <strong>NAV</strong>: {agent.nav}
-              <div style={{ fontSize: '10px', color: 'var(--text)' }}>Anomaly scan bonus: +{navMod}x</div>
-            </div>
-            <div style={{ padding: '8px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-              <strong>OPS</strong>: {agent.ops}
-              <div style={{ fontSize: '10px', color: 'var(--text)' }}>Bribe/hostile modifier: +{opsMod}x</div>
-            </div>
-            <div style={{ padding: '8px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-              <strong>HULL MAX</strong>: {agent.hull}
-              <div style={{ fontSize: '10px', color: 'var(--text)' }}>Damage resistance</div>
-            </div>
-            <div style={{ padding: '8px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-              <strong>CARGO</strong>: {agent.cargo}
-              <div style={{ fontSize: '10px', color: 'var(--text)' }}>Max cargo units</div>
+        <div className="blueprint-col blueprint-col--right">
+          <div className="blueprint-panel">
+            <h3 className="section-title">ATTRIBUTES</h3>
+            <div className="bp-attrs">
+              <div className="bp-attr">
+                <div className="bp-attr__label mono">NAV</div>
+                <div className="bp-attr__value">{agent.nav}</div>
+                <div className="bp-attr__hint">Anomaly scan bonus: +{navMod}x</div>
+              </div>
+              <div className="bp-attr">
+                <div className="bp-attr__label mono">OPS</div>
+                <div className="bp-attr__value">{agent.ops}</div>
+                <div className="bp-attr__hint">Bribe/hostile modifier: +{opsMod}x</div>
+              </div>
+              <div className="bp-attr">
+                <div className="bp-attr__label mono">HULL MAX</div>
+                <div className="bp-attr__value">{agent.hull}</div>
+                <div className="bp-attr__hint">Damage resistance · current hull {agent.hullCurrent.toFixed(1)}%</div>
+              </div>
+              <div className="bp-attr">
+                <div className="bp-attr__label mono">CARGO</div>
+                <div className="bp-attr__value">{agent.cargo}</div>
+                <div className="bp-attr__hint">Max cargo units · used {agent.cargoUsed}</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text)', marginBottom: '8px' }}>TRAITS</div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {agent.traits.slice(1).length === 0 ? (
-              <span style={{ fontSize: '12px', color: 'var(--text)' }}>No traits gained yet.</span>
-            ) : (
-              agent.traits.slice(1).map((trait, i) => (
-                <span key={i} style={{ padding: '4px 10px', border: '1px solid var(--border)', borderRadius: '4px', fontSize: '12px', fontFamily: 'var(--mono)', background: 'var(--code-bg)' }}>{trait}</span>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text)', marginBottom: '8px' }}>MISSION HISTORY</div>
-          <div style={{ border: '1px solid var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: 'var(--mono)' }}>
-              <thead>
-                <tr style={{ background: 'var(--code-bg)' }}>
-                  <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid var(--border)' }}>Mission</th>
-                  <th style={{ textAlign: 'left', padding: '8px', borderBottom: '1px solid var(--border)' }}>Outcome</th>
-                  <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid var(--border)' }}>Net CR</th>
-                  <th style={{ textAlign: 'right', padding: '8px', borderBottom: '1px solid var(--border)' }}>XP</th>
-                </tr>
-              </thead>
-              <tbody>
-                {state.missionHistory.length === 0 ? (
+          <div className="blueprint-panel">
+            <h3 className="section-title">MISSION HISTORY</h3>
+            <div className="bp-history-wrap">
+              <table className="bp-history">
+                <thead>
                   <tr>
-                    <td colSpan={4} style={{ padding: '10px', color: 'var(--text)', borderBottom: '1px solid var(--border)' }}>No missions recorded.</td>
+                    <th>Mission</th>
+                    <th>Outcome</th>
+                    <th className="is-num">Net CR</th>
+                    <th className="is-num">XP</th>
                   </tr>
-                ) : (
-                  state.missionHistory.slice().reverse().map((m, i) => (
-                    <tr key={i} style={{ background: i % 2 === 0 ? 'transparent' : 'var(--code-bg)' }}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>{m.agent.type} — {m.outcome}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--border)', textTransform: 'capitalize' }}>{m.outcome}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>{m.netResult}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>{m.xpEarned}</td>
+                </thead>
+                <tbody>
+                  {state.missionHistory.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="bp-history__empty">No missions recorded.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    state.missionHistory.slice().reverse().map((m, i) => (
+                      <tr key={i}>
+                        <td>{m.agent.type} — {m.outcome}</td>
+                        <td className="bp-history__outcome">{m.outcome}</td>
+                        <td className="is-num">{m.netResult}</td>
+                        <td className="is-num">{m.xpEarned}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="blueprint-panel blueprint-actions-panel">
+            <h3 className="section-title">MAINTENANCE</h3>
+            <div className="bp-actions">
+              <button
+                type="button"
+                className="bp-action"
+                onClick={handleRepair}
+                disabled={repairCost === 0 || state.credits < repairCost}
+              >
+                REPAIR ({repairCost} CR)
+              </button>
+              <button
+                type="button"
+                className="bp-action"
+                onClick={handleRefuel}
+                disabled={refuelCost === 0 || state.credits < refuelCost}
+              >
+                REFUEL ({refuelCost} CR)
+              </button>
+              {isDestroyed && (
+                <button
+                  type="button"
+                  className="bp-action bp-action--recover"
+                  onClick={handleRecover}
+                  disabled={recoveryCost === 0 || state.credits < recoveryCost}
+                >
+                  RECOVER ({recoveryCost} CR)
+                </button>
+              )}
+            </div>
           </div>
         </div>
+      </main>
 
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
-          <button
-            onClick={handleRepair}
-            disabled={repairCost === 0 || state.credits < repairCost}
-            style={{ padding: '8px 16px', fontSize: '12px', opacity: repairCost === 0 || state.credits < repairCost ? 0.5 : 1 }}
-          >
-            Repair ({repairCost} CR)
-          </button>
-          <button
-            onClick={handleRefuel}
-            disabled={refuelCost === 0 || state.credits < refuelCost}
-            style={{ padding: '8px 16px', fontSize: '12px', opacity: refuelCost === 0 || state.credits < refuelCost ? 0.5 : 1 }}
-          >
-            Refuel ({refuelCost} CR)
-          </button>
-          {isDestroyed && (
-            <button
-              onClick={handleRecover}
-              disabled={recoveryCost === 0 || state.credits < recoveryCost}
-              style={{ padding: '8px 16px', fontSize: '12px', opacity: recoveryCost === 0 || state.credits < recoveryCost ? 0.5 : 1 }}
-            >
-              Recover ({recoveryCost} CR)
-            </button>
-          )}
-        </div>
-
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setState(s => ({ ...s, screen: 'station' }))}
-            style={{ padding: '8px 16px', fontSize: '12px' }}
-          >
-            Return to Station
-          </button>
-        </div>
-      </div>
+      <footer className="blueprint-footer">
+        <button
+          type="button"
+          className="bp-back"
+          onClick={() => setState(s => ({ ...s, screen: 'station' }))}
+        >
+          ← RETURN TO STATION
+        </button>
+      </footer>
     </section>
   );
 }
