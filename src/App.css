@@ -882,3 +882,363 @@
     font-size: 22px;
   }
 }
+
+/* ============ Mission Selection Console ============ */
+.mission-root {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.mission-header__title {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+.mission-header__subtitle {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.mission-header__credits {
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--accent);
+  white-space: nowrap;
+  padding-top: 4px;
+}
+
+.mission-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 55fr) minmax(0, 45fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.mission-panel {
+  min-width: 0;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text-h);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s;
+  font: inherit;
+}
+
+.mission-card:hover:not(:disabled) {
+  border-color: var(--accent-border);
+}
+
+.mission-card.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.mission-card:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mission-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.mission-card__name {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+}
+
+.mission-card__loc {
+  font-size: 11px;
+  color: var(--text);
+  letter-spacing: 0.08em;
+}
+
+.mission-card__desc {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.mission-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 11px;
+  color: var(--text-h);
+}
+
+.mission-card__warn {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: red;
+  letter-spacing: 0.04em;
+}
+
+.mission-risk {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.mission-risk--low {
+  color: #4ade80;
+  border-color: #4ade80;
+}
+
+.mission-risk--medium {
+  color: #fbbf24;
+  border-color: #fbbf24;
+}
+
+.brief-agent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brief-agent__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.brief-agent__name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  word-break: break-word;
+}
+
+.brief-agent__type {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.brief-agent__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.brief-mission {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.brief-mission__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.brief-mission__name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.brief-mission__loc {
+  font-size: 11px;
+  color: var(--text);
+  letter-spacing: 0.08em;
+}
+
+.brief-specs {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.brief-specs > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.brief-specs dt {
+  color: var(--text);
+  letter-spacing: 0.08em;
+}
+
+.brief-specs dd {
+  margin: 0;
+  color: var(--text-h);
+  font-weight: 600;
+  text-align: right;
+}
+
+.cargo-check {
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cargo-check.is-good {
+  border: 1px solid #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.cargo-check.is-bad {
+  border: 1px solid red;
+  background: rgba(255, 0, 0, 0.08);
+}
+
+.cargo-check__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-h);
+}
+
+.cargo-check__verdict {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.cargo-check.is-good .cargo-check__verdict {
+  color: #4ade80;
+}
+
+.cargo-check.is-bad .cargo-check__verdict {
+  color: red;
+}
+
+.brief-deploy-note {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text);
+}
+
+.mission-warning {
+  font-size: 11px;
+  color: red;
+  border: 1px solid red;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+.mission-deploy {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.mission-deploy:hover:not(:disabled) {
+  box-shadow: 0 0 12px var(--accent-border);
+}
+
+.mission-deploy:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mission-footer {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: 4px;
+}
+
+.mission-back {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.mission-back:hover {
+  color: var(--text-h);
+  border-color: var(--accent-border);
+}
+
+@media (max-width: 1024px) {
+  .mission-deck {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .mission-deck {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-header__title {
+    font-size: 22px;
+  }
+}

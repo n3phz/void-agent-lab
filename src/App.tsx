@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { Rules, EventRecord, AgentType, FuelThreshold, AnomalyResponse, HostileReaction } from './core/types';
+import type { Rules, EventRecord, AgentType, MissionType, FuelThreshold, AnomalyResponse, HostileReaction } from './core/types';
 import { simulateMission } from './core/simulation';
 import { THRESHOLDS } from './core/types';
 import type { GameState } from './gameState';
@@ -792,85 +792,147 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
         : false
     : false;
 
+  const missionCargoRequirement = (type: MissionType): number | null =>
+    type === 'SALVAGE' ? 1 : type === 'COURIER' ? 30 : null;
+
+  const selectedMissionInfo = MISSION_TYPES.find(m => m.type === state.selectedMission) ?? null;
+  const selectedReq = state.selectedMission ? missionCargoRequirement(state.selectedMission) : null;
+
+  const deployBlockedReason = !selectedAgent
+    ? 'No agent selected. Return to station and select an agent first.'
+    : isDestroyed
+      ? 'Selected agent is destroyed and cannot deploy. Recover it from the station or blueprint screen first.'
+      : cargoIncompatible
+        ? `Selected agent cannot complete this mission: cargo capacity ${selectedAgent.cargo} is below requirement.`
+        : null;
+
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Select Mission</h1>
-        <p>Station Commander</p>
-      </div>
-      
-      <div style={{ padding: '24px', maxWidth: '800px' }}>
-        <h2>Available Missions</h2>
-        {selectedAgent && (
-          <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: 'var(--text-h)' }}>
-            Selected agent cargo capacity: <strong>{selectedAgent.cargo}</strong>
-          </p>
-        )}
-        {isDestroyed && (
-          <p style={{ color: 'red', marginBottom: '12px' }}>
-            Selected agent is destroyed and cannot deploy. Recover it from the station or blueprint screen first.
-          </p>
-        )}
-        {MISSION_TYPES.map((mission) => {
-          const missionCargoRequirement = mission.type === 'SALVAGE' ? 1 : mission.type === 'COURIER' ? 30 : null;
-          const missionCanCargo = selectedAgent ? missionCargoRequirement === null ? true : selectedAgent.cargo >= missionCargoRequirement : true;
-          return (
-          <div key={mission.type} style={{ 
-            margin: '16px 0', 
-            padding: '16px',
-            border: '1px solid var(--border)',
-            borderRadius: '4px',
-            backgroundColor: state.selectedMission === mission.type ? 'var(--accent-bg)' : 'transparent'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: '0 0 8px 0' }}>
-                  {mission.name} — {mission.location}
-                </h3>
-                <p style={{ margin: '4px 0', fontSize: '14px' }}>
-                  <strong>Risk:</strong> {mission.risk} |{' '}
-                  <strong>Reward:</strong> {mission.rewardMin}–{mission.rewardMax} CR |{' '}
-                  <strong>Duration:</strong> {mission.durationMin}–{mission.durationMax} ticks
-                </p>
-                <p style={{ margin: '4px 0', fontSize: '13px', color: 'var(--text-h)' }}>
-                  {mission.description}
-                </p>
-                {(mission.type === 'SALVAGE' || mission.type === 'COURIER') && (
-                  <p style={{ margin: '4px 0', fontSize: '13px' }}>
-                    <strong>Cargo requirement:</strong> {missionCargoRequirement} units
-                  </p>
-                )}
-                {(mission.type === 'SALVAGE' || mission.type === 'COURIER') && (
-                  <p style={{ margin: '4px 0', fontSize: '12px', color: 'var(--text-h)' }}>
-                    Cargo capacity affects reward scaling and delivery efficiency for this mission type.
-                  </p>
-                )}
-                {!missionCanCargo && selectedAgent && (
-                  <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: 'red' }}>
-                    Insufficient cargo capacity ({selectedAgent.cargo} &lt; {missionCargoRequirement}).
-                  </p>
-                )}
-              </div>
+    <section className="mission-root">
+      <header className="mission-header">
+        <div className="mission-header__left">
+          <h1 className="mission-header__title">SELECT MISSION</h1>
+          <p className="mission-header__subtitle">Choose deployment parameters</p>
+        </div>
+        <div className="mission-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
+        </div>
+      </header>
+
+      <main className="mission-deck">
+        <div className="mission-panel mission-panel--list">
+          <h3 className="section-title">MISSION SELECTION</h3>
+          {MISSION_TYPES.map((mission) => {
+            const missionCargoRequirement2 = missionCargoRequirement(mission.type);
+            const missionCanCargo = selectedAgent ? missionCargoRequirement2 === null ? true : selectedAgent.cargo >= missionCargoRequirement2 : true;
+            const isSelected = state.selectedMission === mission.type;
+            return (
               <button
+                key={mission.type}
+                type="button"
+                className={`mission-card${isSelected ? ' is-selected' : ''}${!missionCanCargo ? ' is-incompatible' : ''}`}
                 onClick={() => setState(s => ({ ...s, selectedMission: mission.type }))}
                 disabled={!missionCanCargo}
-                style={{ padding: '8px 16px', marginLeft: '16px', opacity: !missionCanCargo ? 0.5 : 1, cursor: !missionCanCargo ? 'not-allowed' : 'pointer' }}
+                aria-pressed={isSelected}
               >
-                Select
+                <div className="mission-card__top">
+                  <span className="mission-card__name">{mission.name}</span>
+                  <span className={`mission-risk mission-risk--${mission.risk}`}>
+                    {mission.risk.toUpperCase()}
+                  </span>
+                </div>
+                <div className="mission-card__loc mono">{mission.location}</div>
+                <p className="mission-card__desc">{mission.description}</p>
+                <div className="mission-card__stats mono">
+                  <span>REWARD {mission.rewardMin.toLocaleString()}–{mission.rewardMax.toLocaleString()} CR</span>
+                  <span>DURATION {mission.durationMin}–{mission.durationMax} TICKS</span>
+                  {missionCargoRequirement2 !== null && (
+                    <span>CARGO REQ {missionCargoRequirement2}</span>
+                  )}
+                </div>
+                {!missionCanCargo && selectedAgent && (
+                  <p className="mission-card__warn mono">
+                    INSUFFICIENT CARGO CAPACITY ({selectedAgent.cargo} &lt; {missionCargoRequirement2})
+                  </p>
+                )}
               </button>
-            </div>
-          </div>
-          );
-        })}
+            );
+          })}
+        </div>
 
-        
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-          {cargoIncompatible && (
-            <p style={{ color: 'red', marginBottom: '12px' }}>
-              Selected agent cannot complete this mission: cargo capacity {selectedAgent?.cargo} is below requirement.
-            </p>
+        <aside className="mission-panel mission-panel--brief">
+          <h3 className="section-title">DEPLOYMENT BRIEF</h3>
+
+          {selectedAgent ? (
+            <div className="brief-agent">
+              <div className="brief-agent__head">
+                <span className="brief-agent__name">{getAgentName(selectedAgent)}</span>
+                {isDestroyed && <span className="agent-status agent-status--destroyed">DESTROYED</span>}
+              </div>
+              <div className="brief-agent__type mono">{selectedAgent.type} · LEVEL {selectedAgent.level}</div>
+              <div className="brief-agent__meta mono">
+                <span>HULL {selectedAgent.hullCurrent.toFixed(1)}%</span>
+                <span>FUEL {selectedAgent.fuel.toFixed(1)}%</span>
+                <span>CAPACITY {selectedAgent.cargo}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="empty-state">No agent selected.</div>
           )}
+
+          {selectedMissionInfo ? (
+            <div className="brief-mission">
+              <div className="brief-mission__head">
+                <span className="brief-mission__name">{selectedMissionInfo.name}</span>
+                <span className={`mission-risk mission-risk--${selectedMissionInfo.risk}`}>
+                  {selectedMissionInfo.risk.toUpperCase()}
+                </span>
+              </div>
+              <div className="brief-mission__loc mono">→ {selectedMissionInfo.location}</div>
+              <dl className="brief-specs mono">
+                <div><dt>RISK</dt><dd>{selectedMissionInfo.risk.toUpperCase()}</dd></div>
+                <div><dt>REWARD</dt><dd>{selectedMissionInfo.rewardMin.toLocaleString()}–{selectedMissionInfo.rewardMax.toLocaleString()} CR</dd></div>
+                <div><dt>DURATION</dt><dd>{selectedMissionInfo.durationMin}–{selectedMissionInfo.durationMax} ticks</dd></div>
+                {selectedMissionInfo.type === 'PROSPECT' && (
+                  <div><dt>OBJECTIVE</dt><dd>Scan 3 anomalies (+150 CR each)</dd></div>
+                )}
+                {selectedMissionInfo.type === 'SALVAGE' && (
+                  <div><dt>OBJECTIVE</dt><dd>Recover ≥ 1 cargo unit</dd></div>
+                )}
+                {selectedMissionInfo.type === 'COURIER' && (
+                  <div><dt>OBJECTIVE</dt><dd>Deliver 30 goods · pick up 20 metals</dd></div>
+                )}
+                {selectedReq !== null && (
+                  <div><dt>CARGO REQ</dt><dd>{selectedReq} units</dd></div>
+                )}
+              </dl>
+
+              {selectedAgent && selectedReq !== null && (
+                <div className={`cargo-check${cargoIncompatible ? ' is-bad' : ' is-good'}`}>
+                  <div className="cargo-check__row mono">
+                    <span>CAPACITY {selectedAgent.cargo}</span>
+                    <span>REQ {selectedReq}</span>
+                  </div>
+                  <div className="cargo-check__verdict mono">
+                    {cargoIncompatible
+                      ? `INCOMPATIBLE — SHORT BY ${selectedReq - selectedAgent.cargo}`
+                      : `COMPATIBLE — SLACK ${selectedAgent.cargo - selectedReq}`}
+                  </div>
+                </div>
+              )}
+
+              <p className="brief-deploy-note">Deploying launches the live simulation of this mission for the selected agent.</p>
+            </div>
+          ) : (
+            <div className="empty-state">Select a mission to view its briefing.</div>
+          )}
+
+          {deployBlockedReason && (
+            <p className="mission-warning mono">{deployBlockedReason}</p>
+          )}
+
           <button
+            type="button"
+            className="mission-deploy"
             onClick={() => {
               if (state.selectedMission && !isDestroyed && !cargoIncompatible) {
                 setState(s => {
@@ -885,24 +947,21 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
               }
             }}
             disabled={!state.selectedMission || isDestroyed || cargoIncompatible}
-            style={{
-              padding: '12px 24px',
-              flex: 1,
-              fontWeight: 'bold',
-              cursor: (!state.selectedMission || isDestroyed || cargoIncompatible) ? 'not-allowed' : 'pointer',
-              opacity: (!state.selectedMission || isDestroyed || cargoIncompatible) ? 0.5 : 1
-            }}
           >
-            Deploy Mission
+            DEPLOY MISSION
           </button>
-          <button
-            onClick={() => setState(s => ({ ...s, screen: 'station' }))}
-            style={{ padding: '12px 24px', flex: 1 }}
-          >
-            Back
-          </button>
-        </div>
-      </div>
+        </aside>
+      </main>
+
+      <footer className="mission-footer">
+        <button
+          type="button"
+          className="mission-back"
+          onClick={() => setState(s => ({ ...s, screen: 'station' }))}
+        >
+          ← BACK TO STATION
+        </button>
+      </footer>
     </section>
   );
 }
