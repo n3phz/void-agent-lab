@@ -515,108 +515,105 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
   };
   
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Create Agent</h1>
-        <p>Designate a new pilot for the fleet</p>
-      </div>
-      
-      <div style={{ padding: '24px', maxWidth: '600px' }}>
-        <h2>Select Agent Type</h2>
-        
-        <div style={{ margin: '16px 0' }}>
-          <label style={{ 
-            display: 'block', 
-            padding: '12px', 
-            margin: '8px 0',
-            border: `2px solid ${type === 'SCOUT' ? 'var(--accent)' : 'var(--border)'}`,
-            borderRadius: '4px',
-            cursor: 'pointer',
-            backgroundColor: type === 'SCOUT' ? 'var(--accent-bg)' : 'transparent'
-          }} onClick={() => setType('SCOUT')}>
-            <strong>SCOUT — {agentCost} CR</strong>
-            <br/>
-            <small>NAV 75 | OPS 55 | HULL 35 | Cargo 20</small>
-          </label>
-          
-          <label style={{ 
-            display: 'block', 
-            padding: '12px', 
-            margin: '8px 0',
-            border: `2px solid ${type === 'HAULER' ? 'var(--accent)' : 'var(--border)'}`,
-            borderRadius: '4px',
-            cursor: 'pointer',
-            backgroundColor: type === 'HAULER' ? 'var(--accent-bg)' : 'transparent'
-          }} onClick={() => setType('HAULER')}>
-            <strong>HAULER — {agentCost} CR</strong>
-            <br/>
-            <small>NAV 45 | OPS 50 | HULL 70 | Cargo 30</small>
-          </label>
+    <section className="creation-root">
+      <header className="creation-header">
+        <div className="creation-header__left">
+          <h1 className="creation-header__title">CREATE AGENT</h1>
+          <p className="creation-header__subtitle">Configure a new operational unit</p>
         </div>
-        
-        <div style={{ margin: '16px 0' }}>
-          <label>
-            <strong>Agent Name:</strong>
+        <div className="creation-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
+        </div>
+      </header>
+
+      <main className="creation-deck">
+        <div className="creation-panel creation-panel--config">
+          <h3 className="section-title">AGENT CONFIGURATION</h3>
+
+          <label className="creation-field">
+            <span className="creation-field__label">Name</span>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter a name for your agent"
-              style={{
-                width: '100%',
-                padding: '8px',
-                marginTop: '8px',
-                borderRadius: '4px',
-                border: '1px solid var(--border)',
-                fontFamily: 'var(--mono)'
-              }}
+              className="creation-input"
             />
           </label>
+
+          <div className="creation-field">
+            <span className="creation-field__label">Agent Type</span>
+            <div className="profile-grid">
+              <button
+                type="button"
+                className={`profile-option${type === 'SCOUT' ? ' is-selected' : ''}`}
+                onClick={() => setType('SCOUT')}
+                aria-pressed={type === 'SCOUT'}
+              >
+                <span className="profile-option__name">SCOUT</span>
+                <span className="profile-option__role">Reconnaissance</span>
+                <span className="profile-option__stats mono">NAV 75 · OPS 55 · HULL 35 · CARGO 20</span>
+                <span className="profile-option__cost mono">800 CR</span>
+              </button>
+              <button
+                type="button"
+                className={`profile-option${type === 'HAULER' ? ' is-selected' : ''}`}
+                onClick={() => setType('HAULER')}
+                aria-pressed={type === 'HAULER'}
+              >
+                <span className="profile-option__name">HAULER</span>
+                <span className="profile-option__role">Heavy Transport</span>
+                <span className="profile-option__stats mono">NAV 45 · OPS 50 · HULL 70 · CARGO 30</span>
+                <span className="profile-option__cost mono">1,000 CR</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="creation-note">
+            <p><strong>Statistics</strong> — NAV, OPS, HULL (max {type === 'SCOUT' ? 35 : 70}), Cargo</p>
+            <p>NAV increases anomaly scan success chance. OPS affects hostile encounter and bribe success. Hull determines damage resistance.</p>
+          </div>
         </div>
-        
-        <div style={{ 
-          padding: '12px', 
-          border: '1px solid var(--border)',
-          borderRadius: '4px',
-          marginBottom: '16px',
-          fontSize: '14px'
-        }}>
-          <p style={{ margin: '4px 0' }}>
-            <strong>Statistics</strong> — NAV, OPS, HULL (max {type === 'SCOUT' ? 35 : 70}), Cargo
-          </p>
-          <p style={{ margin: '4px 0', fontSize: '12px', color: 'var(--text-h)' }}>
-            NAV increases anomaly scan success chance. OPS affects hostile encounter and bribe success. Hull determines damage resistance.
-          </p>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={handleCreate}
-            disabled={!canAfford || !name.trim()}
-            style={{
-              padding: '12px 24px',
-              flex: 1,
-              fontWeight: 'bold',
-              cursor: canAfford && name.trim() ? 'pointer' : 'not-allowed',
-              opacity: canAfford && name.trim() ? 1 : 0.5
-            }}
-          >
-            Create {type}
-          </button>
-          <button
-            onClick={() => setState(s => ({ ...s, screen: 'station' }))}
-            style={{ padding: '12px 24px', flex: 1 }}
-          >
-            Cancel
-          </button>
-        </div>
-        
-        {!canAfford && (
-          <p style={{ color: 'red', marginTop: '12px' }}>
-            Insufficient credits. Available: {state.credits} CR, Required: {agentCost} CR
-          </p>
-        )}
-      </div>
+
+        <aside className="creation-panel creation-panel--preview">
+          <h3 className="section-title">LIVE PROFILE</h3>
+          <div className="preview-body">
+            <div className="preview-agent__name">{name.trim() || 'UNNAMED UNIT'}</div>
+            <div className="preview-agent__type mono">{type}</div>
+            <dl className="preview-specs mono">
+              <div><dt>TYPE</dt><dd>{type}</dd></div>
+              <div><dt>NAV</dt><dd>{type === 'SCOUT' ? 75 : 45}</dd></div>
+              <div><dt>OPS</dt><dd>{type === 'SCOUT' ? 55 : 50}</dd></div>
+              <div><dt>HULL</dt><dd>{type === 'SCOUT' ? 35 : 70}</dd></div>
+              <div><dt>CARGO</dt><dd>{type === 'SCOUT' ? 20 : 30}</dd></div>
+              <div className="preview-specs__cost"><dt>COST</dt><dd>{agentCost} CR</dd></div>
+            </dl>
+            {!canAfford && (
+              <p className="creation-warning mono">
+                INSUFFICIENT CREDITS — AVAILABLE: {state.credits} CR · REQUIRED: {agentCost} CR
+              </p>
+            )}
+            <button
+              type="button"
+              className="creation-primary"
+              onClick={handleCreate}
+              disabled={!canAfford || !name.trim()}
+            >
+              CREATE {type}
+            </button>
+          </div>
+        </aside>
+      </main>
+
+      <footer className="creation-footer">
+        <button
+          type="button"
+          className="creation-back"
+          onClick={() => setState(s => ({ ...s, screen: 'station' }))}
+        >
+          ← BACK TO STATION
+        </button>
+      </footer>
     </section>
   );
 }
