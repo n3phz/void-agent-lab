@@ -48,6 +48,21 @@ No FOMO, forced timers, daily rewards, forced ads or PvP pressure. But decisions
 
 ---
 
+
+## Visual Direction
+
+VOID // AGENT LAB uses an **industrial-cybernetic research console** aesthetic: dark matte surfaces, technical typography, restrained teal/blue and amber accents, schematic graphics, and machine-like telemetry.
+
+The visual signature is the **Agent Blueprint** — a live schematic of the autonomous decision path. During simulation, the active rule path becomes visible alongside the mission map, telemetry, and event log.
+
+![VOID // AGENT LAB simulation blueprint](docs/visuals/simulation-blueprint.svg)
+
+The full visual specification is documented in **[Visual Direction →](VISUAL_DIRECTION.md)**.
+
+The visual design principle is simple:
+
+> **Make the intelligence visible.**
+
 ## Documentation
 
 **[Read the full Vision →](VISION.md)**
