@@ -1,3 +1,15 @@
+<div align="center">
+
+<img src="docs/visuals/github-banner.svg" alt="VOID // AGENT LAB" width="100%">
+
+# VOID // AGENT LAB
+
+> **Don’t control the intelligence. Build it.**
+
+**BUILD → DEPLOY → OBSERVE → OPTIMIZE → EXPAND**
+
+</div>
+
 # VOID // AGENT LAB
 
 > ## Don’t control the intelligence. Build it.
