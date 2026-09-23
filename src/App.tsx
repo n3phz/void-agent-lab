@@ -1044,112 +1044,120 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       : 'Simulation complete — preparing Mission Report...';
   
   return (
-    <section className="screen">
-      <div className="screen__hero">
-        <h1>Mission Simulation</h1>
-        <p>Station Commander</p>
+    <section className="simulation-root">
+      <header className="simulation-header">
+        <div className="simulation-header__left">
+          <h1 className="simulation-header__title">LIVE MISSION</h1>
+          <p className="simulation-header__subtitle">Mission execution</p>
+        </div>
+        <div className="simulation-header__credits">
+          {state.credits.toLocaleString()} <span>CR</span>
+        </div>
+      </header>
+
+      <div className="simulation-identity mono">
+        <span>{agentName} · {agent.type} · LVL {agent.level}</span>
+        <span>{mission} → {missionObj.location}</span>
+        <span className="simulation-identity__phase">{simulationStatus}</span>
       </div>
-      
-      <div style={{ padding: '24px', maxWidth: '800px' }}>
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span><strong>Agent:</strong> {agentName} ({agent.type})</span>
-            <span><strong>Mission:</strong> {mission} → {missionObj.location}</span>
+
+      <main className="simulation-deck">
+        <div className="simulation-panel simulation-panel--telemetry">
+          <h3 className="section-title">MISSION TELEMETRY</h3>
+
+          <dl className="tele-specs mono">
+            <div><dt>MISSION</dt><dd>{mission}</dd></div>
+            <div><dt>DESTINATION</dt><dd>{missionObj.location}</dd></div>
+            <div><dt>DURATION WINDOW</dt><dd>{missionObj.durationMin}–{missionObj.durationMax} ticks</dd></div>
+            <div><dt>RISK</dt><dd>{missionObj.risk.toUpperCase()}</dd></div>
+          </dl>
+
+          <div className="tele-progress">
+            <div className="tele-progress__row mono">
+              <span>PROGRESS</span>
+              <span>{tickCount}/{maxTicks} TICKS · {Math.round(progressPercent)}%</span>
+            </div>
+            <div className="tele-progress__track">
+              <div
+                className={`tele-progress__fill${isReturning ? ' is-returning' : ''}`}
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span><strong>Speed:</strong> {speed}x</span>
-            <span><strong>Ticks:</strong> {tickCount}/{maxTicks}</span>
-          </div>
-        </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span>Progress</span>
-            <span>{Math.round(progressPercent)}%</span>
-          </div>
-          <div style={{ height: '8px', background: 'var(--border)', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{ height: '100%', background: isReturning ? 'var(--accent)' : 'var(--accent-border)', width: `${progressPercent}%`, transition: 'width 0.3s ease' }} />
-          </div>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-          <div style={{ padding: '12px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-h)' }}>HULL</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: agent.hullCurrent < 30 ? 'red' : 'var(--text-h)' }}>{agent.hullCurrent}%</div>
-          </div>
-          <div style={{ padding: '12px', border: '1px solid var(--border)', borderRadius: '4px' }}>
-            <div style={{ fontSize: '12px', color: 'var(--text-h)' }}>FUEL</div>
-            <div style={{ fontSize: '20px', fontWeight: 'bold', color: agent.fuel < fuelThreshold ? 'var(--accent)' : 'var(--text-h)' }}>{agent.fuel}%</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-h)' }}>Threshold: {fuelThreshold}%</div>
-          </div>
-        </div>
-        
-        <div style={{ padding: '12px', border: '1px solid var(--border)', borderRadius: '4px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-h)', marginBottom: '8px' }}>RULES ACTIVE</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px' }}>
-            <div><strong>Fuel:</strong> {rules.fuelThreshold} ({fuelThreshold}% trigger)</div>
-            <div><strong>Anomaly:</strong> {rules.anomalyResponse}</div>
-            <div><strong>Hostile:</strong> {rules.hostileReaction}</div>
-            <div><strong>Seed:</strong> {state.simulationSeed}</div>
+
+          <div className="tele-rules">
+            <div className="tele-rules__head mono">RULES ACTIVE</div>
+            <div className="tele-rules__grid mono">
+              <span>FUEL {rules.fuelThreshold} ({fuelThreshold}%)</span>
+              <span>ANOMALY {rules.anomalyResponse}</span>
+              <span>HOSTILE {rules.hostileReaction}</span>
+              <span>SEED {state.simulationSeed}</span>
+            </div>
           </div>
         </div>
-        
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-h)', marginBottom: '8px' }}>EVENT LOG</div>
-          <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '4px', padding: '8px', background: 'var(--code-bg)', fontFamily: 'var(--mono)', fontSize: '11px' }}>
-            <div style={{ color: 'var(--text-h)' }}>{simulationStatus}</div>
+
+        <div className="simulation-panel simulation-panel--status">
+          <h3 className="section-title">AGENT STATUS</h3>
+
+          <div className="stat-bar">
+            <div className="stat-bar__row mono"><span>HULL</span><span className={agent.hullCurrent < 30 ? 'is-critical' : ''}>{agent.hullCurrent.toFixed(1)}%</span></div>
+            <div className="stat-bar__track">
+              <div className={`stat-bar__fill${agent.hullCurrent < 30 ? ' is-critical' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }} />
+            </div>
+          </div>
+          <div className="stat-bar">
+            <div className="stat-bar__row mono"><span>FUEL</span><span className={agent.fuel < fuelThreshold ? 'is-low' : ''}>{agent.fuel.toFixed(1)}%</span></div>
+            <div className="stat-bar__track">
+              <div className={`stat-bar__fill${agent.fuel < fuelThreshold ? ' is-returning' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }} />
+            </div>
+            <div className="stat-bar__hint mono">THRESHOLD {fuelThreshold}%</div>
+          </div>
+
+          <dl className="stat-specs mono">
+            <div><dt>CREDITS</dt><dd>{agent.credits.toLocaleString()} CR</dd></div>
+            <div><dt>CARGO</dt><dd>{agent.cargoUsed}/{agent.cargo}</dd></div>
+          </dl>
+
+          <div className="current-event">
+            <div className="current-event__head mono">CURRENT EVENT</div>
+            <div className="current-event__text">{simulationStatus}</div>
           </div>
         </div>
-        
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setSpeed(1)}
-            style={{ 
-              padding: '8px 16px', 
-              fontSize: '12px',
-              background: speed === 1 ? 'var(--accent-bg)' : 'transparent',
-              border: `1px solid ${speed === 1 ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            1x
-          </button>
-          <button
-            onClick={() => setSpeed(5)}
-            style={{ 
-              padding: '8px 16px', 
-              fontSize: '12px',
-              background: speed === 5 ? 'var(--accent-bg)' : 'transparent',
-              border: `1px solid ${speed === 5 ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            5x
-          </button>
-          <button
-            onClick={() => setSpeed(10)}
-            style={{ 
-              padding: '8px 16px', 
-              fontSize: '12px',
-              background: speed === 10 ? 'var(--accent-bg)' : 'transparent',
-              border: `1px solid ${speed === 10 ? 'var(--accent)' : 'var(--border)'}`,
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            10x
-          </button>
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setState(s => ({ ...s, screen: 'station' }));
-            }}
-            style={{ padding: '8px 16px', fontSize: '12px', marginLeft: 'auto' }}
-          >
-            Abort
-          </button>
+      </main>
+
+      <div className="simulation-stream">
+        <div className="simulation-stream__head mono">
+          <span>EVENT STREAM</span>
+          <span>SPEED</span>
+        </div>
+        <div className="simulation-stream__body">
+          <ol className="stream-log mono">
+            <li className="stream-entry">{simulationStatus}</li>
+          </ol>
+          <div className="stream-speed">
+            <div className="speed-control" role="group" aria-label="Simulation speed">
+              {[1, 5, 10].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  className={`speed-segment${speed === v ? ' is-active' : ''}`}
+                  onClick={() => setSpeed(v)}
+                >
+                  {v}x
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="simulation-abort"
+              onClick={() => {
+                setIsRunning(false);
+                setState(s => ({ ...s, screen: 'station' }));
+              }}
+            >
+              ABORT
+            </button>
+          </div>
         </div>
       </div>
     </section>
