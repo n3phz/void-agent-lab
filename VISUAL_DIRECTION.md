@@ -4,6 +4,21 @@
 >
 > The interface should feel like a deterministic AI laboratory built to observe autonomous systems.
 
+
+## Screen Reference Set
+
+The Simulation concept is the visual north star. The supporting screens use the same panel language, typography, telemetry treatment, and restrained color semantics.
+
+- [Simulation / Agent Blueprint](docs/visuals/simulation-blueprint.svg)
+- [Station / Fleet Overview](docs/visuals/station.svg)
+- [Agent Configuration](docs/visuals/agent-configuration.svg)
+- [Mission Selection](docs/visuals/mission-selection.svg)
+- [Mission Report](docs/visuals/mission-report.svg)
+
+Together these references define the visual system across the complete v0.1 loop:
+
+**BUILD → DEPLOY → OBSERVE → OPTIMIZE → EXPAND**
+
 ## Visual North Star
 
 The approved visual direction combines:
