@@ -79,7 +79,7 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
     : null;
 
   return (
-    <section className="station-root" style={{ position: 'relative', overflow: 'hidden' }}>
+    <section className="station-root screen-enter" style={{ position: 'relative', overflow: 'hidden' }}>
       <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${stationEnv})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.78, pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 100%)' }} />
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -312,7 +312,7 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
   const opsMod = Math.round((agent.ops / 100) * 100) / 100;
 
   return (
-    <section className="blueprint-root">
+    <section className="blueprint-root screen-enter">
       <header className="blueprint-header">
         <div className="blueprint-header__left">
           <h1 className="blueprint-header__title">AGENT BLUEPRINT</h1>
@@ -324,32 +324,33 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
       </header>
 
       <main className="blueprint-deck">
+        <div className="panel-enter" style={{ animationDelay: '40ms' }}>
         <div className="blueprint-col blueprint-col--left">
-          <div className="blueprint-panel blueprint-identity">
+          <div className="blueprint-panel blueprint-identity scan-surface">
             <div className="blueprint-identity__head">
               <h2 className="blueprint-identity__name">{getAgentName(agent)}</h2>
               <span
-                className={`blueprint-status${isDestroyed ? ' is-destroyed' : needsUpgrade ? ' is-levelup' : ''}`}
+                className={`blueprint-status${isDestroyed ? ' is-destroyed' : needsUpgrade ? ' is-levelup' : ''}${!isDestroyed ? ' status-pulse' : ''}`}
               >
                 {status}
               </span>
             </div>
             <div className="blueprint-identity__type mono">{agent.type} — Level {agent.level}</div>
             <div className="blueprint-identity__credits mono">
-              <span>CREDITS</span>
-              <span>{agent.credits.toLocaleString()} CR</span>
+              <span className="value-transition">CREDITS</span>
+              <span className="value-transition">{agent.credits.toLocaleString()} CR</span>
             </div>
           </div>
 
-          <div className="blueprint-panel">
+          <div className="blueprint-panel panel-enter" style={{ animationDelay: '80ms' }}>
             <h3 className="section-title">PROGRESSION</h3>
             <div className="bp-xp__row mono">
-              <span>XP {agent.xp} / 50</span>
-              <span>LEVEL {agent.level}</span>
+              <span className="value-transition">XP {agent.xp} / 50</span>
+              <span className="value-transition">LEVEL {agent.level}</span>
             </div>
             <div className="bp-xp__track">
               <div
-                className={`bp-xp__fill${needsUpgrade ? ' is-ready' : ''}`}
+                className={`bp-xp__fill value-transition${needsUpgrade ? ' is-ready' : ''}`}
                 style={{ width: `${Math.min(100, (agent.xp / 50) * 100)}%` }}
               />
             </div>
@@ -358,7 +359,7 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
             </div>
           </div>
 
-          <div className="blueprint-panel">
+          <div className="blueprint-panel panel-enter" style={{ animationDelay: '120ms' }}>
             <h3 className="section-title">CONDITION</h3>
             <div className="bp-bar">
               <div className="bp-bar__row mono">
@@ -367,7 +368,7 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
               </div>
               <div className="bp-bar__track">
                 <div
-                  className={`bp-bar__fill bp-bar__fill--hull${isDestroyed || isLowHull ? ' is-critical' : ''}`}
+                  className={`bp-bar__fill value-transition bp-bar__fill--hull${isDestroyed || isLowHull ? ' is-critical' : ''}`}
                   style={{ width: `${Math.max(0, agent.hullCurrent)}%` }}
                 />
               </div>
@@ -379,55 +380,56 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
               </div>
               <div className="bp-bar__track">
                 <div
-                  className={`bp-bar__fill bp-bar__fill--fuel${isLowFuel ? ' is-low' : ''}`}
+                  className={`bp-bar__fill value-transition bp-bar__fill--fuel${isLowFuel ? ' is-low' : ''}`}
                   style={{ width: `${Math.max(0, agent.fuel)}%` }}
                 />
               </div>
             </div>
           </div>
 
-          <div className="blueprint-panel">
+          <div className="blueprint-panel panel-enter" style={{ animationDelay: '160ms' }}>
             <h3 className="section-title">TRAITS</h3>
             <div className="bp-traits">
               {agent.traits.slice(1).length === 0 ? (
                 <span className="empty-state">No traits gained yet.</span>
               ) : (
                 agent.traits.slice(1).map((trait, i) => (
-                  <span key={i} className="bp-trait mono">{trait}</span>
+                  <span key={i} className={`bp-trait mono bp-stagger-${(i % 4) + 1}`}>{trait}</span>
                 ))
               )}
             </div>
           </div>
         </div>
+        </div>
 
         <div className="blueprint-col blueprint-col--right">
-          <div className="blueprint-panel">
+          <div className="blueprint-panel panel-enter" style={{ animationDelay: '80ms' }}>
             <h3 className="section-title">ATTRIBUTES</h3>
             <div className="bp-attrs">
               <div className="bp-attr">
                 <div className="bp-attr__label mono">NAV</div>
-                <div className="bp-attr__value">{agent.nav}</div>
+                <div className="bp-attr__value value-transition">{agent.nav}</div>
                 <div className="bp-attr__hint">Anomaly scan bonus: +{navMod}x</div>
               </div>
               <div className="bp-attr">
                 <div className="bp-attr__label mono">OPS</div>
-                <div className="bp-attr__value">{agent.ops}</div>
+                <div className="bp-attr__value value-transition">{agent.ops}</div>
                 <div className="bp-attr__hint">Bribe/hostile modifier: +{opsMod}x</div>
               </div>
               <div className="bp-attr">
                 <div className="bp-attr__label mono">HULL MAX</div>
-                <div className="bp-attr__value">{agent.hull}</div>
+                <div className="bp-attr__value value-transition">{agent.hull}</div>
                 <div className="bp-attr__hint">Damage resistance · current hull {agent.hullCurrent.toFixed(1)}%</div>
               </div>
               <div className="bp-attr">
                 <div className="bp-attr__label mono">CARGO</div>
-                <div className="bp-attr__value">{agent.cargo}</div>
+                <div className="bp-attr__value value-transition">{agent.cargo}</div>
                 <div className="bp-attr__hint">Max cargo units · used {agent.cargoUsed}</div>
               </div>
             </div>
           </div>
 
-          <div className="blueprint-panel">
+          <div className="blueprint-panel panel-enter" style={{ animationDelay: '120ms' }}>
             <h3 className="section-title">MISSION HISTORY</h3>
             <div className="bp-history-wrap">
               <table className="bp-history">
@@ -446,11 +448,11 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
                     </tr>
                   ) : (
                     state.missionHistory.slice().reverse().map((m, i) => (
-                      <tr key={i}>
-                        <td>{m.agent.type} — {m.outcome}</td>
-                        <td className="bp-history__outcome">{m.outcome}</td>
-                        <td className="is-num">{m.netResult}</td>
-                        <td className="is-num">{m.xpEarned}</td>
+                      <tr key={i} className={`bp-stagger-${(i % 4) + 1}`}>
+                        <td className="value-transition">{m.agent.type} — {m.outcome}</td>
+                        <td className="bp-history__outcome value-transition">{m.outcome}</td>
+                        <td className="is-num value-transition">{m.netResult}</td>
+                        <td className="is-num value-transition">{m.xpEarned}</td>
                       </tr>
                     ))
                   )}
@@ -459,7 +461,7 @@ function AgentBlueprint({ state, setState }: { state: GameState; setState: React
             </div>
           </div>
 
-          <div className="blueprint-panel blueprint-actions-panel">
+          <div className="blueprint-panel blueprint-actions-panel panel-enter" style={{ animationDelay: '160ms' }}>
             <h3 className="section-title">MAINTENANCE</h3>
             <div className="bp-actions">
               <button
@@ -533,7 +535,7 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
   };
   
   return (
-    <section className="creation-root">
+    <section className="creation-root screen-enter">
       <header className="creation-header">
         <div className="creation-header__left">
           <h1 className="creation-header__title">CREATE AGENT</h1>
@@ -545,7 +547,7 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
       </header>
 
       <main className="creation-deck">
-        <div className="creation-panel creation-panel--config">
+        <div className="creation-panel creation-panel--config panel-enter" style={{ animationDelay: '40ms' }}>
           <h3 className="section-title">AGENT CONFIGURATION</h3>
 
           <label className="creation-field">
@@ -564,7 +566,7 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
             <div className="profile-grid">
               <button
                 type="button"
-                className={`profile-option${type === 'SCOUT' ? ' is-selected' : ''}`}
+                className={`profile-option selection-transition${type === 'SCOUT' ? ' is-selected' : ''}`}
                 onClick={() => setType('SCOUT')}
                 aria-pressed={type === 'SCOUT'}
               >
@@ -575,7 +577,7 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
               </button>
               <button
                 type="button"
-                className={`profile-option${type === 'HAULER' ? ' is-selected' : ''}`}
+                className={`profile-option selection-transition${type === 'HAULER' ? ' is-selected' : ''}`}
                 onClick={() => setType('HAULER')}
                 aria-pressed={type === 'HAULER'}
               >
@@ -593,18 +595,18 @@ function AgentCreation({ state, setState }: { state: GameState; setState: React.
           </div>
         </div>
 
-        <aside className="creation-panel creation-panel--preview">
+        <aside className="creation-panel creation-panel--preview panel-enter" style={{ animationDelay: '80ms' }}>
           <h3 className="section-title">LIVE PROFILE</h3>
-          <div className="preview-body">
+          <div className="preview-body profile-swap">
             <div className="preview-agent__name">{name.trim() || 'UNNAMED UNIT'}</div>
             <div className="preview-agent__type mono">{type}</div>
-            <dl className="preview-specs mono">
-              <div><dt>TYPE</dt><dd>{type}</dd></div>
-              <div><dt>NAV</dt><dd>{type === 'SCOUT' ? 75 : 45}</dd></div>
-              <div><dt>OPS</dt><dd>{type === 'SCOUT' ? 55 : 50}</dd></div>
-              <div><dt>HULL</dt><dd>{type === 'SCOUT' ? 35 : 70}</dd></div>
-              <div><dt>CARGO</dt><dd>{type === 'SCOUT' ? 20 : 30}</dd></div>
-              <div className="preview-specs__cost"><dt>COST</dt><dd>{agentCost} CR</dd></div>
+            <dl className="preview-specs mono" key={type}>
+              <div><dt>TYPE</dt><dd className="value-transition">{type}</dd></div>
+              <div><dt>NAV</dt><dd className="value-transition">{type === 'SCOUT' ? 75 : 45}</dd></div>
+              <div><dt>OPS</dt><dd className="value-transition">{type === 'SCOUT' ? 55 : 50}</dd></div>
+              <div><dt>HULL</dt><dd className="value-transition">{type === 'SCOUT' ? 35 : 70}</dd></div>
+              <div><dt>CARGO</dt><dd className="value-transition">{type === 'SCOUT' ? 20 : 30}</dd></div>
+              <div className="preview-specs__cost"><dt>COST</dt><dd className="value-transition">{agentCost} CR</dd></div>
             </dl>
             {!canAfford && (
               <p className="creation-warning mono">
@@ -667,7 +669,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
   };
 
   return (
-    <section className="rules-root">
+    <section className="rules-root screen-enter">
       <header className="rules-header">
         <div className="rules-header__left">
           <h1 className="rules-header__title">AGENT RULES</h1>
@@ -679,7 +681,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
       </header>
 
       <main className="rules-deck">
-        <div className="rules-panel rules-panel--config">
+        <div className="rules-panel rules-panel--config panel-enter" style={{ animationDelay: '40ms' }}>
           <h3 className="section-title">RULE CONFIGURATION</h3>
 
           <div className="rules-agent-tag mono">
@@ -693,7 +695,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
             <p className="rule-group__desc">When fuel drops to this percentage, the agent automatically returns to station.</p>
             <div className="rule-options rule-options--grid">
               {FUEL_LEVELS.map((level) => (
-                <label key={level} className={`rule-option${rules.fuelThreshold === level ? ' is-selected' : ''}`}>
+                <label key={level} className={`rule-option selection-transition rules-scan${rules.fuelThreshold === level ? ' is-selected' : ''}`}>
                   <input
                     type="radio"
                     name="fuelThreshold"
@@ -712,7 +714,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
             <p className="rule-group__desc">How the agent handles detected anomalies.</p>
             <div className="rule-options">
               {ANOMALY_RESPONSES.map((response) => (
-                <label key={response} className={`rule-option${rules.anomalyResponse === response ? ' is-selected' : ''}`}>
+                <label key={response} className={`rule-option selection-transition rules-scan${rules.anomalyResponse === response ? ' is-selected' : ''}`}>
                   <input
                     type="radio"
                     name="anomalyResponse"
@@ -730,7 +732,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
             <p className="rule-group__desc">How the agent responds when encountering hostiles.</p>
             <div className="rule-options">
               {HOSTILE_REACTIONS.map((reaction) => (
-                <label key={reaction} className={`rule-option${rules.hostileReaction === reaction ? ' is-selected' : ''}`}>
+                <label key={reaction} className={`rule-option selection-transition rules-scan${rules.hostileReaction === reaction ? ' is-selected' : ''}`}>
                   <input
                     type="radio"
                     name="hostileReaction"
@@ -744,7 +746,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
           </fieldset>
         </div>
 
-        <aside className="rules-panel rules-panel--summary">
+        <aside className="rules-panel rules-panel--summary panel-enter" style={{ animationDelay: '80ms' }}>
           <h3 className="section-title">BEHAVIOUR SUMMARY</h3>
 
           {selectedAgent && (
@@ -754,21 +756,21 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
             </div>
           )}
 
-          <div className="summary-block">
+          <div className="summary-block" key={rules.fuelThreshold}>
             <div className="summary-block__head mono">TRAVEL</div>
-            <div className="summary-block__value">{rules.fuelThreshold}</div>
+            <div className="summary-block__value value-transition">{rules.fuelThreshold}</div>
             <div className="summary-block__detail">Auto-return home at ≤ {THRESHOLDS[rules.fuelThreshold]}% fuel.</div>
           </div>
 
-          <div className="summary-block">
+          <div className="summary-block" key={rules.anomalyResponse}>
             <div className="summary-block__head mono">ANOMALIES</div>
-            <div className="summary-block__value">{rules.anomalyResponse.replace(/_/g, ' ')}</div>
+            <div className="summary-block__value value-transition">{rules.anomalyResponse.replace(/_/g, ' ')}</div>
             <div className="summary-block__detail">{anomalySummary[rules.anomalyResponse]}</div>
           </div>
 
-          <div className="summary-block">
+          <div className="summary-block" key={rules.hostileReaction}>
             <div className="summary-block__head mono">ENCOUNTER</div>
-            <div className="summary-block__value">{rules.hostileReaction.replace(/_/g, ' ')}</div>
+            <div className="summary-block__value value-transition">{rules.hostileReaction.replace(/_/g, ' ')}</div>
             <div className="summary-block__detail">{hostileSummary[rules.hostileReaction]}</div>
           </div>
         </aside>
@@ -784,7 +786,7 @@ function AgentConfiguration({ state, setState }: { state: GameState; setState: R
         </button>
         <button
           type="button"
-          className="rules-save"
+          className="rules-save save-confirm"
           onClick={() => setState(s => ({ ...s, rules: rules, screen: 'station' }))}
         >
           SAVE &amp; RETURN
@@ -825,7 +827,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
         : null;
 
   return (
-    <section className="mission-root">
+    <section className="mission-root screen-enter">
       <header className="mission-header">
         <div className="mission-header__left">
           <h1 className="mission-header__title">SELECT MISSION</h1>
@@ -837,7 +839,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
       </header>
 
       <main className="mission-deck">
-        <div className="mission-panel mission-panel--list">
+        <div className="mission-panel mission-panel--list panel-enter" style={{ animationDelay: '40ms' }}>
           <h3 className="section-title">MISSION SELECTION</h3>
           {MISSION_TYPES.map((mission) => {
             const missionCargoRequirement2 = missionCargoRequirement(mission.type);
@@ -847,7 +849,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
               <button
                 key={mission.type}
                 type="button"
-                className={`mission-card${isSelected ? ' is-selected' : ''}${!missionCanCargo ? ' is-incompatible' : ''}`}
+                className={`mission-card mission-card-enter selection-transition${isSelected ? ' is-selected' : ''}${!missionCanCargo ? ' is-incompatible' : ''}`}
                 onClick={() => setState(s => ({ ...s, selectedMission: mission.type }))}
                 disabled={!missionCanCargo}
                 aria-pressed={isSelected}
@@ -877,7 +879,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
           })}
         </div>
 
-        <aside className="mission-panel mission-panel--brief">
+        <aside className="mission-panel mission-panel--brief panel-enter" style={{ animationDelay: '80ms' }}>
           <h3 className="section-title">DEPLOYMENT BRIEF</h3>
 
           {selectedAgent ? (
@@ -898,7 +900,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
           )}
 
           {selectedMissionInfo ? (
-            <div className="brief-mission">
+            <div className="brief-mission scan-surface" key={selectedMissionInfo ? selectedMissionInfo.type : 'none'}>
               <div className="brief-mission__head">
                 <span className="brief-mission__name">{selectedMissionInfo.name}</span>
                 <span className={`mission-risk mission-risk--${selectedMissionInfo.risk}`}>
@@ -950,7 +952,7 @@ function MissionSelection({ state, setState }: { state: GameState; setState: Rea
 
           <button
             type="button"
-            className="mission-deploy"
+            className="mission-deploy deploy-lock"
             onClick={() => {
               if (state.selectedMission && !isDestroyed && !cargoIncompatible) {
                 setState(s => {
@@ -1062,7 +1064,7 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       : 'Simulation complete — preparing Mission Report...';
   
   return (
-    <section className="simulation-root">
+    <section className="simulation-root screen-enter">
       <header className="simulation-header">
         <div className="simulation-header__left">
           <h1 className="simulation-header__title">LIVE MISSION</h1>
@@ -1080,7 +1082,7 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       </div>
 
       <main className="simulation-deck">
-        <div className="simulation-panel simulation-panel--telemetry">
+        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '40ms' }}>
           <h3 className="section-title">MISSION TELEMETRY</h3>
 
           <dl className="tele-specs mono">
@@ -1092,12 +1094,12 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
 
           <div className="tele-progress">
             <div className="tele-progress__row mono">
-              <span>PROGRESS</span>
-              <span>{tickCount}/{maxTicks} TICKS · {Math.round(progressPercent)}%</span>
+              <span className="value-transition">PROGRESS</span>
+              <span className="value-transition" key={tickCount}>{tickCount}/{maxTicks} TICKS · {Math.round(progressPercent)}%</span>
             </div>
             <div className="tele-progress__track">
               <div
-                className={`tele-progress__fill${isReturning ? ' is-returning' : ''}`}
+                className={`tele-progress__fill value-transition${isReturning ? ' is-returning' : ''}`}
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -1114,7 +1116,7 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
           </div>
         </div>
 
-        <div className="simulation-panel simulation-panel--status">
+        <div className="simulation-panel simulation-panel--status panel-enter" style={{ animationDelay: '80ms' }}>
           <h3 className="section-title">AGENT STATUS</h3>
 
           <div className="stat-bar">
@@ -1136,21 +1138,21 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
             <div><dt>CARGO</dt><dd>{agent.cargoUsed}/{agent.cargo}</dd></div>
           </dl>
 
-          <div className="current-event">
+          <div className="current-event scan-surface">
             <div className="current-event__head mono">CURRENT EVENT</div>
-            <div className="current-event__text">{simulationStatus}</div>
+            <div className="current-event__text current-event-pulse">{simulationStatus}</div>
           </div>
         </div>
       </main>
 
-      <div className="simulation-stream">
+      <div className="simulation-stream panel-enter" style={{ animationDelay: '120ms' }}>
         <div className="simulation-stream__head mono">
           <span>EVENT STREAM</span>
           <span>SPEED</span>
         </div>
         <div className="simulation-stream__body">
           <ol className="stream-log mono">
-            <li className="stream-entry">{simulationStatus}</li>
+            <li className="stream-entry" key={simulationStatus}>{simulationStatus}</li>
           </ol>
           <div className="stream-speed">
             <div className="speed-control" role="group" aria-label="Simulation speed">
@@ -1158,7 +1160,7 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
                 <button
                   key={v}
                   type="button"
-                  className={`speed-segment${speed === v ? ' is-active' : ''}`}
+                  className={`speed-segment${speed === v ? ' is-active speed-active' : ''}`}
                   onClick={() => setSpeed(v)}
                 >
                   {v}x
@@ -1196,7 +1198,7 @@ function MissionReport({ state, setState }: { state: GameState; setState: React.
   // Maintenance cost computed for display: getMaintenanceCostFromResult(result.finalHullPct)
   
   return (
-    <section className="report-root">
+    <section className="report-root screen-enter">
       <header className="report-header">
         <div className="report-header__left">
           <h1 className="report-header__title">MISSION REPORT</h1>
@@ -1207,17 +1209,18 @@ function MissionReport({ state, setState }: { state: GameState; setState: React.
         </div>
       </header>
 
-      <div className={`report-outcome report-outcome--${result.outcome}`}>
+      <div className={`report-outcome report-outcome--${result.outcome} panel-enter`}>
+        <span className="scan-line" aria-hidden="true" />
         <div className="report-outcome__label mono">OUTCOME</div>
         <div className="report-outcome__value">{result.outcome.toUpperCase()}</div>
         <div className="report-outcome__stats mono">
-          <span>{result.netResult >= 0 ? `+${result.netResult.toLocaleString()}` : result.netResult.toLocaleString()} CR</span>
-          <span>+{result.xpEarned} XP</span>
+          <span className="value-transition value-count">{result.netResult >= 0 ? `+${result.netResult.toLocaleString()}` : result.netResult.toLocaleString()} CR</span>
+          <span className="value-transition value-count">+{result.xpEarned} XP</span>
         </div>
       </div>
 
       <main className="report-deck">
-        <div className="report-panel report-panel--agent">
+        <div className="report-panel report-panel--agent panel-enter" style={{ animationDelay: '120ms' }}>
           <h3 className="section-title">AGENT STATUS</h3>
           <div className="report-agent__head">
             <span className="report-agent__name">{getAgentName(agent)}</span>
@@ -1252,14 +1255,14 @@ function MissionReport({ state, setState }: { state: GameState; setState: React.
           )}
         </div>
 
-        <div className="report-panel report-panel--events">
+        <div className="report-panel report-panel--events panel-enter" style={{ animationDelay: '160ms' }}>
           <h3 className="section-title">MISSION EVENTS ({result.eventLog.length})</h3>
           {result.eventLog.length === 0 ? (
             <div className="empty-state">No events recorded.</div>
           ) : (
             <ol className="report-events mono">
               {result.eventLog.slice(0, 30).map((event: EventRecord, i: number) => (
-                <li key={i} className="report-event">
+                <li key={i} className="report-event report-reveal" style={{ animationDelay: `${Math.min(i * 30, 300)}ms` }}>
                   <span className="report-event__tick">T{event.tick} {event.time}</span>
                   <span className="report-event__action">{event.action}</span>
                   <span className="report-event__text">{event.event}</span>
@@ -1270,7 +1273,7 @@ function MissionReport({ state, setState }: { state: GameState; setState: React.
         </div>
       </main>
 
-      <footer className="report-actions">
+      <footer className="report-actions panel-enter" style={{ animationDelay: '200ms' }}>
         <button
           type="button"
           className="report-action report-action--primary"

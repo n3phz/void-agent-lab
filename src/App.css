@@ -2362,3 +2362,330 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ============ Phase 9 — Reusable Motion System ============ */
+
+:root {
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease: ease;
+  --motion-fast: 150ms;
+  --motion-normal: 220ms;
+  --motion-slow: 380ms;
+  --motion-panel-stagger: 40ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scan-line,
+  .status-pulse,
+  .mission-card-enter,
+  .stream-entry,
+  .value-transition,
+  .screen-enter,
+  .panel-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* --- screen-enter: subtle opacity + translate transition --- */
+.screen-enter {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: screenEnter var(--motion-slow) var(--motion-ease-out) forwards;
+}
+
+@keyframes screenEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- panel-enter: staggered entrance for major panels --- */
+.panel-enter {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: panelEnter var(--motion-normal) var(--motion-ease-out) forwards;
+}
+
+.panel-enter:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.panel-enter:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.panel-enter:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+@keyframes panelEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- scan-line: restrained tactical scan/highlight --- */
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  pointer-events: none;
+  animation: scanLine var(--motion-slow) var(--motion-ease-out) forwards;
+}
+
+@keyframes scanLine {
+  from {
+    top: -2px;
+    opacity: 0.6;
+  }
+  to {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.scan-surface {
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- value-transition: visual transition when values change --- */
+.value-transition {
+  transition: opacity var(--motion-fast) var(--motion-ease),
+              transform var(--motion-fast) var(--motion-ease);
+}
+
+.value-transition.value-changed {
+  animation: valueFlash var(--motion-normal) var(--motion-ease-out);
+}
+
+@keyframes valueFlash {
+  0% {
+    opacity: 0.6;
+    transform: translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- value-count: short count-up transition --- */
+.value-count {
+  display: inline-block;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+/* --- status-pulse: subtle feedback for active/important status --- */
+.status-pulse {
+  animation: statusPulse 1.2s ease-out;
+}
+
+@keyframes statusPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* --- selection-transition: smooth selected/unselected state --- */
+.selection-transition {
+  transition: background var(--motion-normal) var(--motion-ease-out),
+              border-color var(--motion-normal) var(--motion-ease-out),
+              color var(--motion-normal) var(--motion-ease-out),
+              box-shadow var(--motion-normal) var(--motion-ease-out),
+              transform var(--motion-normal) var(--motion-ease-out);
+}
+
+.selection-transition.is-selected {
+  transform: scale(1.01);
+}
+
+/* --- mission-card-enter: card selection entrance --- */
+.mission-card-enter {
+  animation: missionCardEnter var(--motion-normal) var(--motion-ease-out) forwards;
+}
+
+@keyframes missionCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- mission-lock: tactical lock active state --- */
+.mission-lock {
+  position: relative;
+}
+
+.mission-lock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  pointer-events: none;
+  animation: lockPulse 1.5s ease-out;
+}
+
+@keyframes lockPulse {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.9; }
+}
+
+/* --- deploy-lock: SELECT → LOCK visual state --- */
+.deploy-lock {
+  position: relative;
+  overflow: hidden;
+}
+
+.deploy-lock::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(170, 59, 255, 0.08), transparent);
+  pointer-events: none;
+  animation: deployGlow 1.5s ease-out;
+}
+
+@keyframes deployGlow {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.8; }
+}
+
+/* --- stream-entry: event log entry animation --- */
+.stream-entry {
+  animation: streamEntry var(--motion-normal) var(--motion-ease-out) forwards;
+}
+
+@keyframes streamEntry {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* --- report-reveal: progressive event log reveal --- */
+.report-reveal {
+  animation: reportReveal var(--motion-normal) var(--motion-ease-out) forwards;
+  opacity: 0;
+}
+
+@keyframes reportReveal {
+  to {
+    opacity: 1;
+  }
+}
+
+/* --- save-confirm: short tactical confirmation --- */
+.save-confirm {
+  animation: saveConfirm var(--motion-normal) var(--motion-ease-out);
+}
+
+@keyframes saveConfirm {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(170, 59, 255, 0);
+  }
+  30% {
+    transform: scale(0.97);
+    box-shadow: 0 0 16px rgba(170, 59, 255, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(170, 59, 255, 0);
+  }
+}
+
+/* --- speed-active: clear active feedback for speed controls --- */
+.speed-active {
+  box-shadow: 0 0 10px rgba(170, 59, 255, 0.3);
+}
+
+/* --- telemetry-flash: subtle active-state indicator --- */
+.telemetry-flash {
+  animation: telemetryFlash var(--motion-normal) var(--motion-ease-out);
+}
+
+@keyframes telemetryFlash {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* --- blueprint-stagger: staggered mission history --- */
+.bp-stagger-1 { animation-delay: 0ms; }
+.bp-stagger-2 { animation-delay: 30ms; }
+.bp-stagger-3 { animation-delay: 60ms; }
+.bp-stagger-4 { animation-delay: 90ms; }
+
+/* --- profile-swap: smooth SCOUT/HAULER transition --- */
+.profile-swap {
+  transition: opacity var(--motion-normal) var(--motion-ease-out),
+              transform var(--motion-normal) var(--motion-ease-out);
+}
+
+.profile-swap.profile-changing {
+  animation: profileSwap var(--motion-normal) var(--motion-ease-out);
+}
+
+@keyframes profileSwap {
+  0% { opacity: 0.5; transform: scale(0.97); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* --- rules-scan: scan/highlight on rule selection --- */
+.rules-scan {
+  position: relative;
+}
+
+.rules-scan::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0;
+  animation: rulesScanIn var(--motion-slow) var(--motion-ease-out) forwards;
+  pointer-events: none;
+}
+
+@keyframes rulesScanIn {
+  from { opacity: 0; top: 0; }
+  to { opacity: 0.8; top: 0; }
+}
+
+/* --- current-event-pulse: active state indicator --- */
+.current-event-pulse {
+  animation: eventPulse 1.2s ease-out;
+}
+
+@keyframes eventPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
