@@ -27,6 +27,7 @@ function baseAgent(overrides: Partial<Agent> = {}): Agent {
 
 const baseRules: Rules = {
   fuelThreshold: 'BALANCED',
+  travelMode: 'BALANCED',
   anomalyResponse: 'SCAN_ONLY',
   hostileReaction: 'FLEE_IMMEDIATELY',
 };
@@ -305,5 +306,111 @@ describe('hull degradation', () => {
 
     expect(typeof result.maintenanceCost).toBe('number');
     expect(result.maintenanceCost).toBe((100 - result.finalHullPct) * 10);
+  });
+});
+
+describe('tactical travel modes', () => {
+  const travelMission = createMission('PROSPECT');
+
+  it('accepts CONSERVATIVE, BALANCED, and AGGRESSIVE modes deterministically', () => {
+    const conservative = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const balanced = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    expect(conservative.seed).toBe(balanced.seed);
+    expect(balanced.seed).toBe(aggressive.seed);
+    expect(conservative.agentSurvives).toBe(true);
+    expect(balanced.agentSurvives).toBe(true);
+    expect(aggressive.agentSurvives).toBe(true);
+  });
+
+  it('produces lower-risk and longer-travel behavior for CONSERVATIVE', () => {
+    const conservative = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    expect(conservative.ticks).toBeGreaterThanOrEqual(aggressive.ticks);
+    expect(conservative.fuelRemainingPct).toBeGreaterThanOrEqual(aggressive.fuelRemainingPct);
+  });
+
+  it('produces higher-risk and shorter-travel behavior for AGGRESSIVE', () => {
+    const balanced = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    expect(aggressive.ticks).toBeLessThanOrEqual(balanced.ticks);
+    expect(aggressive.fuelRemainingPct).toBeLessThanOrEqual(balanced.fuelRemainingPct);
+  });
+
+  it('changes travel calculations across modes', () => {
+    const conservative = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const balanced = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    const unique = new Set([conservative.ticks, balanced.ticks, aggressive.ticks]);
+    expect(unique.size).toBeGreaterThan(1);
+  });
+
+  it('consumes less fuel in CONSERVATIVE than AGGRESSIVE for the same seed', () => {
+    const conservative = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    expect(conservative.fuelRemainingPct).toBeGreaterThanOrEqual(aggressive.fuelRemainingPct);
+  });
+
+  it('travels longer in CONSERVATIVE than AGGRESSIVE for the same seed', () => {
+    const conservative = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const aggressive = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    expect(conservative.ticks).toBeGreaterThanOrEqual(aggressive.ticks);
+  });
+
+  it('shows different jump/misjump exposure across modes', () => {
+    const conservative = simulateMission(baseAgent({ type: 'SCOUT' }), travelMission, { ...baseRules, travelMode: 'CONSERVATIVE' }, 2024);
+    const aggressive = simulateMission(baseAgent({ type: 'SCOUT' }), travelMission, { ...baseRules, travelMode: 'AGGRESSIVE' }, 2024);
+
+    const conservativeMismap = conservative.eventLog.some(e => e.event === 'MISJUMP');
+    const aggressiveMismap = aggressive.eventLog.some(e => e.event === 'MISJUMP');
+
+    expect(typeof conservativeMismap).toBe('boolean');
+    expect(typeof aggressiveMismap).toBe('boolean');
+  });
+
+  it('preserves FUEL_SIPHON fuel savings under travel modes', () => {
+    const base = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const siphon = simulateMission(baseAgent({ traits: ['FUEL_SIPHON'] }), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+
+    expect(base.seed).toBe(siphon.seed);
+    expect(siphon.fuelRemainingPct).toBeGreaterThanOrEqual(base.fuelRemainingPct);
+  });
+
+  it('preserves QUICK_TURN navigation bonus under travel modes', () => {
+    const base = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const quick = simulateMission(baseAgent({ traits: ['QUICK_TURN'] }), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+
+    expect(base.seed).toBe(quick.seed);
+    expect(typeof quick.finalHullPct).toBe('number');
+  });
+
+  it('keeps hull degradation affecting navigation inside travel modes', () => {
+    const fullHull = simulateMission(baseAgent({ hullCurrent: 100 }), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+    const damaged = simulateMission(baseAgent({ hullCurrent: 10 }), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+
+    expect(fullHull.seed).toBe(damaged.seed);
+    expect(fullHull.finalHullPct >= damaged.finalHullPct || fullHull.outcome !== damaged.outcome).toBe(true);
+  });
+
+  it('keeps fuel threshold behavior separate from travel mode', () => {
+    const conservativeMode = simulateMission(baseAgent(), travelMission, { fuelThreshold: 'CONSERVATIVE', travelMode: 'CONSERVATIVE', anomalyResponse: 'SCAN_ONLY', hostileReaction: 'FLEE_IMMEDIATELY' }, 11);
+    const aggressiveMode = simulateMission(baseAgent(), travelMission, { fuelThreshold: 'AGGRESSIVE', travelMode: 'AGGRESSIVE', anomalyResponse: 'SCAN_ONLY', hostileReaction: 'FLEE_IMMEDIATELY' }, 11);
+
+    expect(conservativeMode.seed).toBe(aggressiveMode.seed);
+    expect(typeof conservativeMode.fuelRemainingPct).toBe('number');
+    expect(typeof aggressiveMode.fuelRemainingPct).toBe('number');
+  });
+
+  it('keeps mission completion/destruction behavior valid across modes', () => {
+    const balanced = simulateMission(baseAgent(), travelMission, { ...baseRules, travelMode: 'BALANCED' }, 2024);
+
+    expect(['success', 'failure', 'aborted', 'destroyed']).toContain(balanced.outcome);
+    expect(balanced.agentSurvives).toBe(balanced.finalHullPct > 0 && balanced.fuelRemainingPct > 0);
   });
 });

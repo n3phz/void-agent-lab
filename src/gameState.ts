@@ -29,6 +29,7 @@ export const INITIAL_STATE: GameState = {
   selectedMission: null,
   rules: {
     fuelThreshold: 'BALANCED',
+    travelMode: 'BALANCED',
     anomalyResponse: 'SCAN_ONLY',
     hostileReaction: 'FLEE_IMMEDIATELY'
   },

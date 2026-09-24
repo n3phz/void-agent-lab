@@ -4,6 +4,7 @@
 export type AgentType = 'SCOUT' | 'HAULER';
 export type MissionType = 'PROSPECT' | 'SALVAGE' | 'COURIER';
 export type FuelThreshold = 'CONSERVATIVE' | 'BALANCED' | 'AGGRESSIVE' | 'RECKLESS';
+export type TravelMode = 'CONSERVATIVE' | 'BALANCED' | 'AGGRESSIVE';
 export type AnomalyResponse = 'IGNORE' | 'SCAN_ONLY' | 'INVESTIGATE_LOW_RISK' | 'INVESTIGATE_ANY_RISK';
 export type HostileReaction = 'FLEE_IMMEDIATELY' | 'EVADE_AND_SCAN' | 'DEFEND' | 'BRIBE';
 export type TickAction = 'RETURN_HOME' | 'RESOLVE_EVENT' | 'TRAVEL' | 'IDLE_WAIT' | 'MISSION_WORK';
@@ -69,6 +70,7 @@ export interface Mission {
 
 export interface Rules {
   fuelThreshold: FuelThreshold;
+  travelMode: TravelMode;
   anomalyResponse: AnomalyResponse;
   hostileReaction: HostileReaction;
 }
@@ -115,6 +117,12 @@ export const THRESHOLDS: Record<FuelThreshold, number> = {
   BALANCED: 30,
   AGGRESSIVE: 15,
   RECKLESS: 5,
+};
+
+export const TRAVEL_MODE: Record<TravelMode, { cruiseTicks: number; fuelMultiplier: number; riskDelta: number }> = {
+  CONSERVATIVE: { cruiseTicks: 2, fuelMultiplier: 0.75, riskDelta: -8 },
+  BALANCED: { cruiseTicks: 1, fuelMultiplier: 1, riskDelta: 0 },
+  AGGRESSIVE: { cruiseTicks: 0, fuelMultiplier: 1.35, riskDelta: 10 },
 };
 
 // Fuel consumption per action type (v0.1 spec)

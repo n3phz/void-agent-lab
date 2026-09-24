@@ -18,6 +18,7 @@ export function travelTo(
   rng: () => number,
   travelSafetyBonus = 0,
   effectiveNavOverride?: number,
+  riskDelta = 0,
 ): TravelResult {
   const log: string[] = [];
   let jumps = 0;
@@ -25,7 +26,7 @@ export function travelTo(
   let failed = false;
   let misjump = false;
   let fuelCost = 0;
-  const effectiveNav = effectiveNavOverride ?? agent.nav;
+  const effectiveNav = Math.max(0, (effectiveNavOverride ?? agent.nav) + riskDelta);
   const jumpChanceFail = Math.max(0, (100 - effectiveNav) / 2 - travelSafetyBonus);
   for (let j = 0; j < homeDistanceJumps; j++) {
     jumps++;

@@ -1,7 +1,7 @@
 import type { Agent, AgentType, Mission, Rules, EventRecord, SimulationResult, EventType, TickAction } from './types';
 import { createRng } from './rng';
 import { travelTo } from './travel';
-import { FUEL, THRESHOLDS, AGENTS } from './types';
+import { FUEL, THRESHOLDS, AGENTS, TRAVEL_MODE } from './types';
 import { rollAnomaly, shouldInvestigate, scanSuccess, createProspectAnomalyPool, type Anomaly } from './anomalies';
 import { hostileRoll, hostileCombatOutcome, bribeSuccess } from './hostiles';
 import { getTraitEffects } from './traits';
@@ -71,6 +71,7 @@ export function simulateMission(
   const effectiveOps = Math.max(0, Math.round((a.ops + effects.effectiveOpsBonus) * hullConditionMultiplier(a.hullCurrent)));
   const effectiveNav = Math.max(0, Math.round(a.nav * hullConditionMultiplier(a.hullCurrent)));
   const threshold = THRESHOLDS[rules.fuelThreshold];
+  const travelMode = TRAVEL_MODE[rules.travelMode ?? 'BALANCED'];
   let tick = 0;
   const maxTicks = 120;
   let outcome: SimulationResult['outcome'] = 'failure';
@@ -86,7 +87,7 @@ export function simulateMission(
   let goodsDelivered = 0;
   let goodsRequired = mission.goalDeliver?.goods ?? 0;
   let homeJumps = 1;
-  let cruisePerJump = 1 + Math.floor(rng() * 3);
+  let cruisePerJump = travelMode.cruiseTicks + Math.floor(rng() * 3);
   let atDestination = false;
   let missionStarted = false;
   let missionWorkTicks = 0;
@@ -99,8 +100,9 @@ export function simulateMission(
     anomalyPool.push(...seededPool);
   }
 
-  const travelFuel = Math.max(0, Math.round(FUEL.JUMP * effects.fuelCostMultiplier));
-  const cruiseFuel = Math.max(0, Math.round(FUEL.CRUISE * effects.fuelCostMultiplier));
+  const travelModeFuel = TRAVEL_MODE[rules.travelMode ?? 'BALANCED'].fuelMultiplier;
+  const travelFuel = Math.max(0, Math.round(FUEL.JUMP * effects.fuelCostMultiplier * travelModeFuel));
+  const cruiseFuel = Math.max(0, Math.round(FUEL.CRUISE * effects.fuelCostMultiplier * travelModeFuel));
   const idleFuel = Math.max(0, Math.round(FUEL.IDLE * effects.fuelCostMultiplier));
   const combatFuel = Math.max(0, Math.round(FUEL.COMBAT * effects.fuelCostMultiplier));
 
@@ -128,7 +130,7 @@ export function simulateMission(
 
     switch (action) {
       case 'RETURN_HOME': {
-        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav);
+        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav, travelMode.riskDelta);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';
@@ -141,7 +143,7 @@ export function simulateMission(
       }
 
       case 'TRAVEL': {
-        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav);
+        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav, travelMode.riskDelta);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';
