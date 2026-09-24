@@ -36,6 +36,10 @@ function xpForOutcome(outcome: 'success' | 'failure'): number {
   return outcome === 'success' ? 10 : 0;
 }
 
+function hullConditionMultiplier(hullCurrent: number): number {
+  return 0.5 + 0.5 * (Math.max(0, hullCurrent) / 100);
+}
+
 function applyXp(agent: Agent, xp: number): { agent: Agent; leveledUp: boolean } {
   agent.xp += xp;
   if (agent.xp >= 50 && xp > 0) {
@@ -64,7 +68,8 @@ export function simulateMission(
   const a = cloneAgent(agent);
   const log: EventRecord[] = [];
   const effects = getTraitEffects(a.traits);
-  const effectiveOps = Math.max(0, a.ops + effects.effectiveOpsBonus);
+  const effectiveOps = Math.max(0, Math.round((a.ops + effects.effectiveOpsBonus) * hullConditionMultiplier(a.hullCurrent)));
+  const effectiveNav = Math.max(0, Math.round(a.nav * hullConditionMultiplier(a.hullCurrent)));
   const threshold = THRESHOLDS[rules.fuelThreshold];
   let tick = 0;
   const maxTicks = 120;
@@ -123,7 +128,7 @@ export function simulateMission(
 
     switch (action) {
       case 'RETURN_HOME': {
-        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng, effects.travelSafetyBonus);
+        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';
@@ -136,7 +141,7 @@ export function simulateMission(
       }
 
       case 'TRAVEL': {
-        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng, effects.travelSafetyBonus);
+        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng, effects.travelSafetyBonus, effectiveNav);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';

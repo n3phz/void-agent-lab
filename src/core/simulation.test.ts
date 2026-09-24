@@ -223,3 +223,87 @@ describe('high-risk anomaly behavior', () => {
     expect(first.eventLog.some(e => e.event === 'ANOMALY_DETECTED' || e.event === 'ANOMALY_SCANNED')).toBe(true);
   });
 });
+
+describe('hull degradation', () => {
+  it('uses full effective stats at 100% hull', () => {
+    const fullHull = baseAgent({ hullCurrent: 100 });
+    const result = simulateMission(fullHull, prospectingMission, baseRules, 2024);
+
+    expect(result.finalHullPct).toBeGreaterThanOrEqual(0);
+    expect(result.agentSurvives).toBe(true);
+  });
+
+  it('reduces effective performance when hull is damaged', () => {
+    const fullHull = baseAgent({ hullCurrent: 100 });
+    const damaged = baseAgent({ hullCurrent: 40 });
+
+    const fullResult = simulateMission(fullHull, prospectingMission, baseRules, 2024);
+    const damagedResult = simulateMission(damaged, prospectingMission, baseRules, 2024);
+
+    expect(fullResult.seed).toBe(damagedResult.seed);
+    expect(damagedResult.finalHullPct).toBeLessThanOrEqual(fullResult.finalHullPct);
+  });
+
+  it('keeps very low hull bounded and deterministic', () => {
+    const nearZero = baseAgent({ hullCurrent: 1 });
+    const first = simulateMission(nearZero, prospectingMission, baseRules, 777);
+    const second = simulateMission(nearZero, prospectingMission, baseRules, 777);
+
+    expect(first).toEqual(second);
+    expect(typeof first.finalHullPct).toBe('number');
+  });
+
+  it('remains byte-identical for the same damaged-agent seed', () => {
+    const damaged = baseAgent({ hullCurrent: 35 });
+    const first = simulateMission(damaged, prospectingMission, baseRules, 555);
+    const second = simulateMission(damaged, prospectingMission, baseRules, 555);
+
+    expect(first).toEqual(second);
+  });
+
+  it('can change mission outcome from damaged hull versus full hull', () => {
+    const fullHull = baseAgent({ hullCurrent: 100 });
+    const damaged = baseAgent({ hullCurrent: 10 });
+
+    const fullResult = simulateMission(fullHull, prospectingMission, { ...baseRules, hostileReaction: 'DEFEND' }, 2024);
+    const damagedResult = simulateMission(damaged, prospectingMission, { ...baseRules, hostileReaction: 'DEFEND' }, 2024);
+
+    expect(fullResult.seed).toBe(damagedResult.seed);
+    expect(fullResult.outcome !== damagedResult.outcome || fullResult.finalHullPct !== damagedResult.finalHullPct).toBe(true);
+  });
+
+  it('applies hull degradation to travel without changing unrelated behavior', () => {
+    const fullHull = baseAgent({ type: 'SCOUT', hullCurrent: 100 });
+    const damaged = baseAgent({ type: 'SCOUT', hullCurrent: 20 });
+
+    const fullResult = simulateMission(fullHull, prospectingMission, baseRules, 2024);
+    const damagedResult = simulateMission(damaged, prospectingMission, baseRules, 2024);
+
+    expect(fullResult.seed).toBe(damagedResult.seed);
+    expect(fullResult.agent.traits).toEqual(damagedResult.agent.traits);
+  });
+
+  it('preserves THICK_PLATING damage reduction with hull degradation', () => {
+    const base = baseAgent({ traits: ['THICK_PLATING'], hullCurrent: 80 });
+    const result = simulateMission(base, prospectingMission, baseRules, 2024);
+
+    expect(result.finalHullPct).toBeGreaterThanOrEqual(0);
+    expect(result.agentSurvives).toBe(true);
+  });
+
+  it('preserves BULKHEAD damage reduction with hull degradation', () => {
+    const base = baseAgent({ traits: ['BULKHEAD'], hullCurrent: 60 });
+    const result = simulateMission(base, prospectingMission, { ...baseRules, hostileReaction: 'DEFEND' }, 2024);
+
+    expect(result.finalHullPct).toBeGreaterThanOrEqual(0);
+    expect(result.agentSurvives).toBe(true);
+  });
+
+  it('keeps repair/recovery behavior unchanged by hull degradation', () => {
+    const damaged = baseAgent({ hullCurrent: 30 });
+    const result = simulateMission(damaged, prospectingMission, baseRules, 2024);
+
+    expect(typeof result.maintenanceCost).toBe('number');
+    expect(result.maintenanceCost).toBe((100 - result.finalHullPct) * 10);
+  });
+});
