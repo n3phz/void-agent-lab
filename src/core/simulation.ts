@@ -2,7 +2,7 @@ import type { Agent, AgentType, Mission, Rules, EventRecord, SimulationResult, E
 import { createRng } from './rng';
 import { travelTo } from './travel';
 import { FUEL, THRESHOLDS, AGENTS } from './types';
-import { rollAnomaly, shouldInvestigate, scanSuccess } from './anomalies';
+import { rollAnomaly, shouldInvestigate, scanSuccess, createProspectAnomalyPool, type Anomaly } from './anomalies';
 import { hostileRoll, hostileCombatOutcome, bribeSuccess } from './hostiles';
 import { getTraitEffects } from './traits';
 
@@ -88,9 +88,10 @@ export function simulateMission(
   const durationMin = mission.durationMin;
   const durationMax = mission.durationMax;
 
-  const anomalyPool: { risk: 'low' | 'high'; found: boolean; scanned: boolean; dataRecovered: boolean }[] = [];
+  const anomalyPool: Anomaly[] = [];
   if (mission.type === 'PROSPECT') {
-    for (let i = 0; i < 6; i++) anomalyPool.push({ risk: 'low', found: false, scanned: false, dataRecovered: false });
+    const seededPool = createProspectAnomalyPool(rng);
+    anomalyPool.push(...seededPool);
   }
 
   const travelFuel = Math.max(0, Math.round(FUEL.JUMP * effects.fuelCostMultiplier));
@@ -234,23 +235,30 @@ export function simulateMission(
             anomalyPool[idx].found = true;
             const risk = anomalyPool[idx].risk;
             if (shouldInvestigate(rules.anomalyResponse, risk)) {
-              if (scanSuccess(effectiveOps, rng)) {
+              if (scanSuccess(effectiveOps, rng, risk)) {
                 anomalyPool[idx].scanned = true;
                 anomalyPool[idx].dataRecovered = true;
                 anomaliesScanned++;
                 event = 'ANOMALY_SCANNED';
                 detail = `Anomaly scanned (${risk})`;
                 creditsEarned += mission.anomalyBonus ?? 0;
-                const { agent: a2, leveledUp } = applyXp(a, 5);
+                const xpGain = risk === 'high' ? 10 : 5;
+                const { agent: a2, leveledUp } = applyXp(a, xpGain);
                 Object.assign(a, a2);
                 if (leveledUp) {
                   log.push({ tick, time: fmtTime(tick), action, event: 'LEVEL_UP', detail: `Level up to ${a.level}`, fuelPct: a.fuel, hullPct: a.hullCurrent });
                 }
-                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(FUEL.ANOMALY_LOW_RISK * effects.fuelCostMultiplier)));
+                const fuelBase = risk === 'high' ? FUEL.ANOMALY_HIGH_RISK : FUEL.ANOMALY_LOW_RISK;
+                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(fuelBase * effects.fuelCostMultiplier)));
               } else {
-                event = 'ANOMALY_INVESTIGATED_LOW_RISK';
+                const failEvent = risk === 'high' ? 'ANOMALY_INVESTIGATED_HIGH_RISK' : 'ANOMALY_INVESTIGATED_LOW_RISK';
+                event = failEvent;
                 detail = 'Scan failed';
-                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(FUEL.ANOMALY_LOW_RISK * effects.fuelCostMultiplier)));
+                const fuelBase = risk === 'high' ? FUEL.ANOMALY_HIGH_RISK : FUEL.ANOMALY_LOW_RISK;
+                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(fuelBase * effects.fuelCostMultiplier)));
+                if (risk === 'high') {
+                  a.hullCurrent = Math.max(0, a.hullCurrent - Math.max(0, Math.round(5 * effects.hullDamageMultiplier)));
+                }
               }
             } else {
               detail = 'Anomaly ignored per rules';

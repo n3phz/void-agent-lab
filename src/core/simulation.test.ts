@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { simulateMission } from './simulation';
 import { createMission } from './missions';
 import { getTraitEffects } from './traits';
+import { createProspectAnomalyPool, shouldInvestigate, scanSuccess } from './anomalies';
+import { createRng } from './rng';
 import type { Agent, Mission, Rules } from './types';
 
 function baseAgent(overrides: Partial<Agent> = {}): Agent {
@@ -164,5 +166,60 @@ describe('trait activation regression', () => {
       expect(sourceText).not.toContain('fetch(');
       expect(sourceText).not.toContain('localStorage');
     }
+  });
+});
+
+describe('high-risk anomaly behavior', () => {
+  it('generates deterministic high-risk anomalies in PROSPECT pools', () => {
+    const seed = 1;
+    const firstPool = createProspectAnomalyPool(createRng(seed));
+    const secondPool = createProspectAnomalyPool(createRng(seed));
+
+    expect(firstPool).toEqual(secondPool);
+    expect(firstPool.some(anomaly => anomaly.risk === 'high')).toBe(true);
+  });
+
+  it('keeps INVESTIGATE_LOW_RISK from investigating high-risk anomalies', () => {
+    expect(shouldInvestigate('INVESTIGATE_LOW_RISK', 'low')).toBe(true);
+    expect(shouldInvestigate('INVESTIGATE_LOW_RISK', 'high')).toBe(false);
+  });
+
+  it('allows INVESTIGATE_ANY_RISK to investigate high-risk anomalies', () => {
+    expect(shouldInvestigate('INVESTIGATE_ANY_RISK', 'low')).toBe(true);
+    expect(shouldInvestigate('INVESTIGATE_ANY_RISK', 'high')).toBe(true);
+  });
+
+  it('gives high-risk investigation measurable reward and risk trade-off', () => {
+    expect(scanSuccess(55, () => 0.3, 'low')).toBe(true);
+    expect(scanSuccess(55, () => 0.5, 'high')).toBe(false);
+  });
+
+  it('preserves IGNORE and SCAN_ONLY behavior under high-risk anomalies', () => {
+    expect(shouldInvestigate('IGNORE', 'high')).toBe(false);
+    expect(shouldInvestigate('SCAN_ONLY', 'high')).toBe(false);
+    expect(shouldInvestigate('SCAN_ONLY', 'low')).toBe(true);
+  });
+
+  it('preserves Phase 10A trait effects during anomaly investigation', () => {
+    const baseEffects = getTraitEffects([]);
+    const keenEffects = getTraitEffects(['KEEN_SENSORS']);
+
+    expect(keenEffects.effectiveOpsBonus).toBeGreaterThan(baseEffects.effectiveOpsBonus);
+
+    const baseResult = simulateMission(baseAgent(), prospectingMission, baseRules, 2024);
+    const keenResult = simulateMission(baseAgent({ traits: ['KEEN_SENSORS'] }), prospectingMission, baseRules, 2024);
+
+    expect(baseResult.seed).toBe(keenResult.seed);
+    expect(typeof baseResult.netResult).toBe('number');
+    expect(typeof keenResult.netResult).toBe('number');
+  });
+
+  it('produces a deterministic end-to-end PROSPECT run that reaches anomaly events', () => {
+    const seed = 2024;
+    const first = simulateMission(baseAgent(), prospectingMission, baseRules, seed);
+    const second = simulateMission(baseAgent(), prospectingMission, baseRules, seed);
+
+    expect(first).toEqual(second);
+    expect(first.eventLog.some(e => e.event === 'ANOMALY_DETECTED' || e.event === 'ANOMALY_SCANNED')).toBe(true);
   });
 });
