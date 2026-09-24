@@ -171,14 +171,14 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
                     <button
                       onClick={handleRepair}
                       disabled={repairCost === 0 || state.credits < repairCost}
-                      className="tactical-button"
+                      className="btn"
                     >
                       Repair ({repairCost} CR)
                     </button>
                     <button
                       onClick={handleRefuel}
                       disabled={refuelCost === 0 || state.credits < refuelCost}
-                      className="tactical-button"
+                      className="btn"
                     >
                       Refuel ({refuelCost} CR)
                     </button>
@@ -186,7 +186,7 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
                       <button
                         onClick={handleRecover}
                         disabled={recoveryCost === 0 || state.credits < recoveryCost}
-                        className="tactical-button"
+                        className="btn btn--danger"
                       >
                         Recover ({recoveryCost} CR)
                       </button>
@@ -207,28 +207,28 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
         <nav className="station-action-bar">
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_creation' }))}
-            className="action-bar__item"
+            className="btn btn--secondary"
           >
             Create Agent
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_configuration' }))}
             disabled={state.selectedAgentIndex === null}
-            className="action-bar__item"
+            className="btn btn--secondary"
           >
             Configure Rules
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'mission_selection' }))}
             disabled={state.agents.length === 0}
-            className="action-bar__item"
+            className="btn btn--secondary"
           >
             Select Mission
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_blueprint' }))}
             disabled={state.selectedAgentIndex === null}
-            className="action-bar__item"
+            className="btn btn--secondary"
           >
             Blueprint
           </button>
