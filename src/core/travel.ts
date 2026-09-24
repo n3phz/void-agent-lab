@@ -16,6 +16,7 @@ export function travelTo(
   homeDistanceJumps: number,
   cruiseTicksPerJump: number,
   rng: () => number,
+  travelSafetyBonus = 0,
 ): TravelResult {
   const log: string[] = [];
   let jumps = 0;
@@ -23,7 +24,7 @@ export function travelTo(
   let failed = false;
   let misjump = false;
   let fuelCost = 0;
-  const jumpChanceFail = (100 - agent.nav) / 2;
+  const jumpChanceFail = Math.max(0, (100 - agent.nav) / 2 - travelSafetyBonus);
   for (let j = 0; j < homeDistanceJumps; j++) {
     jumps++;
     log.push(`Jump toward ${destination}`);
@@ -33,7 +34,7 @@ export function travelTo(
       misjump = true;
       log.push('Misjump');
       cruised += 2;
-      fuelCost += FUEL.ANOMALY_LOW_RISK; // misjump = +5 fuel (percentage points)
+      fuelCost += FUEL.ANOMALY_LOW_RISK;
       break;
     }
     for (let c = 0; c < cruiseTicksPerJump; c++) {

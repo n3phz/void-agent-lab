@@ -4,6 +4,7 @@ import { travelTo } from './travel';
 import { FUEL, THRESHOLDS, AGENTS } from './types';
 import { rollAnomaly, shouldInvestigate, scanSuccess } from './anomalies';
 import { hostileRoll, hostileCombatOutcome, bribeSuccess } from './hostiles';
+import { getTraitEffects } from './traits';
 
 function fmtTime(tick: number): string {
   const h = Math.floor(tick / 60) % 24;
@@ -62,6 +63,8 @@ export function simulateMission(
   const rng = createRng(seed);
   const a = cloneAgent(agent);
   const log: EventRecord[] = [];
+  const effects = getTraitEffects(a.traits);
+  const effectiveOps = Math.max(0, a.ops + effects.effectiveOpsBonus);
   const threshold = THRESHOLDS[rules.fuelThreshold];
   let tick = 0;
   const maxTicks = 120;
@@ -90,6 +93,11 @@ export function simulateMission(
     for (let i = 0; i < 6; i++) anomalyPool.push({ risk: 'low', found: false, scanned: false, dataRecovered: false });
   }
 
+  const travelFuel = Math.max(0, Math.round(FUEL.JUMP * effects.fuelCostMultiplier));
+  const cruiseFuel = Math.max(0, Math.round(FUEL.CRUISE * effects.fuelCostMultiplier));
+  const idleFuel = Math.max(0, Math.round(FUEL.IDLE * effects.fuelCostMultiplier));
+  const combatFuel = Math.max(0, Math.round(FUEL.COMBAT * effects.fuelCostMultiplier));
+
   while (tick < maxTicks && a.hullCurrent > 0 && a.fuel > 0) {
     const fuelPct = a.fuel;
     let action: TickAction = 'IDLE_WAIT';
@@ -114,26 +122,26 @@ export function simulateMission(
 
     switch (action) {
       case 'RETURN_HOME': {
-        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng);
+        const tr = travelTo(a, 'HOME', homeJumps, cruisePerJump, rng, effects.travelSafetyBonus);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';
           log.push({ tick, time: fmtTime(tick), action: 'RETURN_HOME', event: eType, detail: l, fuelPct: Math.max(0, a.fuel), hullPct: a.hullCurrent });
-          if (eType === 'MISJUMP' || eType === 'JUMP') a.fuel = Math.max(0, a.fuel - FUEL.JUMP);
-          if (eType === 'CRUISE') a.fuel = Math.max(0, a.fuel - FUEL.CRUISE);
+          if (eType === 'MISJUMP' || eType === 'JUMP') a.fuel = Math.max(0, a.fuel - travelFuel);
+          if (eType === 'CRUISE') a.fuel = Math.max(0, a.fuel - cruiseFuel);
         });
         outcome = 'aborted';
         break;
       }
 
       case 'TRAVEL': {
-        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng);
+        const tr = travelTo(a, mission.location, homeJumps, cruisePerJump, rng, effects.travelSafetyBonus);
         tr.log.forEach(l => {
           tick++;
           const eType = l.includes('Misjump') ? 'MISJUMP' : l === 'Cruise' ? 'CRUISE' : 'JUMP';
           log.push({ tick, time: fmtTime(tick), action: 'TRAVEL', event: eType, detail: l, fuelPct: Math.max(0, a.fuel), hullPct: a.hullCurrent });
-          if (eType === 'MISJUMP' || eType === 'JUMP') a.fuel = Math.max(0, a.fuel - FUEL.JUMP);
-          if (eType === 'CRUISE') a.fuel = Math.max(0, a.fuel - FUEL.CRUISE);
+          if (eType === 'MISJUMP' || eType === 'JUMP') a.fuel = Math.max(0, a.fuel - travelFuel);
+          if (eType === 'CRUISE') a.fuel = Math.max(0, a.fuel - cruiseFuel);
         });
         atDestination = !tr.failed;
         if (tr.failed) {
@@ -147,37 +155,37 @@ export function simulateMission(
 
       case 'RESOLVE_EVENT': {
         if (!missionStarted) missionStarted = true;
-        const hostileRollVal = hostileRoll(a.ops, rng);
-        const anomalyRollVal = mission.type === 'PROSPECT' ? rollAnomaly(rng, a.ops) : false;
+        const hostileRollVal = hostileRoll(effectiveOps, rng);
+        const anomalyRollVal = mission.type === 'PROSPECT' ? rollAnomaly(rng, effectiveOps) : false;
 
         if (hostileRollVal) {
           const reaction = rules.hostileReaction;
           if (reaction === 'FLEE_IMMEDIATELY') {
             event = 'HOSTILE_FLED';
             detail = 'Fled immediately';
-            a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+            a.fuel = Math.max(0, a.fuel - idleFuel);
             tick++;
             log.push({ tick, time: fmtTime(tick), action, event, detail, fuelPct: a.fuel, hullPct: a.hullCurrent });
             break;
           }
           if (reaction === 'BRIBE') {
-            if (bribeSuccess(a.ops, rng)) {
+            if (bribeSuccess(effectiveOps, rng)) {
               event = 'HOSTILE_BRIBED';
               detail = 'Bribe succeeded';
               creditsExpenses += 100;
             } else {
               event = 'HOSTILE_ENCOUNTER';
               detail = 'Bribe failed, combat';
-              const combat = hostileCombatOutcome(a.hullCurrent, a.ops, rng);
+              const combat = hostileCombatOutcome(Math.max(0, a.hullCurrent + effects.effectiveHullBonus), effectiveOps, rng);
               if (combat === 'won') {
                 event = 'HOSTILE_DEFEATED';
                 detail = 'Combat won';
-                a.hullCurrent = Math.max(0, a.hullCurrent - 5);
-                a.fuel = Math.max(0, a.fuel - FUEL.COMBAT);
+                a.hullCurrent = Math.max(0, a.hullCurrent - Math.max(0, Math.round(5 * effects.hullDamageMultiplier)));
+                a.fuel = Math.max(0, a.fuel - combatFuel);
               } else if (combat === 'fled') {
                 event = 'HOSTILE_FLED_COMBAT';
                 detail = 'Fled after combat';
-                a.fuel = Math.max(0, a.fuel - FUEL.COMBAT);
+                a.fuel = Math.max(0, a.fuel - combatFuel);
               } else {
                 event = 'HOSTILE_ENCOUNTER';
                 detail = 'Lost combat, destroyed';
@@ -190,16 +198,16 @@ export function simulateMission(
             break;
           }
           if (reaction === 'DEFEND') {
-            const combat = hostileCombatOutcome(a.hullCurrent, a.ops, rng);
+            const combat = hostileCombatOutcome(Math.max(0, a.hullCurrent + effects.effectiveHullBonus), effectiveOps, rng);
             if (combat === 'won') {
               event = 'HOSTILE_DEFEATED';
               detail = 'Defensive win';
-              a.hullCurrent = Math.max(0, a.hullCurrent - 8);
-              a.fuel = Math.max(0, a.fuel - FUEL.COMBAT);
+              a.hullCurrent = Math.max(0, a.hullCurrent - Math.max(0, Math.round(8 * effects.hullDamageMultiplier)));
+              a.fuel = Math.max(0, a.fuel - combatFuel);
             } else if (combat === 'fled') {
               event = 'HOSTILE_FLED_COMBAT';
               detail = 'Evade failed, fled';
-              a.fuel = Math.max(0, a.fuel - FUEL.COMBAT);
+              a.fuel = Math.max(0, a.fuel - combatFuel);
             } else {
               event = 'HOSTILE_ENCOUNTER';
               detail = 'Defensive loss, destroyed';
@@ -213,7 +221,7 @@ export function simulateMission(
           // EVADE_AND_SCAN
           event = 'HOSTILE_ENCOUNTER';
           detail = 'Evaded and scanned';
-          a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+          a.fuel = Math.max(0, a.fuel - idleFuel);
           tick++;
           log.push({ tick, time: fmtTime(tick), action, event, detail, fuelPct: a.fuel, hullPct: a.hullCurrent });
           break;
@@ -226,7 +234,7 @@ export function simulateMission(
             anomalyPool[idx].found = true;
             const risk = anomalyPool[idx].risk;
             if (shouldInvestigate(rules.anomalyResponse, risk)) {
-              if (scanSuccess(a.ops, rng)) {
+              if (scanSuccess(effectiveOps, rng)) {
                 anomalyPool[idx].scanned = true;
                 anomalyPool[idx].dataRecovered = true;
                 anomaliesScanned++;
@@ -238,15 +246,15 @@ export function simulateMission(
                 if (leveledUp) {
                   log.push({ tick, time: fmtTime(tick), action, event: 'LEVEL_UP', detail: `Level up to ${a.level}`, fuelPct: a.fuel, hullPct: a.hullCurrent });
                 }
-                a.fuel = Math.max(0, a.fuel - FUEL.ANOMALY_LOW_RISK);
+                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(FUEL.ANOMALY_LOW_RISK * effects.fuelCostMultiplier)));
               } else {
                 event = 'ANOMALY_INVESTIGATED_LOW_RISK';
                 detail = 'Scan failed';
-                a.fuel = Math.max(0, a.fuel - FUEL.ANOMALY_LOW_RISK);
+                a.fuel = Math.max(0, a.fuel - Math.max(0, Math.round(FUEL.ANOMALY_LOW_RISK * effects.fuelCostMultiplier)));
               }
             } else {
               detail = 'Anomaly ignored per rules';
-              a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+              a.fuel = Math.max(0, a.fuel - idleFuel);
             }
           }
           tick++;
@@ -256,7 +264,7 @@ export function simulateMission(
 
         event = 'IDLE';
         detail = 'No event detected';
-        a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+        a.fuel = Math.max(0, a.fuel - idleFuel);
         tick++;
         log.push({ tick, time: fmtTime(tick), action, event, detail, fuelPct: a.fuel, hullPct: a.hullCurrent });
         break;
@@ -269,7 +277,7 @@ export function simulateMission(
           detail = 'Prospect scanning';
           anomaliesScanned++;
           creditsEarned += mission.anomalyBonus ?? 0;
-          a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+          a.fuel = Math.max(0, a.fuel - idleFuel);
           const { agent: a2, leveledUp } = applyXp(a, 1);
           Object.assign(a, a2);
           if (leveledUp) {
@@ -281,8 +289,9 @@ export function simulateMission(
           if (missionWorkTicks >= durationMax - durationMin) {
             const capacity = a.cargo;
             const recovered = Math.min(mission.goalCargoRecover ?? 1, Math.max(0, capacity));
-            cargoRecovered = recovered;
-            if (recovered <= 0) {
+            const finalRecovered = recovered > 0 ? Math.round(recovered * effects.salvageRewardMultiplier) : recovered;
+            cargoRecovered = Math.min(capacity, finalRecovered);
+            if (cargoRecovered <= 0) {
               event = 'CARGO_DAMAGED';
               detail = 'Salvage failed: insufficient cargo capacity';
             } else if (capacity >= (mission.goalCargoRecover ?? 1) * 2) {
@@ -291,7 +300,7 @@ export function simulateMission(
               cargoRecovered = Math.min(capacity, (mission.goalCargoRecover ?? 1) * 2);
             }
           }
-          a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+          a.fuel = Math.max(0, a.fuel - idleFuel);
         } else if (mission.type === 'COURIER') {
           if (goodsDelivered < goodsRequired) {
             const capacity = a.cargo;
@@ -315,7 +324,7 @@ export function simulateMission(
             detail = 'Picking up rare metals';
             metalsPicked = metalsRequired;
           }
-          a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+          a.fuel = Math.max(0, a.fuel - idleFuel);
         }
         tick++;
         log.push({ tick, time: fmtTime(tick), action, event, detail, fuelPct: a.fuel, hullPct: a.hullCurrent });
@@ -325,7 +334,7 @@ export function simulateMission(
       case 'IDLE_WAIT': {
         event = 'IDLE';
         detail = 'Waiting';
-        a.fuel = Math.max(0, a.fuel - FUEL.IDLE);
+        a.fuel = Math.max(0, a.fuel - idleFuel);
         tick++;
         log.push({ tick, time: fmtTime(tick), action, event, detail, fuelPct: a.fuel, hullPct: a.hullCurrent });
         break;
@@ -345,7 +354,7 @@ export function simulateMission(
         if (mission.type === 'SALVAGE') {
           const capacityRatio = a.cargo / Math.max(1, mission.goalCargoRecover ?? 1);
           const salvageMultiplier = Math.min(2, 0.5 + capacityRatio * 0.5);
-          baseReward = Math.floor(baseReward * salvageMultiplier);
+          baseReward = Math.floor(baseReward * salvageMultiplier * effects.salvageRewardMultiplier);
         } else if (mission.type === 'COURIER') {
           const capacityRatio = a.cargo / Math.max(1, goodsRequired);
           const courierMultiplier = Math.min(1.5, 0.8 + capacityRatio * 0.2);
