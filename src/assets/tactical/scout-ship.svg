@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 48" width="120" height="48">
+  <defs>
+    <linearGradient id="scoutHull" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0f0f0"/>
+      <stop offset="50%" stop-color="#d0d0d0"/>
+      <stop offset="100%" stop-color="#a0a0a0"/>
+    </linearGradient>
+    <linearGradient id="scoutAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e8822a"/>
+      <stop offset="100%" stop-color="#c45a1a"/>
+    </linearGradient>
+    <linearGradient id="scoutCockpit" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1a2a3a"/>
+      <stop offset="100%" stop-color="#0a1420"/>
+    </linearGradient>
+    <radialGradient id="scoutEngineGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5aa9ff"/>
+      <stop offset="100%" stop-color="#5aa9ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Main hull -->
+  <path d="M10,24 L20,18 L20,14 L35,14 L45,10 L75,10 L90,14 L105,14 L110,18 L110,30 L105,34 L90,34 L75,34 L45,38 L35,38 L20,34 L20,30 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
+  <!-- Accent stripe -->
+  <path d="M20,24 L35,20 L45,18 L75,18 L90,20 L105,24 L105,28 L90,30 L75,30 L45,32 L35,32 L20,28 Z" fill="url(#scoutAccent)" opacity="0.7"/>
+  <!-- Cockpit -->
+  <path d="M75,14 L95,14 L100,18 L100,26 L95,30 L75,30 L70,26 L70,18 Z" fill="url(#scoutCockpit)" stroke="#3a5a7a" stroke-width="0.5"/>
+  <path d="M78,18 L92,18 L95,22 L95,26 L92,28 L78,28 L76,24 Z" fill="#2a4a6a" opacity="0.6"/>
+  <!-- Wings -->
+  <path d="M35,14 L25,8 L20,6 L20,14 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
+  <path d="M35,34 L25,40 L20,42 L20,34 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
+  <!-- Vertical stabilizers -->
+  <path d="M50,14 L55,6 L60,14 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
+  <path d="M50,34 L55,42 L60,34 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
+  <!-- Engine nozzles -->
+  <circle cx="108" cy="20" r="3" fill="#333"/>
+  <circle cx="108" cy="28" r="3" fill="#333"/>
+  <!-- Engine glow -->
+  <circle cx="115" cy="20" r="8" fill="url(#scoutEngineGlow)"/>
+  <circle cx="115" cy="28" r="8" fill="url(#scoutEngineGlow)"/>
+  <!-- Hull panels -->
+  <line x1="45" y1="14" x2="45" y2="34" stroke="#999" stroke-width="0.3" opacity="0.5"/>
+  <line x1="75" y1="14" x2="75" y2="34" stroke="#999" stroke-width="0.3" opacity="0.5"/>
+  <line x1="20" y1="20" x2="35" y2="20" stroke="#999" stroke-width="0.3" opacity="0.5"/>
+  <line x1="20" y1="28" x2="35" y2="28" stroke="#999" stroke-width="0.3" opacity="0.5"/>
+  <!-- Designation -->
+  <text x="60" y="26" font-family="monospace" font-size="4" fill="#e8822a" text-anchor="middle" font-weight="bold">S-01</text>
+</svg>
