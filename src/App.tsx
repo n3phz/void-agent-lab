@@ -993,8 +993,10 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
   const [speed, setSpeed] = useState(state.simulationSpeed);
   const [tickCount, setTickCount] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
+  const [events, setEvents] = useState<Array<{ id: number; tick: number; action: string; event: string; detail?: string; category: string; isCurrent: boolean }>>([]);
   const hasStartedRef = useRef(false);
   const hasCompletedRef = useRef(false);
+  const eventIdRef = useRef(0);
   
   const agent = state.selectedAgentIndex !== null && state.selectedAgentIndex < state.agents.length ? state.agents[state.selectedAgentIndex] : null;
   const mission = state.selectedMission;
@@ -1002,9 +1004,40 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
   const missionObj = useMemo(() => (mission ? getMission(mission) : null), [mission]);
   const maxTicks = 120;
   
+  // Fuel threshold and return state
+  const fuelThreshold = THRESHOLDS[rules.fuelThreshold];
+  const isReturning = agent ? agent.fuel <= fuelThreshold : false;
+  
   useEffect(() => {
     setSpeed(state.simulationSpeed);
   }, [state.simulationSpeed]);
+  
+  // Phase state derived from simulation progress
+  const phaseState = useMemo(() => {
+    if (tickCount === 0) return 'IDLE';
+    if (isReturning) return 'RETURN';
+    if (tickCount < maxTicks * 0.15) return 'JUMP';
+    if (tickCount < maxTicks * 0.5) return 'TRAVEL';
+    if (tickCount < maxTicks * 0.7) return 'CRUISE';
+    if (tickCount < maxTicks * 0.85) return 'SCANNING';
+    return 'MISSION';
+  }, [tickCount, maxTicks, isReturning]);
+
+  // Helper for phase badge class
+  const getPhaseBadgeClass = (phase: string) => {
+    switch (phase) {
+      case 'IDLE': return 'idle';
+      case 'TRAVEL': return 'travel';
+      case 'CRUISE': return 'cruise';
+      case 'JUMP': return 'jump';
+      case 'SCANNING': return 'scan';
+      case 'HOSTILE': return 'hostile';
+      case 'DAMAGE': return 'damage';
+      case 'RETURN': return 'return';
+      case 'MISSION': return 'mission';
+      default: return 'idle';
+    }
+  };
   
   // Auto-start the presentation when entering the Simulation screen.
   useEffect(() => {
@@ -1014,6 +1047,11 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
     setIsRunning(true);
     setTickCount(0);
     setProgressPercent(0);
+    setEvents([]);
+    eventIdRef.current = 0;
+    
+    // Initial event
+    addEvent('NAV', 'JUMP INITIATED', `${mission} → ${missionObj.location}`);
   }, [agent, mission, missionObj, state.simulationResult]);
 
   // Presentation only: advance progress without executing gameplay logic.
@@ -1027,6 +1065,43 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
 
     return () => clearInterval(interval);
   }, [isRunning, speed, agent, mission, missionObj, state.simulationResult]);
+
+  // Generate events based on tick progression
+  useEffect(() => {
+    if (!isRunning || tickCount === 0 || !missionObj) return;
+    
+    const newEvents: Array<{ id: number; tick: number; action: string; event: string; detail?: string; category: string; isCurrent: boolean }> = [];
+    
+    if (tickCount === 1) {
+      newEvents.push(createEvent('NAV', 'JUMP', `Course plotted to ${missionObj.location}`));
+    } else if (tickCount === Math.floor(maxTicks * 0.15)) {
+      newEvents.push(createEvent('NAV', 'CRUISE', 'Jump complete — entering cruise phase'));
+    } else if (tickCount === Math.floor(maxTicks * 0.3)) {
+      newEvents.push(createEvent('ANOMALY', 'ANOMALY DETECTED', 'Anomaly signature at bearing 047'));
+    } else if (tickCount === Math.floor(maxTicks * 0.4)) {
+      newEvents.push(createEvent('ANOMALY', 'ANOMALY SCANNED', 'Low-risk anomaly — data acquired'));
+    } else if (tickCount === Math.floor(maxTicks * 0.5)) {
+      newEvents.push(createEvent('NAV', 'CRUISE', 'Approaching mission zone'));
+    } else if (tickCount === Math.floor(maxTicks * 0.6) && missionObj.risk !== 'low') {
+      newEvents.push(createEvent('HOSTILE', 'HOSTILE ENCOUNTER', 'Contact — unknown signature'));
+    } else if (tickCount === Math.floor(maxTicks * 0.7) && missionObj.risk !== 'low') {
+      newEvents.push(createEvent('HOSTILE', 'HOSTILE FLED', 'Contact disengaged'));
+    } else if (tickCount === Math.floor(maxTicks * 0.75)) {
+      newEvents.push(createEvent('NAV', 'MISSION WORK', 'Primary objective in progress'));
+    } else if (tickCount === Math.floor(maxTicks * 0.85)) {
+      newEvents.push(createEvent('SUCCESS', 'OBJECTIVE COMPLETE', 'Mission parameters satisfied'));
+    } else if (tickCount === Math.floor(maxTicks * 0.9)) {
+      newEvents.push(createEvent('NAV', 'RETURN', 'Return vector plotted to station'));
+    }
+    
+    if (newEvents.length > 0) {
+      setEvents(prev => {
+        // Mark previous current as not current
+        const updated = prev.map(e => ({ ...e, isCurrent: false }));
+        return [...updated, ...newEvents];
+      });
+    }
+  }, [tickCount, maxTicks, isRunning, missionObj]);
 
   useEffect(() => {
     setProgressPercent(Math.min((tickCount / maxTicks) * 100, 100));
@@ -1046,6 +1121,24 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
     });
   }, [agent, missionObj, rules, state.simulationResult, state.simulationSeed, tickCount]);
   
+  // Event creation helper
+  const createEvent = (category: string, action: string, event: string, detail?: string) => ({
+    id: eventIdRef.current++,
+    tick: tickCount,
+    action,
+    event,
+    detail,
+    category,
+    isCurrent: true
+  });
+  
+  const addEvent = (category: string, action: string, event: string, detail?: string) => {
+    setEvents(prev => [
+      ...prev.map(e => ({ ...e, isCurrent: false })),
+      createEvent(category, action, event, detail)
+    ]);
+  };
+  
   if (!agent || !mission || !missionObj) {
     return <Station state={state} setState={setState} />;
   }
@@ -1054,8 +1147,6 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
     return <MissionReport state={state} setState={setState} />;
   }
   
-  const fuelThreshold = THRESHOLDS[rules.fuelThreshold];
-  const isReturning = agent.fuel <= fuelThreshold;
   const agentName = getAgentName(agent);
   const simulationStatus = tickCount === 0
     ? 'Waiting to begin simulation...'
@@ -1082,60 +1173,84 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       </div>
 
       <main className="simulation-deck">
-        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '40ms' }}>
-          <h3 className="section-title">MISSION TELEMETRY</h3>
+        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '40ms' }}>          <h3 className="section-title">TELEMETRY</h3>
 
-          <dl className="tele-specs mono">
-            <div><dt>MISSION</dt><dd>{mission}</dd></div>
-            <div><dt>DESTINATION</dt><dd>{missionObj.location}</dd></div>
-            <div><dt>DURATION WINDOW</dt><dd>{missionObj.durationMin}–{missionObj.durationMax} ticks</dd></div>
-            <div><dt>RISK</dt><dd>{missionObj.risk.toUpperCase()}</dd></div>
-          </dl>
-
-          <div className="tele-progress">
-            <div className="tele-progress__row mono">
-              <span className="value-transition">PROGRESS</span>
-              <span className="value-transition" key={tickCount}>{tickCount}/{maxTicks} TICKS · {Math.round(progressPercent)}%</span>
+        <div className="tactical-telemetry">
+          {/* HULL & FUEL as primary instrument strips */}
+          <div className="telemetry-strip telemetry-strip--primary">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">HULL</span>
+              <span className={`telemetry-strip__value mono${agent.hullCurrent < 30 ? ' is-critical' : ''}`}>{agent.hullCurrent.toFixed(1)}%</span>
             </div>
-            <div className="tele-progress__track">
-              <div
-                className={`tele-progress__fill value-transition${isReturning ? ' is-returning' : ''}`}
-                style={{ width: `${progressPercent}%` }}
-              />
+            <div className="telemetry-strip__track">
+              <div className={`telemetry-strip__fill${agent.hullCurrent < 30 ? ' is-critical' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }} />
+            </div>
+            <div className="telemetry-strip__detail mono">MAX {agent.hull} - CRIT 30%</div>
+          </div>
+
+          <div className="telemetry-strip telemetry-strip--primary">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">FUEL</span>
+              <span className={`telemetry-strip__value mono${agent.fuel < fuelThreshold ? ' is-low' : ''}`}>{agent.fuel.toFixed(1)}%</span>
+            </div>
+            <div className="telemetry-strip__track">
+              <div className={`telemetry-strip__fill${agent.fuel < fuelThreshold ? ' is-low' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }} />
+            </div>
+            <div className="telemetry-strip__detail mono">THRESHOLD {fuelThreshold}% · {isReturning ? 'RETURNING' : 'NOMINAL'}</div>
+          </div>
+
+          {/* PHASE/STATUS & TRAVEL MODE */}
+          <div className="telemetry-strip telemetry-strip--status">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">PHASE</span>
+              <span className={`telemetry-strip__value mono phase-badge phase-badge--${getPhaseBadgeClass(phaseState)}`}>{phaseState}</span>
             </div>
           </div>
 
-          <div className="tele-rules">
-            <div className="tele-rules__head mono">RULES ACTIVE</div>
-            <div className="tele-rules__grid mono">
-              <span>FUEL {rules.fuelThreshold} ({fuelThreshold}%)</span>
-              <span>ANOMALY {rules.anomalyResponse}</span>
-              <span>HOSTILE {rules.hostileReaction}</span>
-              <span>SEED {state.simulationSeed}</span>
+          <div className="telemetry-strip telemetry-strip--status">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">NAV MODE</span>
+              <span className="telemetry-strip__value mono">{rules.travelMode ?? 'BALANCED'}</span>
             </div>
+          </div>
+
+          {/* MISSION TIMER / PROGRESS */}
+          <div className="telemetry-strip telemetry-strip--progress">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">MISSION</span>
+              <span className="telemetry-strip__value mono" key={tickCount}>{tickCount}/{maxTicks} · {Math.round(progressPercent)}%</span>
+            </div>
+            <div className="telemetry-strip__track">
+              <div className={`telemetry-strip__fill${isReturning ? ' is-returning' : ''}`} style={{ width: `${progressPercent}%` }} />
+            </div>
+            <div className="telemetry-strip__detail mono">{isReturning ? 'AUTO-RETURN ACTIVE' : 'IN PROGRESS'}</div>
+          </div>
+
+          {/* NAV / OPS */}
+          <div className="telemetry-strip telemetry-strip--attrs">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">NAV</span>
+              <span className="telemetry-strip__value mono">{agent.nav}</span>
+            </div>
+            <div className="telemetry-strip__detail mono">SCAN BONUS +{Math.round((agent.nav / 100) * 100) / 100}x</div>
+          </div>
+
+          <div className="telemetry-strip telemetry-strip--attrs">
+            <div className="telemetry-strip__head">
+              <span className="telemetry-strip__label mono">OPS</span>
+              <span className="telemetry-strip__value mono">{agent.ops}</span>
+            </div>
+            <div className="telemetry-strip__detail mono">BRIBE/HOSTILE +{Math.round((agent.ops / 100) * 100) / 100}x</div>
           </div>
         </div>
+        </div>
 
-        <div className="simulation-panel simulation-panel--status panel-enter" style={{ animationDelay: '80ms' }}>
-          <h3 className="section-title">AGENT STATUS</h3>
-
-          <div className="stat-bar">
-            <div className="stat-bar__row mono"><span>HULL</span><span className={agent.hullCurrent < 30 ? 'is-critical' : ''}>{agent.hullCurrent.toFixed(1)}%</span></div>
-            <div className="stat-bar__track">
-              <div className={`stat-bar__fill${agent.hullCurrent < 30 ? ' is-critical' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }} />
-            </div>
-          </div>
-          <div className="stat-bar">
-            <div className="stat-bar__row mono"><span>FUEL</span><span className={agent.fuel < fuelThreshold ? 'is-low' : ''}>{agent.fuel.toFixed(1)}%</span></div>
-            <div className="stat-bar__track">
-              <div className={`stat-bar__fill${agent.fuel < fuelThreshold ? ' is-returning' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }} />
-            </div>
-            <div className="stat-bar__hint mono">THRESHOLD {fuelThreshold}%</div>
-          </div>
+        <div className="simulation-panel simulation-panel--status panel-enter" style={{ animationDelay: '80ms' }}>          <h3 className="section-title">AGENT STATUS</h3>
 
           <dl className="stat-specs mono">
             <div><dt>CREDITS</dt><dd>{agent.credits.toLocaleString()} CR</dd></div>
             <div><dt>CARGO</dt><dd>{agent.cargoUsed}/{agent.cargo}</dd></div>
+            <div><dt>SEED</dt><dd>{state.simulationSeed}</dd></div>
           </dl>
 
           <div className="current-event scan-surface">
@@ -1145,14 +1260,21 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
         </div>
       </main>
 
-      <div className="simulation-stream panel-enter" style={{ animationDelay: '120ms' }}>
-        <div className="simulation-stream__head mono">
+      <div className="simulation-stream panel-enter" style={{ animationDelay: '120ms' }}>        <div className="simulation-stream__head mono">
           <span>EVENT STREAM</span>
           <span>SPEED</span>
         </div>
         <div className="simulation-stream__body">
           <ol className="stream-log mono">
-            <li className="stream-entry" key={simulationStatus}>{simulationStatus}</li>
+            {events.map((e) => (
+              <li key={e.id} className={`stream-entry ${e.isCurrent ? ' is-current' : ''}`}>
+                <span className="stream-entry__icon" aria-hidden="true">{getEventIcon(e.category)}</span>
+                <span className="stream-entry__tick mono">T{e.tick}</span>
+                <span className="stream-entry__action mono">{e.action}</span>
+                <span className="stream-entry__text">{e.event}</span>
+                {e.detail && <span className="stream-entry__detail mono">{e.detail}</span>}
+              </li>
+            ))}
           </ol>
           <div className="stream-speed">
             <div className="speed-control" role="group" aria-label="Simulation speed">
@@ -1182,6 +1304,21 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       </div>
     </section>
   );
+
+  function getEventIcon(category: string): string {
+    switch (category) {
+      case 'NAV': return '▲';
+      case 'JUMP': return '⬢';
+      case 'ANOMALY': return '◇';
+      case 'HOSTILE': return '◆';
+      case 'DAMAGE': return '▼';
+      case 'DOCKING': return '■';
+      case 'SUCCESS': return '✓';
+      case 'FAILURE': return '✗';
+      case 'ABORT': return '⌐';
+      default: return '▸';
+    }
+  }
 }
 
 // ============ Mission Report Screen ============
