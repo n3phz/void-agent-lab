@@ -1,23 +1,38 @@
 /* Base reset + design tokens (shared by all screens) */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #0a0a0f;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.1);
+  --accent-border: rgba(192, 132, 252, 0.3);
+  --social-bg: rgba(47, 48, 58, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
+  /* VOID THEME - PHASE 0 */
+  --void-black: #0A0A0A;
+  --void-panel: #1E1E1E;
+  --void-subpanel: #2B2B2B;
+  --void-metal: #4A4A4A;
+  
+  /* SEMANTIC COLORS */
+  --void-nav: #6ECFF6;
+  --void-threat: #FF6B6B;
+  --void-scan: #A8E6CF;
+  --void-success: #8FBC8F;
+  --void-warning: #FFB86B;
+  
+  /* TYPOGRAPHY */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --heading: 'IBM Plex Sans', 'IBM Plex Sans', var(--sans);
+  --heading-weight: 600;
+  --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/145% var(--sans);
+  letter-spacing: 0;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -27,7 +42,15 @@
   -moz-osx-font-smoothing: grayscale;
 
   @media (max-width: 1024px) {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, :before, :after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

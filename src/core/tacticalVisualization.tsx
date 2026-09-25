@@ -537,7 +537,7 @@ export function TacticalVisualization({
 
       // Station glow
       const stationGlow = ctx.createRadialGradient(stationX, stationY, 0, stationX, stationY, stationSize * 1.5);
-      stationGlow.addColorStop(0, 'rgba(170, 59, 255, 0.15)');
+      stationGlow.addColorStop(0, 'rgba(170, 59, 255, 0.08)');
       stationGlow.addColorStop(1, 'rgba(170, 59, 255, 0)');
       ctx.fillStyle = stationGlow;
       ctx.fillRect(0, 0, w, h);
@@ -575,7 +575,7 @@ export function TacticalVisualization({
       ctx.beginPath();
       ctx.moveTo(stationX + stationSize * 0.5, stationY);
       ctx.lineTo(destX - destSize * 0.5, destY);
-      ctx.strokeStyle = 'rgba(170, 59, 255, 0.35)';
+      ctx.strokeStyle = 'rgba(110, 207, 246, 0.35)';
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.setLineDash([]);
@@ -587,9 +587,9 @@ export function TacticalVisualization({
 
         ctx.beginPath();
         ctx.arc(progX, progY, 6, 0, Math.PI * 2);
-        ctx.fillStyle = state.jumpFlash ? 'rgba(255, 255, 255, 0.9)' : 'rgba(170, 59, 255, 0.8)';
+        ctx.fillStyle = state.jumpFlash ? 'rgba(255, 255, 255, 0.9)' : 'rgba(110, 207, 246, 0.8)';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(170, 59, 255, 0.6)';
+        ctx.strokeStyle = 'rgba(110, 207, 246, 0.6)';
         ctx.lineWidth = 2;
         ctx.stroke();
       }
@@ -616,7 +616,7 @@ export function TacticalVisualization({
           const beamEndX = shipX + (ax - shipX) * beamProgress;
           const beamEndY = shipY + (ay - shipY) * beamProgress;
           ctx.lineTo(beamEndX, beamEndY);
-          ctx.strokeStyle = `rgba(170, 59, 255, ${0.4 * (1 - state.scanBeamProgress * 0.5)})`;
+          ctx.strokeStyle = `rgba(110, 207, 246, ${0.4 * (1 - state.scanBeamProgress * 0.5)})`;
           ctx.lineWidth = 2;
           ctx.setLineDash([8, 4]);
           ctx.stroke();
@@ -626,7 +626,7 @@ export function TacticalVisualization({
           if (beamProgress > 0.1) {
             ctx.beginPath();
             ctx.arc(beamEndX, beamEndY, 6 * beamProgress, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(170, 59, 255, ${0.6 * (1 - state.scanBeamProgress)})`;
+            ctx.fillStyle = `rgba(110, 207, 246, ${0.6 * (1 - state.scanBeamProgress)})`;
             ctx.fill();
           }
         }
@@ -637,14 +637,14 @@ export function TacticalVisualization({
           const pulseRadius = 30 + 30 * state.scanPulseProgress;
           ctx.beginPath();
           ctx.arc(ax, ay, pulseRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(170, 59, 255, ${pulseAlpha})`;
+          ctx.strokeStyle = `rgba(110, 207, 246, ${pulseAlpha})`;
           ctx.lineWidth = 2 * (1 - state.scanPulseProgress * 0.5);
           ctx.stroke();
           
           // Secondary inner ring
           ctx.beginPath();
           ctx.arc(ax, ay, 20 + 20 * state.scanPulseProgress, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(170, 59, 255, ${pulseAlpha * 0.6})`;
+          ctx.strokeStyle = `rgba(110, 207, 246, ${pulseAlpha * 0.6})`;
           ctx.lineWidth = 1;
           ctx.stroke();
         }
@@ -752,7 +752,7 @@ export function TacticalVisualization({
           ctx.beginPath();
           const trailSize = shipSize * 0.3 * (1 - i / trailLength);
           ctx.arc(tx * w, ty * h, trailSize, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(170, 59, 255, ${0.15 * (1 - i / trailLength)})`;
+          ctx.fillStyle = `rgba(110, 207, 246, ${0.15 * (1 - i / trailLength)})`;
           ctx.fill();
           
           // Engine glow particles (only when not reduced motion)
@@ -760,7 +760,7 @@ export function TacticalVisualization({
             const flicker = 0.8 + 0.2 * Math.sin(performance.now() * 0.01 + i * 2);
             ctx.beginPath();
             ctx.arc(tx * w, ty * h, trailSize * 0.6, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(170, 59, 255, ${0.3 * (1 - i / trailLength) * flicker})`;
+            ctx.fillStyle = `rgba(110, 207, 246, ${0.3 * (1 - i / trailLength) * flicker})`;
             ctx.fill();
           }
         }
@@ -789,14 +789,14 @@ export function TacticalVisualization({
         
         switch (state.jumpPhase) {
           case 'charge': {
-            // CHARGE: violet energy building at ship
+            // CHARGE: navigation cyan energy building at ship
             const chargeRadius = 15 + 25 * phaseProgress;
             const chargeAlpha = 0.5 * phaseProgress;
-            ctx.shadowColor = `rgba(170, 59, 255, ${0.8 * chargeAlpha})`;
+            ctx.shadowColor = `rgba(110, 207, 246, ${0.8 * chargeAlpha})`;
             ctx.shadowBlur = 30 * chargeAlpha;
             ctx.beginPath();
             ctx.arc(0, 0, chargeRadius, 0, Math.PI * 2);
-            ctx.strokeStyle = `rgba(170, 59, 255, ${chargeAlpha})`;
+            ctx.strokeStyle = `rgba(110, 207, 246, ${chargeAlpha})`;
             ctx.lineWidth = 2;
             ctx.setLineDash([5 * (1 - phaseProgress), 3]);
             ctx.stroke();
@@ -822,16 +822,16 @@ export function TacticalVisualization({
             break;
           }
           case 'burst': {
-            // BURST: jump-burst effect
+            // BURST: navigation cyan jump-burst effect
             const burstRadius = 30 + 60 * phaseProgress;
             const burstAlpha = 1 - phaseProgress;
-            ctx.shadowColor = `rgba(170, 59, 255, ${burstAlpha})`;
+            ctx.shadowColor = `rgba(110, 207, 246, ${burstAlpha})`;
             ctx.shadowBlur = 40 * burstAlpha;
             ctx.beginPath();
             ctx.arc(0, 0, burstRadius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(170, 59, 255, ${0.15 * burstAlpha})`;
+            ctx.fillStyle = `rgba(110, 207, 246, ${0.15 * burstAlpha})`;
             ctx.fill();
-            ctx.strokeStyle = `rgba(170, 59, 255, ${0.5 * burstAlpha})`;
+            ctx.strokeStyle = `rgba(110, 207, 246, ${0.5 * burstAlpha})`;
             ctx.lineWidth = 2;
             ctx.stroke();
             // Radial lines
@@ -855,9 +855,9 @@ export function TacticalVisualization({
             break;
           }
           case 'complete': {
-            // NORMAL TRAVEL: subtle afterglow
+            // NORMAL TRAVEL: subtle navigation cyan afterglow
             const afterglow = 1 - phaseProgress;
-            ctx.shadowColor = `rgba(170, 59, 255, ${0.3 * afterglow})`;
+            ctx.shadowColor = `rgba(110, 207, 246, ${0.3 * afterglow})`;
             ctx.shadowBlur = 15 * afterglow;
             break;
           }
@@ -929,10 +929,10 @@ export function TacticalVisualization({
       const barX = (w - barW) / 2;
       ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
       ctx.fillRect(barX, barY, barW, 8);
-      ctx.fillStyle = state.phase === 'return' ? 'rgba(255, 150, 50, 0.9)' :
-                      state.phase === 'complete' ? 'rgba(74, 222, 128, 0.9)' :
-                      state.phase === 'abort' ? 'rgba(255, 80, 80, 0.9)' :
-                      'rgba(170, 59, 255, 0.9)';
+      ctx.fillStyle = state.phase === 'return' ? 'rgba(255, 184, 107, 0.9)' :
+                      state.phase === 'complete' ? 'rgba(143, 188, 143, 0.9)' :
+                      state.phase === 'abort' ? 'rgba(255, 107, 107, 0.9)' :
+                      'rgba(110, 207, 246, 0.9)';
       ctx.fillRect(barX, barY, barW * state.progress, 8);
 
       // Current event text

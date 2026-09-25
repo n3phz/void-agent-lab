@@ -1,5 +1,6 @@
 "use client";
 
+import './App.css';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { Rules, EventRecord, AgentType, MissionType, FuelThreshold, AnomalyResponse, HostileReaction } from './core/types';
 import { simulateMission } from './core/simulation';
@@ -1203,76 +1204,45 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
           </div>
         </div>
 
-        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '80ms' }}>          <h3 className="section-title">TELEMETRY</h3>
-
-        <div className="tactical-telemetry">
-          {/* HULL & FUEL as primary instrument strips */}
-          <div className="telemetry-strip telemetry-strip--primary">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">HULL</span>
-              <span className={`telemetry-strip__value mono${agent.hullCurrent < 30 ? ' is-critical' : ''}`}>{agent.hullCurrent.toFixed(1)}%</span>
+        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '80ms' }}>
+          <div className="instrument-strips">
+            <div className="instrument-strip">
+              <span className="instrument-label">HULL</span>
+              <span className={`instrument-value${agent.hullCurrent < 30 ? ' critical' : ''}`}>{agent.hullCurrent.toFixed(1)}%</span>
+              <span className="instrument-bar"><span className="instrument-fill" style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }} /></span>
+              <span className="instrument-detail">MAX {agent.hull} / CRIT 30%</span>
             </div>
-            <div className="telemetry-strip__track">
-              <div className={`telemetry-strip__fill${agent.hullCurrent < 30 ? ' is-critical' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }} />
+            <div className="instrument-strip">
+              <span className="instrument-label">FUEL</span>
+              <span className={`instrument-value${agent.fuel < fuelThreshold ? ' low' : ''}`}>{agent.fuel.toFixed(1)}%</span>
+              <span className="instrument-bar"><span className="instrument-fill" style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }} /></span>
+              <span className="instrument-detail">THR {fuelThreshold}% · {isReturning ? 'RTB' : 'NOM'}</span>
             </div>
-            <div className="telemetry-strip__detail mono">MAX {agent.hull} - CRIT 30%</div>
+            <div className="instrument-strip">
+              <span className="instrument-label">PHASE</span>
+              <span className={`instrument-value phase-badge phase-badge--${getPhaseBadgeClass(phaseState)}`}>{phaseState}</span>
+            </div>
+            <div className="instrument-strip">
+              <span className="instrument-label">NAV MODE</span>
+              <span className="instrument-value">{rules.travelMode ?? 'BALANCED'}</span>
+            </div>
+            <div className="instrument-strip">
+              <span className="instrument-label">MISSION</span>
+              <span className="instrument-value">{tickCount}/{maxTicks} · {Math.round(progressPercent)}%</span>
+              <span className="instrument-bar"><span className="instrument-fill" style={{ width: `${progressPercent}%` }} /></span>
+              <span className="instrument-detail">{isReturning ? 'AUTO-RETURN' : 'IN PROGRESS'}</span>
+            </div>
+            <div className="instrument-strip">
+              <span className="instrument-label">NAV</span>
+              <span className="instrument-value">{agent.nav}</span>
+              <span className="instrument-detail">SCAN +{Math.round((agent.nav / 100) * 100) / 100}x</span>
+            </div>
+            <div className="instrument-strip">
+              <span className="instrument-label">OPS</span>
+              <span className="instrument-value">{agent.ops}</span>
+              <span className="instrument-detail">HSTL +{Math.round((agent.ops / 100) * 100) / 100}x</span>
+            </div>
           </div>
-
-          <div className="telemetry-strip telemetry-strip--primary">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">FUEL</span>
-              <span className={`telemetry-strip__value mono${agent.fuel < fuelThreshold ? ' is-low' : ''}`}>{agent.fuel.toFixed(1)}%</span>
-            </div>
-            <div className="telemetry-strip__track">
-              <div className={`telemetry-strip__fill${agent.fuel < fuelThreshold ? ' is-low' : ''}`} style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }} />
-            </div>
-            <div className="telemetry-strip__detail mono">THRESHOLD {fuelThreshold}% · {isReturning ? 'RETURNING' : 'NOMINAL'}</div>
-          </div>
-
-          {/* PHASE/STATUS & TRAVEL MODE */}
-          <div className="telemetry-strip telemetry-strip--status">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">PHASE</span>
-              <span className={`telemetry-strip__value mono phase-badge phase-badge--${getPhaseBadgeClass(phaseState)}`}>{phaseState}</span>
-            </div>
-          </div>
-
-          <div className="telemetry-strip telemetry-strip--status">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">NAV MODE</span>
-              <span className="telemetry-strip__value mono">{rules.travelMode ?? 'BALANCED'}</span>
-            </div>
-          </div>
-
-          {/* MISSION TIMER / PROGRESS */}
-          <div className="telemetry-strip telemetry-strip--progress">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">MISSION</span>
-              <span className="telemetry-strip__value mono" key={tickCount}>{tickCount}/{maxTicks} · {Math.round(progressPercent)}%</span>
-            </div>
-            <div className="telemetry-strip__track">
-              <div className={`telemetry-strip__fill${isReturning ? ' is-returning' : ''}`} style={{ width: `${progressPercent}%` }} />
-            </div>
-            <div className="telemetry-strip__detail mono">{isReturning ? 'AUTO-RETURN ACTIVE' : 'IN PROGRESS'}</div>
-          </div>
-
-          {/* NAV / OPS */}
-          <div className="telemetry-strip telemetry-strip--attrs">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">NAV</span>
-              <span className="telemetry-strip__value mono">{agent.nav}</span>
-            </div>
-            <div className="telemetry-strip__detail mono">SCAN BONUS +{Math.round((agent.nav / 100) * 100) / 100}x</div>
-          </div>
-
-          <div className="telemetry-strip telemetry-strip--attrs">
-            <div className="telemetry-strip__head">
-              <span className="telemetry-strip__label mono">OPS</span>
-              <span className="telemetry-strip__value mono">{agent.ops}</span>
-            </div>
-            <div className="telemetry-strip__detail mono">BRIBE/HOSTILE +{Math.round((agent.ops / 100) * 100) / 100}x</div>
-          </div>
-        </div>
         </div>
 
         <div className="simulation-panel simulation-panel--status panel-enter" style={{ animationDelay: '80ms' }}>          <h3 className="section-title">AGENT STATUS</h3>
