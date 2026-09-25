@@ -27,6 +27,10 @@ function drawAsset(ctx: CanvasRenderingContext2D, path: string, x: number, y: nu
   return true;
 }
 
+// Easing functions for smooth animations
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeInOutCubic = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
 export interface VisualizationState {
   phase: 'idle' | 'travel' | 'cruise' | 'mission' | 'hostile' | 'anomaly' | 'damage' | 'complete' | 'abort' | 'return';
   progress: number; // 0-1 overall
@@ -50,6 +54,13 @@ export interface VisualizationState {
   dockingProgress: number;
   reducedMotion: boolean;
   anomaliesScanned: number;
+  // 11C.2: Enhanced event visual state
+  hostileLockOn: number; // 0-1 lock-on progress
+  damageOverlay: number; // 0-1 damage emphasis
+  scanBeamProgress: number; // 0-1 scan beam from ship to anomaly
+  jumpPhase: 'idle' | 'charge' | 'gate' | 'burst' | 'transition' | 'complete';
+  jumpPhaseProgress: number; // 0-1 within current jump phase
+  dockingAlignProgress: number; // 0-1 ship alignment to station
 }
 
 interface TacticalVisualizationProps {
@@ -159,6 +170,13 @@ export function TacticalVisualization({
     dockingProgress: 0,
     reducedMotion: false,
     anomaliesScanned: 0,
+    // 11C.2
+    hostileLockOn: 0,
+    damageOverlay: 0,
+    scanBeamProgress: 0,
+    jumpPhase: 'idle',
+    jumpPhaseProgress: 0,
+    dockingAlignProgress: 0,
   });
   const prevEventRef = useRef<string>('');
 
@@ -388,6 +406,51 @@ export function TacticalVisualization({
           return a;
         });
 
+        // 11C.2: Hostile lock-on progress
+        if (s.phase === 'hostile' && s.hostileLockOn < 1 && !s.reducedMotion) {
+          nextState = { ...nextState, hostileLockOn: Math.min(1, s.hostileLockOn + deltaTime * 2) };
+        } else if (s.phase !== 'hostile' && s.hostileLockOn > 0) {
+          nextState = { ...nextState, hostileLockOn: Math.max(0, s.hostileLockOn - deltaTime * 1.5) };
+        }
+
+        // 11C.2: Damage overlay (brief emphasis, quick decay)
+        if (s.damageFlash && s.damageOverlay < 1 && !s.reducedMotion) {
+          nextState = { ...nextState, damageOverlay: Math.min(1, s.damageOverlay + deltaTime * 4) };
+        } else if (!s.damageFlash && s.damageOverlay > 0) {
+          nextState = { ...nextState, damageOverlay: Math.max(0, s.damageOverlay - deltaTime * 2) };
+        }
+
+        // 11C.2: Scan beam from ship to anomaly
+        if (s.scanPulse && s.scanBeamProgress < 1 && !s.reducedMotion) {
+          nextState = { ...nextState, scanBeamProgress: Math.min(1, s.scanBeamProgress + deltaTime * 1.5) };
+        } else if (!s.scanPulse && s.scanBeamProgress > 0) {
+          nextState = { ...nextState, scanBeamProgress: Math.max(0, s.scanBeamProgress - deltaTime * 1) };
+        }
+
+        // 11C.2: Jump phase state machine
+        if (s.jumpFlash) {
+          const phaseDuration = 0.2; // each phase ~200ms
+          if (s.jumpPhase === 'charge' && s.jumpPhaseProgress >= 1) {
+            nextState = { ...nextState, jumpPhase: 'gate', jumpPhaseProgress: 0 };
+          } else if (s.jumpPhase === 'gate' && s.jumpPhaseProgress >= 1) {
+            nextState = { ...nextState, jumpPhase: 'burst', jumpPhaseProgress: 0 };
+          } else if (s.jumpPhase === 'burst' && s.jumpPhaseProgress >= 1) {
+            nextState = { ...nextState, jumpPhase: 'transition', jumpPhaseProgress: 0 };
+          } else if (s.jumpPhase === 'transition' && s.jumpPhaseProgress >= 1) {
+            nextState = { ...nextState, jumpPhase: 'complete', jumpPhaseProgress: 0 };
+          }
+          nextState = { ...nextState, jumpPhaseProgress: Math.min(1, s.jumpPhaseProgress + deltaTime / phaseDuration) };
+        } else if (!s.jumpFlash && s.jumpPhase !== 'idle') {
+          nextState = { ...nextState, jumpPhase: 'idle', jumpPhaseProgress: 0 };
+        }
+
+        // 11C.2: Docking alignment
+        if ((s.phase === 'complete' || s.phase === 'return') && s.dockingAlignProgress < 1 && !s.reducedMotion) {
+          nextState = { ...nextState, dockingAlignProgress: Math.min(1, s.dockingAlignProgress + deltaTime * 0.8) };
+        } else if (s.phase !== 'complete' && s.phase !== 'return' && s.dockingAlignProgress > 0) {
+          nextState = { ...nextState, dockingAlignProgress: Math.max(0, s.dockingAlignProgress - deltaTime * 0.5) };
+        }
+
         // Animate hostile warning pulse
         nextState.hostiles = s.hostiles.map(h => ({
           ...h,
@@ -522,6 +585,33 @@ export function TacticalVisualization({
 
         drawAsset(ctx, markerPath, ax, ay, baseSize);
 
+        // 11C.2: Scan beam from ship to anomaly (when scanning this anomaly)
+        if (state.scanBeamProgress > 0 && !scanned && i === state.anomaliesScanned && !state.reducedMotion) {
+          const shipX = state.shipPosition.x * w;
+          const shipY = state.shipPosition.y * h;
+          const beamProgress = easeOutCubic(state.scanBeamProgress);
+          
+          // Draw beam line from ship to anomaly
+          ctx.beginPath();
+          ctx.moveTo(shipX, shipY);
+          const beamEndX = shipX + (ax - shipX) * beamProgress;
+          const beamEndY = shipY + (ay - shipY) * beamProgress;
+          ctx.lineTo(beamEndX, beamEndY);
+          ctx.strokeStyle = `rgba(170, 59, 255, ${0.4 * (1 - state.scanBeamProgress * 0.5)})`;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([8, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          
+          // Beam head at current position
+          if (beamProgress > 0.1) {
+            ctx.beginPath();
+            ctx.arc(beamEndX, beamEndY, 6 * beamProgress, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(170, 59, 255, ${0.6 * (1 - state.scanBeamProgress)})`;
+            ctx.fill();
+          }
+        }
+
         // Scan pulse ring - animated based on scanPulseProgress
         if (state.scanPulseProgress > 0 && !scanned && i === state.anomaliesScanned) {
           const pulseAlpha = 0.4 * state.scanPulseProgress * (1 - state.scanPulseProgress);
@@ -562,6 +652,53 @@ export function TacticalVisualization({
         }
         
         drawAsset(ctx, '/src/assets/tactical/marker-hostile.svg', hx, hy, baseSize);
+        
+        // 11C.2: Hostile lock-on treatment (restrained threat pulse + targeting indicator)
+        if (encountered && state.hostileLockOn > 0 && !state.reducedMotion) {
+          const lockProgress = easeInOutCubic(state.hostileLockOn);
+          
+          // Lock-on brackets (tactical targeting)
+          const bracketSize = 18 + 6 * lockProgress;
+          const bracketAlpha = 0.6 * lockProgress;
+          ctx.strokeStyle = `rgba(255, 60, 60, ${bracketAlpha})`;
+          ctx.lineWidth = 1.5;
+          // Top-left bracket
+          ctx.beginPath();
+          ctx.moveTo(hx - bracketSize, hy - bracketSize);
+          ctx.lineTo(hx - bracketSize, hy - bracketSize + 8);
+          ctx.moveTo(hx - bracketSize, hy - bracketSize);
+          ctx.lineTo(hx - bracketSize + 8, hy - bracketSize);
+          ctx.stroke();
+          // Top-right bracket
+          ctx.beginPath();
+          ctx.moveTo(hx + bracketSize, hy - bracketSize);
+          ctx.lineTo(hx + bracketSize, hy - bracketSize + 8);
+          ctx.moveTo(hx + bracketSize, hy - bracketSize);
+          ctx.lineTo(hx + bracketSize - 8, hy - bracketSize);
+          ctx.stroke();
+          // Bottom-left bracket
+          ctx.beginPath();
+          ctx.moveTo(hx - bracketSize, hy + bracketSize);
+          ctx.lineTo(hx - bracketSize, hy + bracketSize - 8);
+          ctx.moveTo(hx - bracketSize, hy + bracketSize);
+          ctx.lineTo(hx - bracketSize + 8, hy + bracketSize);
+          ctx.stroke();
+          // Bottom-right bracket
+          ctx.beginPath();
+          ctx.moveTo(hx + bracketSize, hy + bracketSize);
+          ctx.lineTo(hx + bracketSize, hy + bracketSize - 8);
+          ctx.moveTo(hx + bracketSize, hy + bracketSize);
+          ctx.lineTo(hx + bracketSize - 8, hy + bracketSize);
+          ctx.stroke();
+          
+          // Restrained threat pulse ring
+          const pulseRadius = 28 + 10 * Math.sin(performance.now() * 0.006);
+          ctx.beginPath();
+          ctx.arc(hx, hy, pulseRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255, 60, 60, ${0.15 * lockProgress})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
         
         // Warning pulse rings (only when involved)
         if (encountered && warningPulse > 0.3 && !state.reducedMotion) {
@@ -617,21 +754,95 @@ export function TacticalVisualization({
       if (state.phase === 'travel') ctx.rotate(-0.05);
       else if (state.phase === 'cruise') ctx.rotate(0.03);
 
-      // Damage flash - animated progress
-      if (state.damageFlashProgress > 0 && !state.reducedMotion) {
-        const intensity = state.damageFlashProgress * (1 - state.damageFlashProgress) * 2;
-        ctx.shadowColor = `rgba(255, 60, 60, ${0.8 * intensity})`;
-        ctx.shadowBlur = 20 * intensity;
+      // 11C.2: Damage overlay - restrained hull emphasis
+      if (state.damageOverlay > 0 && !state.reducedMotion) {
+        const overlayAlpha = easeOutCubic(state.damageOverlay) * 0.6;
+        ctx.shadowColor = `rgba(255, 60, 60, ${0.9 * overlayAlpha})`;
+        ctx.shadowBlur = 25 * overlayAlpha;
+        // Subtle red tint to ship area
+        ctx.fillStyle = `rgba(255, 60, 60, ${0.1 * overlayAlpha})`;
+        ctx.fillRect(-shipSize, -shipSize, shipSize * 2, shipSize * 2);
       }
 
-      // Jump flash - animated progress with screen shake effect
-      if (state.jumpFlashProgress > 0 && !state.reducedMotion) {
-        const intensity = state.jumpFlashProgress * (1 - state.jumpFlashProgress) * 2;
-        ctx.shadowColor = `rgba(170, 59, 255, ${0.9 * intensity})`;
-        ctx.shadowBlur = 25 * intensity;
-        // Subtle scale pulse during jump
-        const scalePulse = 1 + 0.1 * intensity;
-        ctx.scale(scalePulse, scalePulse);
+      // 11C.2: Jump phase visual sequence
+      if (state.jumpPhase !== 'idle' && !state.reducedMotion) {
+        const phaseProgress = easeInOutCubic(state.jumpPhaseProgress);
+        
+        switch (state.jumpPhase) {
+          case 'charge': {
+            // CHARGE: violet energy building at ship
+            const chargeRadius = 15 + 25 * phaseProgress;
+            const chargeAlpha = 0.5 * phaseProgress;
+            ctx.shadowColor = `rgba(170, 59, 255, ${0.8 * chargeAlpha})`;
+            ctx.shadowBlur = 30 * chargeAlpha;
+            ctx.beginPath();
+            ctx.arc(0, 0, chargeRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(170, 59, 255, ${chargeAlpha})`;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5 * (1 - phaseProgress), 3]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            break;
+          }
+          case 'gate': {
+            // JUMP GATE ACTIVE: jump gate marker appears at ship position
+            const gateScale = 0.5 + phaseProgress;
+            ctx.shadowColor = `rgba(0, 212, 255, ${0.7 * phaseProgress})`;
+            ctx.shadowBlur = 20 * phaseProgress;
+            // Draw jump gate effect
+            ctx.beginPath();
+            ctx.arc(0, 0, 20 * gateScale, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.6 * phaseProgress})`;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 0, 12 * gateScale, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.4 * phaseProgress})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            break;
+          }
+          case 'burst': {
+            // BURST: jump-burst effect
+            const burstRadius = 30 + 60 * phaseProgress;
+            const burstAlpha = 1 - phaseProgress;
+            ctx.shadowColor = `rgba(170, 59, 255, ${burstAlpha})`;
+            ctx.shadowBlur = 40 * burstAlpha;
+            ctx.beginPath();
+            ctx.arc(0, 0, burstRadius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(170, 59, 255, ${0.15 * burstAlpha})`;
+            ctx.fill();
+            ctx.strokeStyle = `rgba(170, 59, 255, ${0.5 * burstAlpha})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            // Radial lines
+            for (let i = 0; i < 8; i++) {
+              const angle = (i / 8) * Math.PI * 2;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(angle) * 15, Math.sin(angle) * 15);
+              ctx.lineTo(Math.cos(angle) * burstRadius, Math.sin(angle) * burstRadius);
+              ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * burstAlpha})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+            break;
+          }
+          case 'transition': {
+            // SHIP TRANSITION: ship scaling/fading
+            const transScale = 1 - 0.3 * phaseProgress;
+            const transAlpha = 1 - phaseProgress;
+            ctx.globalAlpha = transAlpha;
+            ctx.scale(transScale, transScale);
+            break;
+          }
+          case 'complete': {
+            // NORMAL TRAVEL: subtle afterglow
+            const afterglow = 1 - phaseProgress;
+            ctx.shadowColor = `rgba(170, 59, 255, ${0.3 * afterglow})`;
+            ctx.shadowBlur = 15 * afterglow;
+            break;
+          }
+        }
       }
 
       // Success flash - animated progress
@@ -641,7 +852,7 @@ export function TacticalVisualization({
         ctx.shadowBlur = 25 * intensity;
       }
 
-      // Docking approach visual
+      // 11C.2: Docking approach visual with alignment
       if (state.dockingProgress > 0 && (state.phase === 'complete' || state.phase === 'return')) {
         const destX = 0.88 * w;
         const destY = 0.5 * h;
@@ -651,13 +862,30 @@ export function TacticalVisualization({
         const distanceToDest = Math.sqrt(Math.pow(destX / w - dockX, 2) + Math.pow(destY / h - dockY, 2));
         
         if (distanceToDest < 0.2 || state.dockingProgress > 0.5) {
+          const alignProgress = easeOutCubic(state.dockingAlignProgress);
+          
+          // Docking alignment rings
           ctx.beginPath();
           ctx.arc(destX, destY, destSize * (1 + 0.5 * state.dockingProgress), 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(74, 222, 128, ${0.4 * state.dockingProgress})`;
+          ctx.strokeStyle = `rgba(74, 222, 128, ${0.4 * state.dockingProgress * alignProgress})`;
           ctx.lineWidth = 2;
           ctx.setLineDash([10 * (1 - state.dockingProgress), 5]);
           ctx.stroke();
           ctx.setLineDash([]);
+          
+          // Approach vector indicator
+          if (alignProgress > 0.3) {
+            const vecX = (destX - shipX) * 0.5;
+            const vecY = (destY - shipY) * 0.5;
+            ctx.beginPath();
+            ctx.moveTo(shipX, shipY);
+            ctx.lineTo(shipX + vecX * alignProgress, shipY + vecY * alignProgress);
+            ctx.strokeStyle = `rgba(74, 222, 128, ${0.5 * alignProgress})`;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
         }
       }
 
