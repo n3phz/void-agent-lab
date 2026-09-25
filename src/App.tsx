@@ -6,6 +6,7 @@ import { simulateMission } from './core/simulation';
 import { THRESHOLDS } from './core/types';
 import type { GameState } from './gameState';
 import { loadState, saveState, createAgent, getMission, getAgentName, MISSION_TYPES, applyMissionResults, generateMissionSeed, repairAgent, refuelAgent, recoverDestroyedAgent } from './gameState';
+import { TacticalVisualization } from './core/tacticalVisualization';
 import stationEnv from './assets/station/station-environment.png';
 import scoutShip from './assets/station/scout-ship.png';
 import haulerShip from './assets/station/hauler-ship.png';
@@ -1173,7 +1174,36 @@ function Simulation({ state, setState }: { state: GameState; setState: React.Dis
       </div>
 
       <main className="simulation-deck">
-        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '40ms' }}>          <h3 className="section-title">TELEMETRY</h3>
+        <div className="simulation-panel simulation-panel--tactical panel-enter" style={{ animationDelay: '40ms' }}>          <div className="tactical-visualization-container">
+            <TacticalVisualization
+              agentType={agent.type}
+              missionType={missionObj.type}
+              missionLocation={missionObj.location}
+              rules={rules}
+              eventLog={events.map(e => ({
+                tick: e.tick,
+                time: new Date().toISOString(),
+                action: e.action as any,
+                event: e.event as any,
+                detail: e.detail || '',
+                fuelPct: agent.fuel,
+                hullPct: agent.hullCurrent
+              }))}
+              currentTick={tickCount}
+              maxTicks={maxTicks}
+              isRunning={isRunning}
+              isComplete={tickCount >= maxTicks}
+              outcome={null}
+              finalHullPct={agent.hullCurrent}
+              fuelRemainingPct={agent.fuel}
+              anomaliesScanned={events.filter(e => e.event === 'ANOMALY_SCANNED').length}
+              anomaliesRequired={missionObj.type === 'PROSPECT' ? 3 : missionObj.type === 'SALVAGE' ? 2 : 1}
+              agentSurvives={true}
+            />
+          </div>
+        </div>
+
+        <div className="simulation-panel simulation-panel--telemetry panel-enter" style={{ animationDelay: '80ms' }}>          <h3 className="section-title">TELEMETRY</h3>
 
         <div className="tactical-telemetry">
           {/* HULL & FUEL as primary instrument strips */}

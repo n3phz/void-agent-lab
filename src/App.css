@@ -3542,3 +3542,154 @@
   }
 }
 
+
+/* ============ Tactical Visualization Container ============ */
+.simulation-panel--tactical {
+  flex: 1;
+  min-height: 400px;
+}
+
+.tactical-visualization-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure the canvas container in tacticalVisualization fills the available space */
+.tactical-visualization-container > div {
+  flex: 1;
+  min-height: 400px;
+  width: 100%;
+}
+
+/* Override the simulation-deck to give tactical panel more space */
+.simulation-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* Adjust the tactical panel to not be in the grid but above it */
+/* We'll use a different structure: tactical full-width, then telemetry/status side-by-side */
+
+/* Actually, let's restructure: tactical full width, then deck below with telemetry + status */
+/* But the current structure puts tactical in the grid. Let's make it span both columns */
+.simulation-panel--tactical {
+  grid-column: 1 / -1;
+  flex: 1;
+  min-height: 400px;
+}
+
+.simulation-panel--telemetry,
+.simulation-panel--status {
+  /* These stay in the grid columns */
+}
+
+/* Update responsive behavior */
+@media (max-width: 1024px) {
+  .simulation-deck {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .simulation-panel--tactical {
+    grid-column: 1 / -1;
+    min-height: 350px;
+  }
+  
+  .tactical-telemetry {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .telemetry-strip--progress {
+    grid-column: span 3;
+  }
+  
+  .simulation-stream__body {
+    flex-direction: column;
+  }
+  
+  .stream-speed {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@media (max-width: 700px) {
+  .simulation-deck {
+    grid-template-columns: 1fr;
+  }
+  
+  .simulation-panel--tactical {
+    grid-column: 1;
+    min-height: 300px;
+  }
+  
+  .tactical-telemetry {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .telemetry-strip--progress {
+    grid-column: span 2;
+  }
+  
+  .telemetry-strip__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .telemetry-strip__value {
+    font-size: 12px;
+  }
+  
+  .simulation-header__title {
+    font-size: 22px;
+  }
+  
+  .simulation-identity {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  
+  .simulation-identity__phase {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .simulation-stream__body {
+    flex-direction: column;
+  }
+  
+  .stream-speed {
+    flex-direction: row;
+    align-items: center;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .tactical-telemetry {
+    grid-template-columns: 1fr;
+  }
+  
+  .telemetry-strip--progress {
+    grid-column: span 1;
+  }
+  
+  .telemetry-strip {
+    padding: 6px 8px;
+  }
+  
+  .stream-log {
+    max-height: 120px;
+  }
+  
+  .simulation-panel--tactical {
+    min-height: 280px;
+  }
+}
+
