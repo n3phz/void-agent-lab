@@ -8,9 +8,8 @@ import { THRESHOLDS } from './core/types';
 import type { GameState } from './gameState';
 import { loadState, saveState, createAgent, getMission, getAgentName, MISSION_TYPES, applyMissionResults, generateMissionSeed, repairAgent, refuelAgent, recoverDestroyedAgent } from './gameState';
 import { TacticalVisualization } from './core/tacticalVisualization';
-import stationEnv from './assets/station/station-environment.png';
-import scoutShip from './assets/station/scout-ship.png';
-import haulerShip from './assets/station/hauler-ship.png';
+import scoutShipSVG from './assets/tactical/scout-ship.svg';
+import haulerShipSVG from './assets/tactical/hauler-ship.svg';
 
 // ============ Station Screen ============
 
@@ -74,37 +73,39 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
     ? Math.ceil(30 - selectedAgent.hullCurrent)
     : 0;
 
-  const shipImage = selectedAgent
+  const shipSVG = selectedAgent
     ? selectedAgent.type === 'SCOUT'
-      ? scoutShip
-      : haulerShip
+      ? scoutShipSVG
+      : haulerShipSVG
     : null;
 
   return (
-    <section className="station-root screen-enter" style={{ position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${stationEnv})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.78, pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 100%)' }} />
-      <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <section className="station-root screen-enter">
+      {/* Atmospheric background - heavily subdued */}
+      <div className="station-bg" />
+      <div className="station-bg-overlay" />
+
+      <div className="station-content">
         <header className="station-header">
           <div className="station-header__left">
             <h1 className="station-header__title">VOID // AGENT LAB</h1>
-            <p className="station-header__subtitle">Station Commander Interface</p>
+            <p className="station-header__subtitle">STATION COMMAND</p>
           </div>
           <div className="station-header__right">
-            <span className="station-credits">{state.credits.toLocaleString()} CR</span>
+            <span className="station-credits">{state.credits.toLocaleString()} <span className="credits-unit">CR</span></span>
           </div>
         </header>
 
         <main className="station-command-deck">
           <aside className="station-roster-panel">
             <div className="panel-header">
-              <h3 className="section-title" style={{ margin: 0 }}>AGENT ROSTER</h3>
+              <h3 className="section-title">AGENT ROSTER</h3>
             </div>
             <div className="roster-list">
               {state.agents.length === 0 ? (
                 <div className="empty-state">
                   <p>No agents assigned.</p>
-                  <p style={{ fontSize: '12px', color: 'var(--text)' }}>Create an agent to begin.</p>
+                  <p>Create an agent to begin.</p>
                 </div>
               ) : (
                 state.agents.map((a, idx: number) => {
@@ -117,24 +118,36 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
                       onClick={() => setState(s => ({ ...s, selectedAgentIndex: idx }))}
                     >
                       <div className="agent-card__header">
-                        <div className="agent-card__title">
+                        <div className="agent-card__identity">
                           <span className="agent-name">{getAgentName(a)}</span>
-                          <span className="agent-type">{a.type}</span>
+                          <span className="agent-type">{a.type} · LVL {a.level}</span>
                         </div>
                         {isDestroyed && <span className="agent-status agent-status--destroyed">DESTROYED</span>}
                       </div>
-                      <div className="agent-card__meta">
-                        <span>LVL {a.level}</span>
-                        <span>XP {a.xp}/50</span>
-                        <span>HULL {a.hullCurrent.toFixed(1)}%</span>
-                        <span>FUEL {a.fuel.toFixed(1)}%</span>
+                      <div className="agent-card__xp mono">XP {a.xp} / 50</div>
+                      <div className="agent-card__bars">
+                        <div className="agent-bar">
+                          <div className="agent-bar__label mono">HULL</div>
+                          <div className="agent-bar__track">
+                            <div className={"agent-bar__fill " + (isDestroyed || a.hullCurrent < 30 ? 'is-critical' : '')} style={{ width: `${Math.max(0, a.hullCurrent)}%` }} />
+                          </div>
+                          <div className="agent-bar__value mono">{a.hullCurrent.toFixed(1)}%</div>
+                        </div>
+                        <div className="agent-bar">
+                          <div className="agent-bar__label mono">FUEL</div>
+                          <div className="agent-bar__track">
+                            <div className={"agent-bar__fill " + (a.fuel < 30 ? 'is-low' : '')} style={{ width: `${Math.max(0, a.fuel)}%` }} />
+                          </div>
+                          <div className="agent-bar__value mono">{a.fuel.toFixed(1)}%</div>
+                        </div>
                       </div>
                       <div className="agent-card__footer">
                         <button
                           onClick={(e) => { e.stopPropagation(); setState(s => ({ ...s, selectedAgentIndex: idx })); }}
-                          className="agent-select-button"
+                          className={`agent-select-button${isSelected ? ' is-selected' : ''}`}
+                          disabled={isSelected}
                         >
-                          Select
+                          {isSelected ? 'SELECTED' : 'SELECT'}
                         </button>
                       </div>
                     </div>
@@ -150,98 +163,128 @@ function Station({ state, setState }: { state: GameState; setState: React.Dispat
                 <div className="panel-header">
                   <div>
                     <h3 className="section-title" style={{ margin: 0 }}>{getAgentName(selectedAgent)}</h3>
-                    <div style={{ fontSize: '12px', color: 'var(--text)' }}>
-                      {selectedAgent.type} — Level {selectedAgent.level}
-                    </div>
+                    <div className="station-panel__type mono">{selectedAgent.type} — Level {selectedAgent.level}</div>
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text)', fontFamily: 'var(--mono)', textAlign: 'right' }}>
+                  <div className="station-panel__attrs mono">
                     <div>NAV {selectedAgent.nav}</div>
                     <div>OPS {selectedAgent.ops}</div>
                   </div>
                 </div>
 
                 <div className="selected-agent__body">
-                  <div className="station-preview-frame">
-                    {shipImage ? (
-                      <img src={shipImage} alt={selectedAgent ? `${selectedAgent.type} vessel` : 'Selected vessel'} />
+                  <div className="station-vessel-frame">
+                    {shipSVG ? (
+                      <img
+                        src={shipSVG}
+                        alt={selectedAgent ? `${selectedAgent.type} vessel` : 'Selected vessel'}
+                        className="vessel-image"
+                      />
                     ) : (
-                      <div className="preview-placeholder">No vessel data.</div>
+                      <div className="vessel-placeholder">No vessel data.</div>
                     )}
+                    <div className="vessel-specs">
+                      <div className="vessel-spec-row mono">
+                        <span>TYPE</span><span>{selectedAgent.type}</span>
+                      </div>
+                      <div className="vessel-spec-row mono">
+                        <span>LEVEL</span><span>{selectedAgent.level}</span>
+                      </div>
+                      <div className="vessel-spec-row mono">
+                        <span>NAV</span><span>{selectedAgent.nav}</span>
+                      </div>
+                      <div className="vessel-spec-row mono">
+                        <span>OPS</span><span>{selectedAgent.ops}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="selected-agent__actions">
-                    <button
-                      onClick={handleRepair}
-                      disabled={repairCost === 0 || state.credits < repairCost}
-                      className="btn"
-                    >
-                      Repair ({repairCost} CR)
-                    </button>
-                    <button
-                      onClick={handleRefuel}
-                      disabled={refuelCost === 0 || state.credits < refuelCost}
-                      className="btn"
-                    >
-                      Refuel ({refuelCost} CR)
-                    </button>
-                    {selectedAgent.hullCurrent <= 0 && (
+                  <div className="station-status-panel">
+                    <div className="status-bar">
+                      <div className="status-bar__label mono">HULL</div>
+                      <div className="status-bar__track">
+                        <div className={"status-bar__fill " + (selectedAgent.hullCurrent < 30 ? 'is-critical' : '')} style={{ width: `${Math.max(0, selectedAgent.hullCurrent)}%` }} />
+                      </div>
+                      <div className="status-bar__value mono">{selectedAgent.hullCurrent.toFixed(1)}%</div>
+                    </div>
+                    <div className="status-bar">
+                      <div className="status-bar__label mono">FUEL</div>
+                      <div className="status-bar__track">
+                        <div className={"status-bar__fill " + (selectedAgent.fuel < 30 ? 'is-low' : '')} style={{ width: `${Math.max(0, selectedAgent.fuel)}%` }} />
+                      </div>
+                      <div className="status-bar__value mono">{selectedAgent.fuel.toFixed(1)}%</div>
+                    </div>
+                    <div className="station-actions">
                       <button
-                        onClick={handleRecover}
-                        disabled={recoveryCost === 0 || state.credits < recoveryCost}
-                        className="btn btn--danger"
+                        onClick={handleRepair}
+                        disabled={repairCost === 0 || state.credits < repairCost}
+                        className="station-btn"
                       >
-                        Recover ({recoveryCost} CR)
+                        <span>REPAIR</span>
+                        <span className="station-btn__cost mono">{repairCost} CR</span>
                       </button>
-                    )}
+                      <button
+                        onClick={handleRefuel}
+                        disabled={refuelCost === 0 || state.credits < refuelCost}
+                        className="station-btn"
+                      >
+                        <span>REFUEL</span>
+                        <span className="station-btn__cost mono">{refuelCost} CR</span>
+                      </button>
+                      {selectedAgent.hullCurrent <= 0 && (
+                        <button
+                          onClick={handleRecover}
+                          disabled={recoveryCost === 0 || state.credits < recoveryCost}
+                          className="station-btn station-btn--danger"
+                        >
+                          <span>RECOVER</span>
+                          <span className="station-btn__cost mono">{recoveryCost} CR</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </>
             ) : (
-              <div className="station-preview-frame">
-                <div style={{ padding: '24px', color: 'var(--text)', fontSize: '13px', textAlign: 'center' }}>
-                  Select an agent to inspect vessel and status.
-                </div>
+              <div className="station-vessel-frame">
+                <div className="vessel-placeholder">Select an agent to inspect vessel and status.</div>
               </div>
             )}
           </section>
         </main>
 
-        <nav className="station-action-bar">
+        <nav className="station-command-bar">
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_creation' }))}
-            className="btn btn--secondary"
+            className="cmd-btn cmd-btn--secondary"
           >
-            Create Agent
+            CREATE AGENT
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_configuration' }))}
             disabled={state.selectedAgentIndex === null}
-            className="btn btn--secondary"
+            className="cmd-btn cmd-btn--secondary"
           >
-            Configure Rules
+            CONFIGURE RULES
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'mission_selection' }))}
             disabled={state.agents.length === 0}
-            className="btn btn--secondary"
+            className="cmd-btn cmd-btn--primary"
           >
-            Select Mission
+            SELECT MISSION
           </button>
           <button
             onClick={() => setState(s => ({ ...s, screen: 'agent_blueprint' }))}
             disabled={state.selectedAgentIndex === null}
-            className="btn btn--secondary"
+            className="cmd-btn cmd-btn--secondary"
           >
-            Blueprint
+            BLUEPRINT
           </button>
         </nav>
       </div>
     </section>
   );
 }
-
-// ============ Agent Blueprint Screen ============
-
 function AgentBlueprint({ state, setState }: { state: GameState; setState: React.Dispatch<React.SetStateAction<GameState>> }) {
   const agent = state.selectedAgentIndex !== null && state.selectedAgentIndex < state.agents.length
     ? state.agents[state.selectedAgentIndex]
