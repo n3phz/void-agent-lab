@@ -15,7 +15,27 @@ const CANVAS_COLOR_TEXT_H = '#f3f4f6';
 // Asset cache for loaded SVG images
 const assetCache = new Map<string, HTMLImageElement>();
 
-function drawAsset(ctx: CanvasRenderingContext2D, path: string, x: number, y: number, size: number, rotation = 0): boolean {
+// Base URL for tactical assets (served from public/tactical/)
+const TACTICAL_ASSET_BASE = '/voidagentlab/tactical/';
+
+// Map of asset keys to their public URLs
+const assetUrls: Record<string, string> = {
+  'scout-ship': `${TACTICAL_ASSET_BASE}scout-ship.svg`,
+  'hauler-ship': `${TACTICAL_ASSET_BASE}hauler-ship.svg`,
+  'station': `${TACTICAL_ASSET_BASE}station.svg`,
+  'marker-waypoint': `${TACTICAL_ASSET_BASE}marker-waypoint.svg`,
+  'marker-destination': `${TACTICAL_ASSET_BASE}marker-destination.svg`,
+  'marker-jump-gate': `${TACTICAL_ASSET_BASE}marker-jump-gate.svg`,
+  'marker-anomaly': `${TACTICAL_ASSET_BASE}marker-anomaly.svg`,
+  'marker-hostile': `${TACTICAL_ASSET_BASE}marker-hostile.svg`,
+  'effect-scan-pulse': `${TACTICAL_ASSET_BASE}effect-scan-pulse.svg`,
+  'effect-jump-burst': `${TACTICAL_ASSET_BASE}effect-jump-burst.svg`,
+  'effect-thruster': `${TACTICAL_ASSET_BASE}effect-thruster.svg`,
+};
+
+function drawAsset(ctx: CanvasRenderingContext2D, assetKey: string, x: number, y: number, size: number, rotation = 0): boolean {
+  const path = assetUrls[assetKey];
+  if (!path) return false;
   const img = assetCache.get(path);
   if (!img) return false;
   
@@ -523,7 +543,7 @@ export function TacticalVisualization({
       ctx.fillRect(0, 0, w, h);
 
       // Station SVG artwork
-      drawAsset(ctx, '/src/assets/tactical/station.svg', stationX, stationY, stationSize);
+      drawAsset(ctx, 'station', stationX, stationY, stationSize);
 
       // Station label
       ctx.font = `10px ${CANVAS_FONT_MONO}`;
@@ -542,9 +562,9 @@ export function TacticalVisualization({
       ctx.fillRect(0, 0, w, h);
 
       // Destination SVG artwork
-      let destPath = '/src/assets/tactical/marker-destination.svg';
-      if (missionType === 'PROSPECT') destPath = '/src/assets/tactical/marker-anomaly.svg';
-      drawAsset(ctx, destPath, destX, destY, destSize);
+      let destAsset = 'marker-destination';
+      if (missionType === 'PROSPECT') destAsset = 'marker-anomaly';
+      drawAsset(ctx, destAsset, destX, destY, destSize);
 
       ctx.font = `10px ${CANVAS_FONT_MONO}`;
       ctx.fillStyle = CANVAS_COLOR_TEXT;
@@ -580,10 +600,9 @@ export function TacticalVisualization({
         const ay = anomaly.y * h;
         const scanned = state.anomaliesScanned > i || (state.phase === 'anomaly' && i === state.anomaliesScanned - 1);
         // Base marker - SVG artwork
-        let markerPath = '/src/assets/tactical/marker-anomaly.svg';
         const baseSize = scanned ? 24 : 16;
 
-        drawAsset(ctx, markerPath, ax, ay, baseSize);
+        drawAsset(ctx, 'marker-anomaly', ax, ay, baseSize);
 
         // 11C.2: Scan beam from ship to anomaly (when scanning this anomaly)
         if (state.scanBeamProgress > 0 && !scanned && i === state.anomaliesScanned && !state.reducedMotion) {
@@ -651,7 +670,7 @@ export function TacticalVisualization({
           ctx.shadowBlur = 20 * (encountered ? warningPulse : 0.5);
         }
         
-        drawAsset(ctx, '/src/assets/tactical/marker-hostile.svg', hx, hy, baseSize);
+        drawAsset(ctx, 'marker-hostile', hx, hy, baseSize);
         
         // 11C.2: Hostile lock-on treatment (restrained threat pulse + targeting indicator)
         if (encountered && state.hostileLockOn > 0 && !state.reducedMotion) {
@@ -891,9 +910,9 @@ export function TacticalVisualization({
 
       // Ship SVG artwork (procedural, agent-type-specific)
       if (agentType === 'SCOUT') {
-        drawAsset(ctx, '/src/assets/tactical/scout-ship.svg', 0, 0, shipSize * 1.2);
+        drawAsset(ctx, 'scout-ship', 0, 0, shipSize * 1.2);
       } else if (agentType === 'HAULER') {
-        drawAsset(ctx, '/src/assets/tactical/hauler-ship.svg', 0, 0, shipSize * 1.3);
+        drawAsset(ctx, 'hauler-ship', 0, 0, shipSize * 1.3);
       }
 
       ctx.restore();

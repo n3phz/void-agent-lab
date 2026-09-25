@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <radialGradient id="jumpCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="30%" stop-color="#aa3bff"/>
+      <stop offset="60%" stop-color="#5a1a8a"/>
+      <stop offset="100%" stop-color="#1a0a2a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="jumpRing1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#aa3bff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#aa3bff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#aa3bff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="jumpRing2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c480ff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#c480ff" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#c480ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="jumpLine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#aa3bff" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#fff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#aa3bff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Expanding rings (animated via JS with scale/opacity) -->
+  <circle cx="60" cy="60" r="55" fill="url(#jumpRing1)" id="jumpRing1"/>
+  <circle cx="60" cy="60" r="40" fill="url(#jumpRing2)" id="jumpRing2"/>
+  <!-- Central burst -->
+  <circle cx="60" cy="60" r="25" fill="url(#jumpCore)"/>
+  <!-- Radial burst lines -->
+  <g stroke="url(#jumpLine)" stroke-width="2" opacity="0.7">
+    <line x1="60" y1="10" x2="60" y2="110"/>
+    <line x1="10" y1="60" x2="110" y2="60"/>
+    <line x1="20" y1="20" x2="100" y2="100"/>
+    <line x1="20" y1="100" x2="100" y2="20"/>
+    <line x1="60" y1="30" x2="60" y2="90" opacity="0.5"/>
+    <line x1="30" y1="60" x2="90" y2="60" opacity="0.5"/>
+    <line x1="35" y1="35" x2="85" y2="85" opacity="0.5"/>
+    <line x1="35" y1="85" x2="85" y2="35" opacity="0.5"/>
+  </g>
+  <!-- Particle burst -->
+  <g fill="#fff" opacity="0.8">
+    <circle cx="60" cy="15" r="2"/>
+    <circle cx="105" cy="60" r="2"/>
+    <circle cx="60" cy="105" r="2"/>
+    <circle cx="15" cy="60" r="2"/>
+    <circle cx="85" cy="20" r="1.5"/>
+    <circle cx="100" cy="40" r="1.5"/>
+    <circle cx="100" cy="80" r="1.5"/>
+    <circle cx="85" cy="100" r="1.5"/>
+    <circle cx="35" cy="100" r="1.5"/>
+    <circle cx="20" cy="80" r="1.5"/>
+    <circle cx="20" cy="40" r="1.5"/>
+    <circle cx="35" cy="20" r="1.5"/>
+  </g>
+</svg>

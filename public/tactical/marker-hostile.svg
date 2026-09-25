@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <radialGradient id="hostileGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f44336"/>
+      <stop offset="100%" stop-color="#f44336" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hostileCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f44336"/>
+      <stop offset="100%" stop-color="#a01010"/>
+    </radialGradient>
+  </defs>
+  <!-- Glow -->
+  <circle cx="24" cy="24" r="22" fill="url(#hostileGlow)"/>
+  <!-- Outer diamond (hostile marker) -->
+  <polygon points="24,4 44,24 24,44 4,24" fill="none" stroke="#f44336" stroke-width="3" opacity="0.8"/>
+  <!-- Core diamond -->
+  <polygon points="24,10 38,24 24,38 10,24" fill="url(#hostileCore)" opacity="0.8"/>
+  <!-- Inner crosshair -->
+  <line x1="24" y1="14" x2="24" y2="34" stroke="#fff" stroke-width="2" opacity="0.6"/>
+  <line x1="14" y1="24" x2="34" y2="24" stroke="#fff" stroke-width="2" opacity="0.6"/>
+  <!-- Warning triangles (4 corners) -->
+  <g fill="#f44336" opacity="0.7">
+    <polygon points="24,0 28,8 20,8"/>
+    <polygon points="48,24 40,20 40,28"/>
+    <polygon points="24,48 20,40 28,40"/>
+    <polygon points="0,24 8,20 8,28"/>
+  </g>
+  <!-- Pulsing ring -->
+  <circle cx="24" cy="24" r="16" fill="none" stroke="#f44336" stroke-width="2" opacity="0.5">
+    <animate attributeName="r" values="16;22;16" dur="1s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0.1;0.5" dur="1s" repeatCount="indefinite"/>
+  </circle>
+</svg>
