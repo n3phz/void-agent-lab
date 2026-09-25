@@ -17,9 +17,19 @@ const starfieldCache = new Map<string, { stars: Array<{ x: number; y: number; si
 
 // Asset cache for loaded SVG images
 const assetCache = new Map<string, HTMLImageElement>();
+// Asset loading promises to avoid duplicate loads
+const assetLoading = new Map<string, Promise<HTMLImageElement>>();
 
-// Base URL for tactical assets (served from public/tactical/)
-const TACTICAL_ASSET_BASE = '/voidagentlab/tactical/';
+// Base URL for tactical assets - deployment-safe via import.meta.env.BASE_URL
+// In non-browser contexts (tests), fall back to the known path
+const getTacticalAssetBase = (): string => {
+  if (typeof window !== 'undefined' && window.location) {
+    return `${window.location.origin}${import.meta.env.BASE_URL}tactical/`;
+  }
+  return '/voidagentlab/tactical/'; // fallback for SSR/test
+};
+
+const TACTICAL_ASSET_BASE = getTacticalAssetBase();
 
 // Map of asset keys to their public URLs
 const assetUrls: Record<string, string> = {
@@ -39,15 +49,57 @@ const assetUrls: Record<string, string> = {
 function drawAsset(ctx: CanvasRenderingContext2D, assetKey: string, x: number, y: number, size: number, rotation = 0): boolean {
   const path = assetUrls[assetKey];
   if (!path) return false;
-  const img = assetCache.get(path);
-  if (!img) return false;
   
-  ctx.save();
-  ctx.translate(x, y);
-  if (rotation !== 0) ctx.rotate(rotation);
-  ctx.drawImage(img, -size / 2, -size / 2, size, size);
-  ctx.restore();
-  return true;
+  // Check if already loaded
+  let img = assetCache.get(path);
+  if (img && img.complete && img.naturalWidth > 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    if (rotation !== 0) ctx.rotate(rotation);
+    ctx.drawImage(img, -size / 2, -size / 2, size, size);
+    ctx.restore();
+    return true;
+  }
+  
+  // If not loaded, start loading and return false (will render on next frame)
+  if (!assetLoading.has(path)) {
+    assetLoading.set(path, new Promise((resolve, reject) => {
+      const newImg = new Image();
+      newImg.onload = () => {
+        assetCache.set(path, newImg);
+        assetLoading.delete(path);
+        resolve(newImg);
+      };
+      newImg.onerror = () => {
+        assetLoading.delete(path);
+        reject(new Error(`Failed to load asset: ${path}`));
+      };
+      newImg.src = path;
+    }));
+  }
+  
+  return false;
+}
+
+// Ensure all tactical assets are preloaded
+function preloadTacticalAssets(): void {
+  Object.values(assetUrls).forEach(path => {
+    if (!assetCache.has(path) && !assetLoading.has(path)) {
+      assetLoading.set(path, new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          assetCache.set(path, img);
+          assetLoading.delete(path);
+          resolve(img);
+        };
+        img.onerror = () => {
+          assetLoading.delete(path);
+          reject(new Error(`Failed to load asset: ${path}`));
+        };
+        img.src = path;
+      }));
+    }
+  });
 }
 
 // Generate procedural starfield
@@ -288,6 +340,11 @@ export function TacticalVisualization({
       anomaliesScanned: 0,
     }));
   }, [missionType, missionLocation, rules.travelMode]);
+
+  // Preload tactical assets on mount
+  useEffect(() => {
+    preloadTacticalAssets();
+  }, []);
 
   // Main animation loop - sync with simulation events
   useEffect(() => {
