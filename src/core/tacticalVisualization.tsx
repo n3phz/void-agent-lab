@@ -12,6 +12,9 @@ const CANVAS_FONT_MONO = 'ui-monospace, Consolas, monospace';
 const CANVAS_COLOR_TEXT = '#9ca3af';
 const CANVAS_COLOR_TEXT_H = '#f3f4f6';
 
+// Starfield cache
+const starfieldCache = new Map<string, { stars: Array<{ x: number; y: number; size: number; brightness: number; twinkle: number }> }>();
+
 // Asset cache for loaded SVG images
 const assetCache = new Map<string, HTMLImageElement>();
 
@@ -45,6 +48,44 @@ function drawAsset(ctx: CanvasRenderingContext2D, assetKey: string, x: number, y
   ctx.drawImage(img, -size / 2, -size / 2, size, size);
   ctx.restore();
   return true;
+}
+
+// Generate procedural starfield
+function generateStarfield(w: number, h: number, seed = 'void-agent-lab'): Array<{ x: number; y: number; size: number; brightness: number; twinkle: number }> {
+  const key = `${w}x${h}-${seed}`;
+  if (starfieldCache.has(key)) return starfieldCache.get(key)!.stars;
+  
+  const stars: Array<{ x: number; y: number; size: number; brightness: number; twinkle: number }> = [];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash |= 0;
+  }
+  
+  const starCount = Math.floor((w * h) / 8000); // sparse stars
+  
+  for (let i = 0; i < starCount; i++) {
+    // Simple pseudo-random from seed
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const x = (hash / 0xffffffff) * w;
+    
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const y = (hash / 0xffffffff) * h;
+    
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const size = 0.5 + (hash / 0xffffffff) * 1.5;
+    
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const brightness = 0.15 + (hash / 0xffffffff) * 0.35;
+    
+    hash = (hash * 1664525 + 1013904223) >>> 0;
+    const twinkle = (hash / 0xffffffff) * Math.PI * 2;
+    
+    stars.push({ x, y, size, brightness, twinkle });
+  }
+  
+  starfieldCache.set(key, { stars });
+  return stars;
 }
 
 // Easing functions for smooth animations
@@ -522,13 +563,35 @@ export function TacticalVisualization({
       // Clear
       ctx.clearRect(0, 0, w, h);
 
-      // Background gradient
+      // Background - dark space with subtle starfield
       const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
-      bgGrad.addColorStop(0, '#0a0a0f');
-      bgGrad.addColorStop(0.5, '#0f0f1a');
-      bgGrad.addColorStop(1, '#0a0a0f');
+      bgGrad.addColorStop(0, '#06060a');
+      bgGrad.addColorStop(0.5, '#080812');
+      bgGrad.addColorStop(1, '#06060a');
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
+
+      // Procedural starfield - subtle, low contrast
+      if (!state.reducedMotion) {
+        const stars = generateStarfield(w, h);
+        const time = performance.now() * 0.0003;
+        for (const star of stars) {
+          const twinkle = Math.sin(time + star.twinkle) * 0.3 + 0.7;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * twinkle})`;
+          ctx.fill();
+        }
+      } else {
+        // Static stars for reduced motion
+        const stars = generateStarfield(w, h);
+        for (const star of stars) {
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+          ctx.fill();
+        }
+      }
 
       // Station - SVG artwork
       const stationX = 0.08 * w;
@@ -570,15 +633,55 @@ export function TacticalVisualization({
       ctx.fillStyle = CANVAS_COLOR_TEXT;
       ctx.fillText(missionLocation, destX, destY + destSize * 1.1);
 
-      // Route line
-      ctx.setLineDash([8, 6]);
-      ctx.beginPath();
-      ctx.moveTo(stationX + stationSize * 0.5, stationY);
-      ctx.lineTo(destX - destSize * 0.5, destY);
-      ctx.strokeStyle = 'rgba(110, 207, 246, 0.35)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // Route line - planned (dashed) vs active (solid)
+      const routeProgress = state.travelProgress;
+      const routeSegments = 20;
+      
+      for (let i = 0; i < routeSegments; i++) {
+        const t0 = i / routeSegments;
+        const t1 = (i + 1) / routeSegments;
+        
+        const x0 = stationX + stationSize * 0.5 + (destX - destSize * 0.5 - stationX - stationSize * 0.5) * t0;
+        const y0 = stationY + Math.sin(t0 * Math.PI * 2) * 0.05 * h;
+        const x1 = stationX + stationSize * 0.5 + (destX - destSize * 0.5 - stationX - stationSize * 0.5) * t1;
+        const y1 = stationY + Math.sin(t1 * Math.PI * 2) * 0.05 * h;
+        
+        const isActive = t1 <= routeProgress;
+        
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.strokeStyle = `rgba(110, 207, 246, ${isActive ? 0.6 : 0.25})`;
+        ctx.lineWidth = isActive ? 2.5 : 1.5;
+        if (!isActive) {
+          ctx.setLineDash([6, 4]);
+        } else {
+          ctx.setLineDash([]);
+        }
+        ctx.stroke();
+      }
       ctx.setLineDash([]);
+      
+      // Waypoint markers along route
+      const waypointCount = 3;
+      for (let i = 1; i <= waypointCount; i++) {
+        const t = i / (waypointCount + 1);
+        const wx = stationX + stationSize * 0.5 + (destX - destSize * 0.5 - stationX - stationSize * 0.5) * t;
+        const wy = stationY + Math.sin(t * Math.PI * 2) * 0.05 * h;
+        const isPassed = t <= routeProgress;
+        
+        drawAsset(ctx, 'marker-waypoint', wx, wy, isPassed ? 16 : 12);
+        
+        // Waypoint pulse when active
+        if (!isPassed && t - routeProgress < 0.1 && t > routeProgress && !state.reducedMotion) {
+          const pulseAlpha = 0.4 * (1 - (t - routeProgress) * 10);
+          ctx.beginPath();
+          ctx.arc(wx, wy, 20, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(110, 207, 246, ${pulseAlpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
 
       // Travel progress indicator on route
       if (state.travelProgress > 0 && state.travelProgress < 1) {
@@ -769,9 +872,26 @@ export function TacticalVisualization({
       ctx.save();
       ctx.translate(shipX, shipY);
 
-      // Rotation based on phase
-      if (state.phase === 'travel') ctx.rotate(-0.05);
-      else if (state.phase === 'cruise') ctx.rotate(0.03);
+      // Rotation based on travel direction (heading vector)
+      // Calculate heading from travel progress along route
+      const routeStartX = 0.1;
+      const routeEndX = 0.85;
+      const routeMidY = 0.5;
+      
+      if (state.travelProgress > 0 && state.travelProgress < 1) {
+        // Calculate tangent to the curved route for heading
+        const prevProgress = Math.max(0, state.travelProgress - 0.01);
+        const prevX = routeStartX + (routeEndX - routeStartX) * prevProgress;
+        const prevY = routeMidY + Math.sin(prevProgress * Math.PI * 2) * 0.05;
+        const nextProgress = Math.min(1, state.travelProgress + 0.01);
+        const nextX = routeStartX + (routeEndX - routeStartX) * nextProgress;
+        const nextY = routeMidY + Math.sin(nextProgress * Math.PI * 2) * 0.05;
+        const heading = Math.atan2(nextY - prevY, nextX - prevX);
+        ctx.rotate(heading);
+      } else if (state.phase === 'travel' || state.phase === 'cruise') {
+        // Fallback: slight angle during travel phases
+        ctx.rotate(-0.05);
+      }
 
       // 11C.2: Damage overlay - restrained hull emphasis
       if (state.damageOverlay > 0 && !state.reducedMotion) {

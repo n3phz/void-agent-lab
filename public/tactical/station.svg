@@ -1,92 +1,118 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Station: central core, radiating structure, docking arms/ports, orthographic/top-down, thin vector lines, dark metal -->
   <defs>
-    <linearGradient id="stationHub" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4a4a5a"/>
-      <stop offset="50%" stop-color="#3a3a4a"/>
-      <stop offset="100%" stop-color="#2a2a3a"/>
+    <linearGradient id="stationCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.95"/>
+      <stop offset="50%" style="stop-color:#252525;stop-opacity:0.95"/>
+      <stop offset="100%" style="stop-color:#121212;stop-opacity:1"/>
     </linearGradient>
-    <linearGradient id="stationRing" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#5a5a6a"/>
-      <stop offset="100%" stop-color="#3a3a4a"/>
+    <linearGradient id="stationArm" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2d2d2d;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#1f1f1f;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#121212;stop-opacity:1"/>
     </linearGradient>
-    <radialGradient id="stationCore" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#aa3bff"/>
-      <stop offset="100%" stop-color="#5a1a8a"/>
+    <linearGradient id="dockingPort" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6ecff6;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#4a9fd8;stop-opacity:0.3"/>
     </linearGradient>
-    <radialGradient id="stationGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#aa3bff" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#aa3bff" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="solarArray" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#1a1a2a"/>
-      <stop offset="50%" stop-color="#0a0a1a"/>
-      <stop offset="100%" stop-color="#1a1a2a"/>
-    </linearGradient>
-    <linearGradient id="solarCell" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#3a5a8a"/>
-      <stop offset="100%" stop-color="#1a3a6a"/>
-    </linearGradient>
+    <filter id="stationGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Outer glow -->
-  <circle cx="80" cy="80" r="95" fill="url(#stationGlow)"/>
-  <!-- Solar arrays (4 arms) -->
-  <!-- Top array -->
-  <rect x="60" y="-40" width="40" height="45" rx="3" fill="url(#solarArray)" stroke="#3a3a4a" stroke-width="1"/>
-  <rect x="62" y="-38" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="-28" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="-18" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="-8" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <!-- Bottom array -->
-  <rect x="60" y="155" width="40" height="45" rx="3" fill="url(#solarArray)" stroke="#3a3a4a" stroke-width="1"/>
-  <rect x="62" y="157" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="167" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="177" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <rect x="62" y="187" width="36" height="8" rx="1" fill="url(#solarCell)"/>
-  <!-- Left array -->
-  <rect x="-40" y="60" width="45" height="40" rx="3" fill="url(#solarArray)" stroke="#3a3a4a" stroke-width="1"/>
-  <rect x="-38" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="-28" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="-18" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="-8" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <!-- Right array -->
-  <rect x="155" y="60" width="45" height="40" rx="3" fill="url(#solarArray)" stroke="#3a3a4a" stroke-width="1"/>
-  <rect x="157" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="167" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="177" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <rect x="187" y="62" width="8" height="36" rx="1" fill="url(#solarCell)"/>
-  <!-- Outer ring -->
-  <circle cx="80" cy="80" r="70" fill="none" stroke="url(#stationRing)" stroke-width="4"/>
-  <circle cx="80" cy="80" r="65" fill="none" stroke="#4a4a5a" stroke-width="1" opacity="0.5"/>
-  <!-- Main hub -->
-  <circle cx="80" cy="80" r="55" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="2"/>
-  <!-- Core -->
-  <circle cx="80" cy="80" r="30" fill="url(#stationCore)"/>
-  <circle cx="80" cy="80" r="22" fill="#6a2a9a" opacity="0.6"/>
-  <circle cx="80" cy="80" r="14" fill="#aa3bff" opacity="0.4"/>
-  <!-- Docking ports (8 around the ring) -->
-  <g stroke="#aa3bff" stroke-width="2" fill="none">
-    <circle cx="80" cy="25" r="8" opacity="0.8"/>
-    <circle cx="130" cy="55" r="8" opacity="0.8"/>
-    <circle cx="155" cy="80" r="8" opacity="0.8"/>
-    <circle cx="130" cy="105" r="8" opacity="0.8"/>
-    <circle cx="80" cy="135" r="8" opacity="0.8"/>
-    <circle cx="30" cy="105" r="8" opacity="0.8"/>
-    <circle cx="5" cy="80" r="8" opacity="0.8"/>
-    <circle cx="30" cy="55" r="8" opacity="0.8"/>
+  
+  <!-- Central core - main habitat/operations -->
+  <circle cx="64" cy="64" r="28" fill="url(#stationCore)" stroke="#4a4a4a" stroke-width="1.5" filter="url(#stationGlow)"/>
+  
+  <!-- Core inner detail -->
+  <circle cx="64" cy="64" r="20" fill="none" stroke="#4a4a4a" stroke-width="0.8" opacity="0.5"/>
+  <circle cx="64" cy="64" r="12" fill="none" stroke="#6ecff6" stroke-width="0.5" opacity="0.3"/>
+  
+  <!-- Command module - top center of core -->
+  <ellipse cx="64" cy="44" rx="8" ry="5" fill="#1a1a2e" stroke="#6ecff6" stroke-width="0.6" opacity="0.8"/>
+  <ellipse cx="64" cy="42" rx="4" ry="2" fill="#6ecff6" opacity="0.2"/>
+  
+  <!-- Four main radiating arms/docking structures -->
+  <!-- North arm -->
+  <rect x="56" y="0" width="16" height="32" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
+  <rect x="58" y="2" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <rect x="58" y="12" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
+  <rect x="58" y="22" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  
+  <!-- South arm -->
+  <rect x="56" y="96" width="16" height="32" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
+  <rect x="58" y="96" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <rect x="58" y="106" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
+  <rect x="58" y="116" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  
+  <!-- East arm -->
+  <rect x="96" y="56" width="32" height="16" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
+  <rect x="96" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <rect x="106" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
+  <rect x="116" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  
+  <!-- West arm -->
+  <rect x="0" y="56" width="32" height="16" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
+  <rect x="0" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <rect x="10" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
+  <rect x="20" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  
+  <!-- Diagonal secondary arms - smaller -->
+  <!-- NW -->
+  <g transform="translate(64,64) rotate(-45)">
+    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
+    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
+    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
   </g>
-  <!-- Module clusters on the ring -->
-  <circle cx="80" cy="25" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="130" cy="55" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="155" cy="80" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="130" cy="105" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="80" cy="135" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="30" cy="105" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="5" cy="80" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <circle cx="30" cy="55" r="12" fill="url(#stationHub)" stroke="#5a5a6a" stroke-width="1"/>
-  <!-- Antenna array -->
-  <line x1="80" y1="25" x2="80" y2="0" stroke="#6a6a7a" stroke-width="2" stroke-linecap="round"/>
-  <line x1="75" y1="0" x2="85" y2="0" stroke="#6a6a7a" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="80" cy="-5" r="3" fill="#aa3bff"/>
-  <!-- Designation -->
-  <text x="80" y="90" font-family="monospace" font-size="10" fill="#aa3bff" text-anchor="middle" font-weight="bold">STATION-01</text>
+  
+  <!-- NE -->
+  <g transform="translate(64,64) rotate(45)">
+    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
+    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
+    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  </g>
+  
+  <!-- SW -->
+  <g transform="translate(64,64) rotate(-135)">
+    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
+    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
+    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  </g>
+  
+  <!-- SE -->
+  <g transform="translate(64,64) rotate(135)">
+    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
+    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
+    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  </g>
+  
+  <!-- Solar array panels - thin, on diagonal arms -->
+  <g transform="translate(64,64)">
+    <!-- NW array -->
+    <g transform="rotate(-45)">
+      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
+      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
+    </g>
+    <!-- NE array -->
+    <g transform="rotate(45)">
+      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
+      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
+    </g>
+    <!-- SW array -->
+    <g transform="rotate(-135)">
+      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
+      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
+    </g>
+    <!-- SE array -->
+    <g transform="rotate(135)">
+      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
+      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
+    </g>
+  </g>
+  
+  <!-- Core docking port indicator - subtle cyan -->
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#6ecff6" stroke-width="0.5" opacity="0.15" stroke-dasharray="4,8"/>
 </svg>

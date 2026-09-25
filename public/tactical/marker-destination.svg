@@ -1,21 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Mission Target/Destination: recognizable tactical object based on mission type -->
   <defs>
-    <radialGradient id="destGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff9632"/>
-      <stop offset="100%" stop-color="#ff9632" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="destCore" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff9632"/>
-      <stop offset="100%" stop-color="#cc5a10"/>
-    </radialGradient>
+    <linearGradient id="targetHull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:0.95"/>
+    </linearGradient>
+    <filter id="targetGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Glow -->
-  <circle cx="24" cy="24" r="22" fill="url(#destGlow)"/>
-  <!-- Outer ring -->
-  <circle cx="24" cy="24" r="18" fill="none" stroke="#ff9632" stroke-width="2" opacity="0.6"/>
-  <!-- Core -->
-  <circle cx="24" cy="24" r="12" fill="url(#destCore)"/>
-  <!-- Diamond marker -->
-  <path d="M24,6 L42,24 L24,42 L6,24 Z" fill="none" stroke="#fff" stroke-width="2" opacity="0.9"/>
-  <path d="M24,10 L38,24 L24,38 L10,24 Z" fill="#ffb860" opacity="0.4"/>
+  
+  <!-- Derelict/salvage vessel silhouette -->
+  <path d="M24 4 L38 30 L36 38 L26 42 L22 42 L12 38 L10 30 Z" 
+        fill="url(#targetHull)" stroke="#4a4a4a" stroke-width="1.2" filter="url(#targetGlow)"/>
+  
+  <!-- Hull breach/damage indicators -->
+  <ellipse cx="24" cy="20" rx="6" ry="4" fill="#0a0a0f" stroke="#ff6b6b" stroke-width="0.8" opacity="0.6"/>
+  <path d="M20 24 L28 24" stroke="#ff6b6b" stroke-width="1" opacity="0.5"/>
+  <path d="M22 26 L26 26" stroke="#ff6b6b" stroke-width="0.5" opacity="0.4"/>
+  
+  <!-- Debris field - small fragments -->
+  <circle cx="38" cy="12" r="1.5" fill="#4a4a4a" opacity="0.7"/>
+  <circle cx="42" cy="20" r="1" fill="#4a4a4a" opacity="0.6"/>
+  <circle cx="10" cy="18" r="1" fill="#4a4a4a" opacity="0.6"/>
+  <circle cx="6" cy="28" r="1.5" fill="#4a4a4a" opacity="0.5"/>
+  <circle cx="40" cy="38" r="1" fill="#4a4a4a" opacity="0.5"/>
+  <circle cx="8" cy="38" r="1" fill="#4a4a4a" opacity="0.4"/>
+  
+  <!-- Pulsing marker for active mission -->
+  <circle cx="24" cy="24" r="8" fill="none" stroke="#ffb86b" stroke-width="1" opacity="0.4" stroke-dasharray="3,3"/>
+  
+  <!-- Directional indicator -->
+  <polygon points="24,0 22,6 26,6" fill="#ffb86b" opacity="0.8"/>
 </svg>

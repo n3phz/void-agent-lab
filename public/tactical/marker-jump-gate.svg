@@ -1,32 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Jump Gate: two concentric rings, cyan stroke, dark center, geometric sci-fi appearance -->
   <defs>
-    <radialGradient id="gateGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+    <linearGradient id="gateRing" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6ecff6;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#00d4ff;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#6ecff6;stop-opacity:0.8"/>
+    </linearGradient>
+    <radialGradient id="gateCenter" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#0a0a0f;stop-opacity:1"/>
+      <stop offset="70%" style="stop-color:#0a0a0f;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#1a1a2e;stop-opacity:0.4"/>
     </radialGradient>
-    <linearGradient id="gateRing" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00d4ff"/>
-      <stop offset="100%" stop-color="#0080aa"/>
-    </radialGradient>
+    <filter id="gateGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Glow -->
-  <circle cx="24" cy="24" r="22" fill="url(#gateGlow)"/>
+  
   <!-- Outer ring -->
-  <circle cx="24" cy="24" r="18" fill="none" stroke="url(#gateRing)" stroke-width="3"/>
+  <circle cx="32" cy="32" r="28" fill="none" stroke="url(#gateRing)" stroke-width="3" filter="url(#gateGlow)"/>
+  
   <!-- Inner ring -->
-  <circle cx="24" cy="24" r="12" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
-  <!-- Chevron markers (8 around ring) -->
-  <g stroke="#00d4ff" stroke-width="2" fill="none">
-    <path d="M24,6 L20,12 M24,6 L28,12"/>
-    <path d="M42,24 L36,20 M42,24 L36,28"/>
-    <path d="M24,42 L20,36 M24,42 L28,36"/>
-    <path d="M6,24 L12,20 M6,24 L12,28"/>
-    <path d="M12,12 L18,18 M12,12 L18,6" opacity="0.5"/>
-    <path d="M36,12 L30,18 M36,12 L30,6" opacity="0.5"/>
-    <path d="M36,36 L30,30 M36,36 L30,42" opacity="0.5"/>
-    <path d="M12,36 L18,30 M12,36 L18,42" opacity="0.5"/>
+  <circle cx="32" cy="32" r="20" fill="none" stroke="url(#gateRing)" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Center dark core -->
+  <circle cx="32" cy="32" r="16" fill="url(#gateCenter)"/>
+  
+  <!-- Crosshair/alignment markers -->
+  <line x1="32" y1="10" x2="32" y2="16" stroke="#6ecff6" stroke-width="1.5" opacity="0.8"/>
+  <line x1="32" y1="48" x2="32" y2="54" stroke="#6ecff6" stroke-width="1.5" opacity="0.8"/>
+  <line x1="10" y1="32" x2="16" y2="32" stroke="#6ecff6" stroke-width="1.5" opacity="0.8"/>
+  <line x1="48" y1="32" x2="54" y2="32" stroke="#6ecff6" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Inner crosshair -->
+  <line x1="32" y1="18" x2="32" y2="22" stroke="#6ecff6" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="42" x2="32" y2="46" stroke="#6ecff6" stroke-width="1" opacity="0.5"/>
+  <line x1="18" y1="32" x2="22" y2="32" stroke="#6ecff6" stroke-width="1" opacity="0.5"/>
+  <line x1="42" y1="32" x2="46" y2="32" stroke="#6ecff6" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Rotating detail elements - static representation -->
+  <g stroke="#6ecff6" stroke-width="1" opacity="0.4">
+    <line x1="40" y1="24" x2="44" y2="28"/>
+    <line x1="24" y1="40" x2="28" y2="44"/>
+    <line x1="20" y1="24" x2="24" y2="28"/>
+    <line x1="40" y1="40" x2="44" y2="44"/>
   </g>
-  <!-- Center event horizon -->
-  <circle cx="24" cy="24" r="6" fill="#001a2a"/>
-  <circle cx="24" cy="24" r="4" fill="#00d4ff" opacity="0.3"/>
 </svg>

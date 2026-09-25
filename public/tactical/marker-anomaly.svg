@@ -1,50 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Anomaly: geometric teal symbol, scan pulse compatible -->
   <defs>
-    <radialGradient id="anomGlowLow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#4ade80"/>
-      <stop offset="100%" stop-color="#4ade80" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="anomGlowHigh" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f87171"/>
-      <stop offset="100%" stop-color="#f87171" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="anomCoreLow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#4ade80"/>
-      <stop offset="100%" stop-color="#1a8a3a"/>
-    </radialGradient>
-    <radialGradient id="anomCoreHigh" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f87171"/>
-      <stop offset="100%" stop-color="#a02a2a"/>
-    </radialGradient>
+    <linearGradient id="anomalyCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8e6cf;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#6ecff6;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#4a9fd8;stop-opacity:0.4"/>
+    </linearGradient>
+    <filter id="anomalyGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Low risk anomaly (default) -->
-  <g id="anomaly-low">
-    <!-- Glow -->
-    <circle cx="24" cy="24" r="22" fill="url(#anomGlowLow)"/>
-    <!-- Outer hexagon -->
-    <polygon points="24,6 40,14 40,34 24,42 8,34 8,14" fill="none" stroke="#4ade80" stroke-width="2" opacity="0.6"/>
-    <!-- Core -->
-    <polygon points="24,10 36,16 36,32 24,38 12,32 12,16" fill="url(#anomCoreLow)" opacity="0.8"/>
-    <!-- Inner scan lines -->
-    <line x1="24" y1="14" x2="24" y2="34" stroke="#4ade80" stroke-width="1" opacity="0.4"/>
-    <line x1="14" y1="24" x2="34" y2="24" stroke="#4ade80" stroke-width="1" opacity="0.4"/>
-    <line x1="16" y1="16" x2="32" y2="32" stroke="#4ade80" stroke-width="1" opacity="0.3"/>
-    <line x1="16" y1="32" x2="32" y2="16" stroke="#4ade80" stroke-width="1" opacity="0.3"/>
-  </g>
-  <!-- High risk anomaly -->
-  <g id="anomaly-high" display="none">
-    <!-- Glow -->
-    <circle cx="24" cy="24" r="24" fill="url(#anomGlowHigh)"/>
-    <!-- Outer triangle (warning) -->
-    <polygon points="24,4 42,40 6,40" fill="none" stroke="#f87171" stroke-width="3" opacity="0.8"/>
-    <!-- Core -->
-    <polygon points="24,10 38,34 10,34" fill="url(#anomCoreHigh)" opacity="0.8"/>
-    <!-- Exclamation -->
-    <text x="24" y="30" font-family="monospace" font-size="16" fill="#fff" text-anchor="middle" font-weight="bold">!</text>
-    <!-- Pulsing ring (animated via CSS/JS) -->
-    <circle cx="24" cy="24" r="18" fill="none" stroke="#f87171" stroke-width="2" opacity="0.5">
-      <animate attributeName="r" values="18;22;18" dur="1.5s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.5;0.2;0.5" dur="1.5s" repeatCount="indefinite"/>
-    </circle>
-  </g>
+  
+  <!-- Outer hexagon - anomaly boundary -->
+  <polygon points="24,2 42,10 42,38 24,46 6,38 6,10" 
+           fill="none" stroke="#a8e6cf" stroke-width="2" filter="url(#anomalyGlow)"/>
+  
+  <!-- Inner rotated hexagon -->
+  <polygon points="24,10 38,22 38,34 24,46 10,34 10,22" 
+           fill="url(#anomalyCore)" opacity="0.3" stroke="#a8e6cf" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Central triangle - anomaly type indicator -->
+  <polygon points="24,16 32,28 16,28" fill="none" stroke="#a8e6cf" stroke-width="1.5" opacity="0.8"/>
+  
+  <!-- Inner triangle inverted -->
+  <polygon points="24,32 32,20 16,20" fill="url(#anomalyCore)" opacity="0.5"/>
+  
+  <!-- Core energy -->
+  <circle cx="24" cy="24" r="4" fill="#a8e6cf" opacity="0.7" filter="url(#anomalyGlow)"/>
+  
+  <!-- Risk level indicator - small red accent for high risk -->
+  <!-- (added dynamically via CSS/class based on risk) -->
 </svg>

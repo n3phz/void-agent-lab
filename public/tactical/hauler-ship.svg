@@ -1,59 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56" width="140" height="56">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Hauler: visibly larger/heavier, broad cargo body, distinct cargo modules, multiple propulsion points -->
   <defs>
-    <linearGradient id="haulerHull" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#3a3a3a"/>
-      <stop offset="50%" stop-color="#2a2a2a"/>
-      <stop offset="100%" stop-color="#1a1a1a"/>
+    <linearGradient id="haulerHull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:0.95"/>
+      <stop offset="50%" style="stop-color:#2d2d2d;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:0.95"/>
     </linearGradient>
-    <linearGradient id="haulerCargo" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#d4a017"/>
-      <stop offset="100%" stop-color="#a07010"/>
+    <linearGradient id="cargoModule" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.9"/>
+      <stop offset="50%" style="stop-color:#2d2d2d;stop-opacity:0.85"/>
+      <stop offset="100%" style="stop-color:#1f1f1f;stop-opacity:0.9"/>
     </linearGradient>
-    <linearGradient id="haulerAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#e8b020"/>
-      <stop offset="100%" stop-color="#c08010"/>
+    <linearGradient id="haulerAccent" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffb86b;stop-opacity:0.8"/>
+      <stop offset="100%" style="stop-color:#ff9632;stop-opacity:0.6"/>
     </linearGradient>
-    <radialGradient id="haulerEngineGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff9a3c"/>
-      <stop offset="100%" stop-color="#ff9a3c" stop-opacity="0"/>
-    </radialGradient>
+    <filter id="haulerGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <!-- Main hull - blocky industrial design -->
-  <rect x="10" y="18" width="120" height="20" rx="3" fill="url(#haulerHull)" stroke="#555" stroke-width="0.5"/>
-  <!-- Cockpit section -->
-  <rect x="10" y="14" width="28" height="28" rx="3" fill="url(#haulerHull)" stroke="#555" stroke-width="0.5"/>
-  <rect x="14" y="18" width="20" height="14" rx="2" fill="#0a1420" stroke="#3a4a5a" stroke-width="0.5"/>
-  <rect x="16" y="20" width="16" height="10" rx="1" fill="#1a2a3a" opacity="0.8"/>
-  <!-- Cargo sections -->
-  <rect x="42" y="14" width="22" height="28" rx="2" fill="url(#haulerCargo)" stroke="#8a6010" stroke-width="0.5"/>
-  <rect x="68" y="14" width="22" height="28" rx="2" fill="url(#haulerCargo)" stroke="#8a6010" stroke-width="0.5"/>
-  <rect x="94" y="14" width="22" height="28" rx="2" fill="url(#haulerCargo)" stroke="#8a6010" stroke-width="0.5"/>
-  <!-- Cargo panel lines -->
-  <line x1="53" y1="14" x2="53" y2="42" stroke="#8a6010" stroke-width="0.3"/>
-  <line x1="79" y1="14" x2="79" y2="42" stroke="#8a6010" stroke-width="0.3"/>
-  <line x1="42" y1="24" x2="64" y2="24" stroke="#8a6010" stroke-width="0.3"/>
-  <line x1="68" y1="24" x2="90" y2="24" stroke="#8a6010" stroke-width="0.3"/>
-  <line x1="94" y1="24" x2="116" y2="24" stroke="#8a6010" stroke-width="0.3"/>
-  <!-- Accent stripe -->
-  <rect x="10" y="32" width="120" height="2" fill="url(#haulerAccent)" opacity="0.6"/>
-  <!-- Thruster section -->
-  <rect x="116" y="18" width="14" height="20" rx="2" fill="#1a1a1a" stroke="#444" stroke-width="0.5"/>
-  <!-- Engine nozzles -->
-  <circle cx="126" cy="22" r="2.5" fill="#333"/>
-  <circle cx="126" cy="28" r="2.5" fill="#333"/>
-  <circle cx="126" cy="34" r="2.5" fill="#333"/>
-  <!-- Engine glow -->
-  <circle cx="134" cy="22" r="6" fill="url(#haulerEngineGlow)"/>
-  <circle cx="134" cy="28" r="8" fill="url(#haulerEngineGlow)"/>
-  <circle cx="134" cy="34" r="6" fill="url(#haulerEngineGlow)"/>
-  <!-- Landing struts -->
-  <rect x="30" y="42" width="3" height="6" fill="#444"/>
-  <rect x="60" y="42" width="3" height="6" fill="#444"/>
-  <rect x="90" y="42" width="3" height="6" fill="#444"/>
-  <!-- Designation -->
-  <text x="70" y="38" font-family="monospace" font-size="4" fill="#e8b020" text-anchor="middle" font-weight="bold">H-01</text>
-  <!-- Hull panel lines -->
-  <line x1="42" y1="18" x2="42" y2="38" stroke="#555" stroke-width="0.3" opacity="0.5"/>
-  <line x1="68" y1="18" x2="68" y2="38" stroke="#555" stroke-width="0.3" opacity="0.5"/>
-  <line x1="94" y1="18" x2="94" y2="38" stroke="#555" stroke-width="0.3" opacity="0.5"/>
+  
+  <!-- Main hull - broad, rectangular cargo body -->
+  <rect x="8" y="12" width="48" height="40" rx="3" fill="url(#haulerHull)" stroke="#4a4a4a" stroke-width="1.2" filter="url(#haulerGlow)"/>
+  
+  <!-- Forward command module - smaller, offset top -->
+  <rect x="20" y="4" width="24" height="12" rx="2" fill="url(#haulerHull)" stroke="#4a4a4a" stroke-width="1"/>
+  <!-- Cockpit window -->
+  <rect x="26" y="6" width="12" height="6" rx="1" fill="#1a1a2e" stroke="#6ecff6" stroke-width="0.5"/>
+  
+  <!-- Cargo modules - distinct sections -->
+  <!-- Upper cargo bay -->
+  <rect x="12" y="18" width="40" height="12" rx="1" fill="url(#cargoModule)" stroke="#4a4a4a" stroke-width="0.6"/>
+  <rect x="14" y="20" width="36" height="8" rx="0.5" fill="#1a1a1a" opacity="0.5"/>
+  <!-- Cargo bay dividers -->
+  <line x1="22" y1="18" x2="22" y2="30" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="32" y1="18" x2="32" y2="30" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="42" y1="18" x2="42" y2="30" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  
+  <!-- Lower cargo bay -->
+  <rect x="12" y="34" width="40" height="12" rx="1" fill="url(#cargoModule)" stroke="#4a4a4a" stroke-width="0.6"/>
+  <rect x="14" y="36" width="36" height="8" rx="0.5" fill="#1a1a1a" opacity="0.5"/>
+  <line x1="22" y1="34" x2="22" y2="46" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="32" y1="34" x2="32" y2="46" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  <line x1="42" y1="34" x2="42" y2="46" stroke="#4a4a4a" stroke-width="0.5" stroke-dasharray="2,2"/>
+  
+  <!-- Side cargo pods - external mounts -->
+  <rect x="2" y="22" width="6" height="20" rx="1.5" fill="url(#cargoModule)" stroke="#4a4a4a" stroke-width="0.8"/>
+  <rect x="56" y="22" width="6" height="20" rx="1.5" fill="url(#cargoModule)" stroke="#4a4a4a" stroke-width="0.8"/>
+  <!-- Pod details -->
+  <rect x="3" y="26" width="4" height="12" rx="0.5" fill="#1a1a1a" opacity="0.6"/>
+  <rect x="57" y="26" width="4" height="12" rx="0.5" fill="#1a1a1a" opacity="0.6"/>
+  
+  <!-- Main propulsion - four engines -->
+  <rect x="12" y="54" width="10" height="6" rx="1" fill="#ffb86b" opacity="0.9"/>
+  <rect x="24" y="54" width="10" height="6" rx="1" fill="#ffb86b" opacity="0.9"/>
+  <rect x="34" y="54" width="10" height="6" rx="1" fill="#ffb86b" opacity="0.9"/>
+  <rect x="42" y="54" width="10" height="6" rx="1" fill="#ffb86b" opacity="0.9"/>
+  
+  <!-- Maneuvering thrusters - teal, four corners -->
+  <circle cx="14" cy="14" r="2" fill="#a8e6cf" opacity="0.7"/>
+  <circle cx="50" cy="14" r="2" fill="#a8e6cf" opacity="0.7"/>
+  <circle cx="14" cy="50" r="2" fill="#a8e6cf" opacity="0.7"/>
+  <circle cx="50" cy="50" r="2" fill="#a8e6cf" opacity="0.7"/>
+  
+  <!-- Directional indicator - nose marker -->
+  <polygon points="32,0 29,6 35,6" fill="#a8e6cf" opacity="0.9"/>
+  
+  <!-- Hull panel lines - industrial detail -->
+  <line x1="16" y1="12" x2="16" y2="52" stroke="#4a4a4a" stroke-width="0.4" opacity="0.5"/>
+  <line x1="48" y1="12" x2="48" y2="52" stroke="#4a4a4a" stroke-width="0.4" opacity="0.5"/>
 </svg>
