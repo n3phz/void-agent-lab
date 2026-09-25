@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+*.md
+VISION.md
+VISUAL_DIRECTION.md
+docs
+src/tests
