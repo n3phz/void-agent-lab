@@ -1,118 +1,132 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <!-- Station: central core, radiating structure, docking arms/ports, orthographic/top-down, thin vector lines, dark metal -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" shape-rendering="crispEdges">
   <defs>
-    <linearGradient id="stationCore" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3a3a3a;stop-opacity:0.95"/>
-      <stop offset="50%" style="stop-color:#252525;stop-opacity:0.95"/>
-      <stop offset="100%" style="stop-color:#121212;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="stationArm" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#2d2d2d;stop-opacity:0.9"/>
-      <stop offset="50%" style="stop-color:#1f1f1f;stop-opacity:0.9"/>
-      <stop offset="100%" style="stop-color:#121212;stop-opacity:1"/>
-    </linearGradient>
-    <linearGradient id="dockingPort" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#6ecff6;stop-opacity:0.6"/>
-      <stop offset="100%" style="stop-color:#4a9fd8;stop-opacity:0.3"/>
-    </linearGradient>
-    <filter id="stationGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <!-- Dark industrial gradient backdrop with subtle station lights -->
+    <filter id="noise" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise"/>
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.08 0"/>
+      <feComposite in2="SourceGraphic" in="gl" operator="in"/>
     </filter>
   </defs>
-  
-  <!-- Central core - main habitat/operations -->
-  <circle cx="64" cy="64" r="28" fill="url(#stationCore)" stroke="#4a4a4a" stroke-width="1.5" filter="url(#stationGlow)"/>
-  
-  <!-- Core inner detail -->
-  <circle cx="64" cy="64" r="20" fill="none" stroke="#4a4a4a" stroke-width="0.8" opacity="0.5"/>
-  <circle cx="64" cy="64" r="12" fill="none" stroke="#6ecff6" stroke-width="0.5" opacity="0.3"/>
-  
-  <!-- Command module - top center of core -->
-  <ellipse cx="64" cy="44" rx="8" ry="5" fill="#1a1a2e" stroke="#6ecff6" stroke-width="0.6" opacity="0.8"/>
-  <ellipse cx="64" cy="42" rx="4" ry="2" fill="#6ecff6" opacity="0.2"/>
-  
-  <!-- Four main radiating arms/docking structures -->
-  <!-- North arm -->
-  <rect x="56" y="0" width="16" height="32" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
-  <rect x="58" y="2" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  <rect x="58" y="12" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
-  <rect x="58" y="22" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  
-  <!-- South arm -->
-  <rect x="56" y="96" width="16" height="32" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
-  <rect x="58" y="96" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  <rect x="58" y="106" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
-  <rect x="58" y="116" width="12" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  
-  <!-- East arm -->
-  <rect x="96" y="56" width="32" height="16" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
-  <rect x="96" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  <rect x="106" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
-  <rect x="116" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  
-  <!-- West arm -->
-  <rect x="0" y="56" width="32" height="16" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="1"/>
-  <rect x="0" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  <rect x="10" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.5"/>
-  <rect x="20" y="58" width="8" height="12" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
-  
-  <!-- Diagonal secondary arms - smaller -->
-  <!-- NW -->
-  <g transform="translate(64,64) rotate(-45)">
-    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
-    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
-    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+
+  <!-- Deep space background -->
+  <rect width="256" height="256" fill="#07080d"/>
+
+  <!-- Distant Nebular Dust -->
+  <path d="M0 40 Q80 120 256 80 L256 0 L0 0 Z" fill="#0d111a" opacity="0.6"/>
+  <path d="M0 180 Q120 140 256 200 L256 256 L0 256 Z" fill="#0c1017" opacity="0.5"/>
+
+  <!-- Distant grid structure / station scaffold -->
+  <g stroke="#1a2130" stroke-width="1" opacity="0.4">
+    <line x1="20" y1="0" x2="20" y2="256"/>
+    <line x1="60" y1="0" x2="60" y2="256"/>
+    <line x1="100" y1="0" x2="100" y2="256"/>
+    <line x1="140" y1="0" x2="140" y2="256"/>
+    <line x1="180" y1="0" x2="180" y2="256"/>
+    <line x1="220" y1="0" x2="220" y2="256"/>
+    <line x1="0" y1="40" x2="256" y2="40"/>
+    <line x1="0" y1="80" x2="256" y2="80"/>
+    <line x1="0" y1="120" x2="256" y2="120"/>
+    <line x1="0" y1="160" x2="256" y2="160"/>
+    <line x1="0" y1="200" x2="256" y2="200"/>
   </g>
+
+  <!-- MAIN ORBITAL HABITAT & HANGAR SUPERSTRUCTURE -->
+  <!-- Central Core Spine -->
+  <rect x="116" y="16" width="24" height="224" fill="#151922" stroke="#252d3d" stroke-width="2"/>
+  <rect x="122" y="24" width="12" height="208" fill="#0d1117"/>
   
-  <!-- NE -->
-  <g transform="translate(64,64) rotate(45)">
-    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
-    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
-    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <!-- Spine conduits / structural ribs -->
+  <g fill="#2b3548">
+    <rect x="112" y="32" width="32" height="4"/>
+    <rect x="112" y="64" width="32" height="4"/>
+    <rect x="112" y="96" width="32" height="4"/>
+    <rect x="112" y="128" width="32" height="4"/>
+    <rect x="112" y="160" width="32" height="4"/>
+    <rect x="112" y="192" width="32" height="4"/>
+    <rect x="112" y="224" width="32" height="4"/>
   </g>
-  
-  <!-- SW -->
-  <g transform="translate(64,64) rotate(-135)">
-    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
-    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
-    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+
+  <!-- Large Industrial Solar Array / Heat Radiators Left -->
+  <g fill="#0f1722" stroke="#1f2c3f" stroke-width="1.5">
+    <rect x="24" y="48" width="80" height="36"/>
+    <line x1="44" y1="48" x2="44" y2="84" stroke="#1f2c3f"/>
+    <line x1="64" y1="48" x2="64" y2="84" stroke="#1f2c3f"/>
+    <line x1="84" y1="48" x2="84" y2="84" stroke="#1f2c3f"/>
+    
+    <rect x="16" y="168" width="88" height="40"/>
+    <line x1="38" y1="168" x2="38" y2="208" stroke="#1f2c3f"/>
+    <line x1="60" y1="168" x2="60" y2="208" stroke="#1f2c3f"/>
+    <line x1="82" y1="168" x2="82" y2="208" stroke="#1f2c3f"/>
   </g>
-  
-  <!-- SE -->
-  <g transform="translate(64,64) rotate(135)">
-    <rect x="30" y="-4" width="20" height="8" fill="url(#stationArm)" stroke="#4a4a4a" stroke-width="0.8"/>
-    <rect x="30" y="-2" width="16" height="4" rx="0.5" fill="url(#dockingPort)" opacity="0.5"/>
-    <rect x="44" y="-4" width="8" height="8" rx="1" fill="url(#dockingPort)" opacity="0.7"/>
+  <!-- Solar Array Highlights -->
+  <g fill="#1a334d" opacity="0.6">
+    <rect x="26" y="50" width="16" height="32"/>
+    <rect x="46" y="50" width="16" height="32"/>
+    <rect x="66" y="50" width="16" height="32"/>
+    <rect x="86" y="50" width="16" height="32"/>
+    
+    <rect x="18" y="170" width="18" height="36"/>
+    <rect x="40" y="170" width="18" height="36"/>
+    <rect x="62" y="170" width="18" height="36"/>
+    <rect x="84" y="170" width="18" height="36"/>
   </g>
-  
-  <!-- Solar array panels - thin, on diagonal arms -->
-  <g transform="translate(64,64)">
-    <!-- NW array -->
-    <g transform="rotate(-45)">
-      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
-      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
-    </g>
-    <!-- NE array -->
-    <g transform="rotate(45)">
-      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
-      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
-    </g>
-    <!-- SW array -->
-    <g transform="rotate(-135)">
-      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
-      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
-    </g>
-    <!-- SE array -->
-    <g transform="rotate(135)">
-      <rect x="50" y="-2" width="20" height="4" fill="#1a1a1a" opacity="0.6"/>
-      <rect x="52" y="-1.5" width="16" height="3" fill="#0a0a0a" opacity="0.8"/>
-    </g>
+
+  <!-- Truss Struts Connecting Solar Panels -->
+  <g stroke="#3a4860" stroke-width="2">
+    <line x1="104" y1="66" x2="116" y2="66"/>
+    <line x1="104" y1="188" x2="116" y2="188"/>
   </g>
-  
-  <!-- Core docking port indicator - subtle cyan -->
-  <circle cx="64" cy="64" r="34" fill="none" stroke="#6ecff6" stroke-width="0.5" opacity="0.15" stroke-dasharray="4,8"/>
+
+  <!-- Heavy Orbital Hangar Ring / Modular Bays Right -->
+  <g fill="#1a202c" stroke="#2d3748" stroke-width="2">
+    <!-- Primary Hangar Bulkhead -->
+    <polygon points="140,80 216,64 232,88 232,168 216,192 140,176"/>
+    <!-- Inner Hangar Cavity -->
+    <polygon points="144,92 208,80 220,100 220,156 208,176 144,164" fill="#090d13" stroke="#18202c"/>
+  </g>
+
+  <!-- Hangar Bay Guide Lights & Internal Girders -->
+  <g fill="#ff9632">
+    <rect x="148" y="96" width="3" height="3"/>
+    <rect x="148" y="112" width="3" height="3"/>
+    <rect x="148" y="128" width="3" height="3"/>
+    <rect x="148" y="144" width="3" height="3"/>
+    <rect x="148" y="160" width="3" height="3"/>
+  </g>
+  <g fill="#00d4ff">
+    <rect x="214" y="104" width="3" height="3"/>
+    <rect x="214" y="124" width="3" height="3"/>
+    <rect x="214" y="144" width="3" height="3"/>
+  </g>
+
+  <!-- Observation Deck / Command Bridge Cupola -->
+  <rect x="108" y="112" width="40" height="32" fill="#242c3d" stroke="#3b4863" stroke-width="2"/>
+  <rect x="114" y="120" width="28" height="16" fill="#00d4ff" opacity="0.85"/>
+  <!-- Window mullions -->
+  <g fill="#151b26">
+    <rect x="120" y="120" width="2" height="16"/>
+    <rect x="127" y="120" width="2" height="16"/>
+    <rect x="134" y="120" width="2" height="16"/>
+  </g>
+
+  <!-- Communication / Sensor Array Spire Top -->
+  <g stroke="#4b5d7d" stroke-width="2">
+    <line x1="128" y1="16" x2="128" y2="2"/>
+    <line x1="124" y1="6" x2="132" y2="6"/>
+    <line x1="122" y1="10" x2="134" y2="10"/>
+  </g>
+  <rect x="126" y="0" width="4" height="4" fill="#ff4444"/>
+
+  <!-- Warning Stripes / Industrial Markings -->
+  <g fill="#e28822" opacity="0.8">
+    <polygon points="144,82 148,82 144,88"/>
+    <polygon points="152,82 158,82 152,88"/>
+    <polygon points="162,82 168,82 162,88"/>
+  </g>
+
+  <!-- Heavy Cargo Clamps Bottom -->
+  <g fill="#171d27" stroke="#293447" stroke-width="2">
+    <polygon points="120,240 100,252 108,256 124,244"/>
+    <polygon points="136,240 156,252 148,256 132,244"/>
+  </g>
 </svg>

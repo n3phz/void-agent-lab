@@ -1,37 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Anomaly: geometric teal symbol, scan pulse compatible -->
+  <!-- Pixel-art Anomaly Marker: 24x24 logical pixels at 2x scale -->
+  <!-- Two variants: Low risk (green) and High risk (red) -->
   <defs>
-    <linearGradient id="anomalyCore" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#a8e6cf;stop-opacity:0.8"/>
-      <stop offset="50%" style="stop-color:#6ecff6;stop-opacity:0.6"/>
-      <stop offset="100%" style="stop-color:#4a9fd8;stop-opacity:0.4"/>
-    </linearGradient>
-    <filter id="anomalyGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <style>
+      /* Low risk (default) */
+      .anom-glow-low { fill: #4ade80; opacity: 0.12; }
+      .anom-hex-low { fill: none; stroke: #4ade80; stroke-width: 1.5; opacity: 0.6; }
+      .anom-core-low { fill: #4ade80; }
+      .anom-core-inner-low { fill: #1a8a3a; }
+      .anom-scan { fill: none; stroke: #4ade80; stroke-width: 1; opacity: 0.4; }
+      
+      /* High risk */
+      .anom-glow-high { fill: #f87171; opacity: 0.15; }
+      .anom-tri-high { fill: none; stroke: #f87171; stroke-width: 2; opacity: 0.8; }
+      .anom-core-high { fill: #f87171; }
+      .anom-core-inner-high { fill: #a02a2a; }
+      .anom-exclaim { fill: #fff; font-family: monospace; font-size: 12; font-weight: bold; text-anchor: middle; }
+      .anom-pulse { fill: none; stroke: #f87171; stroke-width: 1.5; opacity: 0.5; }
+    </style>
   </defs>
-  
-  <!-- Outer hexagon - anomaly boundary -->
-  <polygon points="24,2 42,10 42,38 24,46 6,38 6,10" 
-           fill="none" stroke="#a8e6cf" stroke-width="2" filter="url(#anomalyGlow)"/>
-  
-  <!-- Inner rotated hexagon -->
-  <polygon points="24,10 38,22 38,34 24,46 10,34 10,22" 
-           fill="url(#anomalyCore)" opacity="0.3" stroke="#a8e6cf" stroke-width="1" opacity="0.6"/>
-  
-  <!-- Central triangle - anomaly type indicator -->
-  <polygon points="24,16 32,28 16,28" fill="none" stroke="#a8e6cf" stroke-width="1.5" opacity="0.8"/>
-  
-  <!-- Inner triangle inverted -->
-  <polygon points="24,32 32,20 16,20" fill="url(#anomalyCore)" opacity="0.5"/>
-  
-  <!-- Core energy -->
-  <circle cx="24" cy="24" r="4" fill="#a8e6cf" opacity="0.7" filter="url(#anomalyGlow)"/>
-  
-  <!-- Risk level indicator - small red accent for high risk -->
-  <!-- (added dynamically via CSS/class based on risk) -->
+
+  <!-- Low risk anomaly (default visible) -->
+  <g id="anomaly-low">
+    <!-- Glow -->
+    <circle cx="24" cy="24" r="22" class="anom-glow-low"/>
+    
+    <!-- Outer hexagon -->
+    <polygon points="24,6 40,14 40,34 24,42 8,34 8,14" class="anom-hex-low"/>
+    
+    <!-- Core hexagon -->
+    <polygon points="24,10 36,16 36,32 24,38 12,32 12,16" class="anom-core-low" opacity="0.8"/>
+    
+    <!-- Inner scan lines -->
+    <line x1="24" y1="14" x2="24" y2="34" class="anom-scan"/>
+    <line x1="14" y1="24" x2="34" y2="24" class="anom-scan"/>
+    <line x1="16" y1="16" x2="32" y2="32" class="anom-scan"/>
+    <line x1="16" y1="32" x2="32" y2="16" class="anom-scan"/>
+  </g>
+
+  <!-- High risk anomaly (hidden by default, toggled via JS/CSS) -->
+  <g id="anomaly-high" display="none">
+    <!-- Glow -->
+    <circle cx="24" cy="24" r="24" class="anom-glow-high"/>
+    
+    <!-- Outer triangle (warning shape) -->
+    <polygon points="24,4 42,40 6,40" class="anom-tri-high"/>
+    
+    <!-- Core triangle -->
+    <polygon points="24,10 38,34 10,34" class="anom-core-high" opacity="0.8"/>
+    
+    <!-- Exclamation mark -->
+    <text x="24" y="30" class="anom-exclaim">!</text>
+    
+    <!-- Pulsing ring (animated via CSS/JS) -->
+    <circle cx="24" cy="24" r="18" class="anom-pulse" id="anom-pulse-ring"/>
+  </g>
 </svg>

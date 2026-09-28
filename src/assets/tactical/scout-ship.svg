@@ -1,47 +1,108 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 48" width="120" height="48">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 64" width="128" height="64">
   <defs>
-    <linearGradient id="scoutHull" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#f0f0f0"/>
-      <stop offset="50%" stop-color="#d0d0d0"/>
-      <stop offset="100%" stop-color="#a0a0a0"/>
+    <!-- Engine glow filter -->
+    <filter id="engineGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Hull gradient -->
+    <linearGradient id="scoutHull" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1f2e"/>
+      <stop offset="50%" stop-color="#141824"/>
+      <stop offset="100%" stop-color="#0d1018"/>
     </linearGradient>
-    <linearGradient id="scoutAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#e8822a"/>
-      <stop offset="100%" stop-color="#c45a1a"/>
+    
+    <!-- Panel lines -->
+    <linearGradient id="panelLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2a3244"/>
+      <stop offset="50%" stop-color="#3a4458"/>
+      <stop offset="100%" stop-color="#2a3244"/>
     </linearGradient>
-    <linearGradient id="scoutCockpit" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a2a3a"/>
-      <stop offset="100%" stop-color="#0a1420"/>
-    </linearGradient>
-    <radialGradient id="scoutEngineGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#5aa9ff"/>
-      <stop offset="100%" stop-color="#5aa9ff" stop-opacity="0"/>
+    
+    <!-- Nav lights -->
+    <radialGradient id="navLight" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4deeea" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#4deeea" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#4deeea" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Engine exhaust -->
+    <radialGradient id="engineExhaust" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4deeea" stop-opacity="1"/>
+      <stop offset="40%" stop-color="#4deeea" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1a1f2e" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Sensor glow -->
+    <radialGradient id="sensorGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#4deeea" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#4deeea" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <!-- Main hull -->
-  <path d="M10,24 L20,18 L20,14 L35,14 L45,10 L75,10 L90,14 L105,14 L110,18 L110,30 L105,34 L90,34 L75,34 L45,38 L35,38 L20,34 L20,30 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
-  <!-- Accent stripe -->
-  <path d="M20,24 L35,20 L45,18 L75,18 L90,20 L105,24 L105,28 L90,30 L75,30 L45,32 L35,32 L20,28 Z" fill="url(#scoutAccent)" opacity="0.7"/>
-  <!-- Cockpit -->
-  <path d="M75,14 L95,14 L100,18 L100,26 L95,30 L75,30 L70,26 L70,18 Z" fill="url(#scoutCockpit)" stroke="#3a5a7a" stroke-width="0.5"/>
-  <path d="M78,18 L92,18 L95,22 L95,26 L92,28 L78,28 L76,24 Z" fill="#2a4a6a" opacity="0.6"/>
-  <!-- Wings -->
-  <path d="M35,14 L25,8 L20,6 L20,14 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
-  <path d="M35,34 L25,40 L20,42 L20,34 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
-  <!-- Vertical stabilizers -->
-  <path d="M50,14 L55,6 L60,14 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
-  <path d="M50,34 L55,42 L60,34 Z" fill="url(#scoutHull)" stroke="#888" stroke-width="0.5"/>
-  <!-- Engine nozzles -->
-  <circle cx="108" cy="20" r="3" fill="#333"/>
-  <circle cx="108" cy="28" r="3" fill="#333"/>
-  <!-- Engine glow -->
-  <circle cx="115" cy="20" r="8" fill="url(#scoutEngineGlow)"/>
-  <circle cx="115" cy="28" r="8" fill="url(#scoutEngineGlow)"/>
-  <!-- Hull panels -->
-  <line x1="45" y1="14" x2="45" y2="34" stroke="#999" stroke-width="0.3" opacity="0.5"/>
-  <line x1="75" y1="14" x2="75" y2="34" stroke="#999" stroke-width="0.3" opacity="0.5"/>
-  <line x1="20" y1="20" x2="35" y2="20" stroke="#999" stroke-width="0.3" opacity="0.5"/>
-  <line x1="20" y1="28" x2="35" y2="28" stroke="#999" stroke-width="0.3" opacity="0.5"/>
-  <!-- Designation -->
-  <text x="60" y="26" font-family="monospace" font-size="4" fill="#e8822a" text-anchor="middle" font-weight="bold">S-01</text>
+  
+  <!-- Main hull - narrow wedge silhouette -->
+  <g filter="url(#engineGlow)">
+    <!-- Engine exhaust (behind ship) -->
+    <ellipse cx="8" cy="32" rx="14" ry="5" fill="url(#engineExhaust)" opacity="0.6"/>
+    <ellipse cx="6" cy="32" rx="10" ry="3" fill="#4deeea" opacity="0.4"/>
+    
+    <!-- Main fuselage - long narrow wedge -->
+    <path d="M 20 32 L 118 12 L 118 52 Z" fill="url(#scoutHull)" stroke="#2a3244" stroke-width="1.5"/>
+    
+    <!-- Upper hull plating -->
+    <path d="M 20 32 L 110 18 L 110 32 Z" fill="#1a1f2e" opacity="0.6"/>
+    
+    <!-- Lower hull plating -->
+    <path d="M 20 32 L 110 46 L 110 32 Z" fill="#0d1018" opacity="0.6"/>
+    
+    <!-- Cockpit / sensor nose -->
+    <path d="M 110 26 L 122 32 L 110 38 Z" fill="#0f131a" stroke="#2a3244" stroke-width="1"/>
+    <ellipse cx="118" cy="32" rx="4" ry="6" fill="#141824" stroke="#3a4458" stroke-width="0.5"/>
+    
+    <!-- Sensor array - distinctive forward protrusion -->
+    <path d="M 110 20 L 128 32 L 110 44" fill="none" stroke="#3a4458" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="128" cy="32" r="3" fill="url(#sensorGlow)"/>
+    <circle cx="128" cy="32" r="1.5" fill="#4deeea"/>
+    
+    <!-- Winglets - distinctive compact wings -->
+    <!-- Upper wing -->
+    <path d="M 45 20 L 70 4 L 75 18 Z" fill="url(#scoutHull)" stroke="#2a3244" stroke-width="1"/>
+    <path d="M 45 20 L 60 8 L 65 18 Z" fill="#1a1f2e" opacity="0.5"/>
+    
+    <!-- Lower wing -->
+    <path d="M 45 44 L 70 60 L 75 46 Z" fill="url(#scoutHull)" stroke="#2a3244" stroke-width="1"/>
+    <path d="M 45 44 L 60 56 L 65 46 Z" fill="#0d1018" opacity="0.5"/>
+    
+    <!-- Nav lights on wing tips -->
+    <circle cx="70" cy="4" r="2.5" fill="url(#navLight)"/>
+    <circle cx="70" cy="60" r="2.5" fill="url(#navLight)"/>
+    
+    <!-- Engine nacelles - small rear clusters -->
+    <!-- Upper nacelle -->
+    <path d="M 12 28 L 20 22 L 20 38 Z" fill="#1a1f2e" stroke="#2a3244" stroke-width="1"/>
+    <ellipse cx="12" cy="32" rx="5" ry="8" fill="#0f131a" stroke="#2a3244" stroke-width="0.5"/>
+    <ellipse cx="10" cy="32" rx="3" ry="5" fill="url(#engineExhaust)"/>
+    
+    <!-- Lower nacelle -->
+    <path d="M 12 36 L 20 30 L 20 46 Z" fill="#1a1f2e" stroke="#2a3244" stroke-width="1"/>
+    <ellipse cx="10" cy="32" rx="3" ry="5" fill="url(#engineExhaust)"/>
+    
+    <!-- Panel lines - technical details -->
+    <line x1="30" y1="22" x2="95" y2="22" stroke="url(#panelLine)" stroke-width="0.5" opacity="0.6"/>
+    <line x1="30" y1="42" x2="95" y2="42" stroke="url(#panelLine)" stroke-width="0.5" opacity="0.6"/>
+    <line x1="35" y1="22" x2="35" y2="42" stroke="url(#panelLine)" stroke-width="0.5" opacity="0.4"/>
+    <line x1="60" y1="22" x2="60" y2="42" stroke="url(#panelLine)" stroke-width="0.5" opacity="0.4"/>
+    <line x1="85" y1="22" x2="85" y2="42" stroke="url(#panelLine)" stroke-width="0.5" opacity="0.4"/>
+    
+    <!-- Hull identification marking -->
+    <text x="70" y="35" font-family="ui-monospace, Consolas, monospace" font-size="5" fill="#3a4458" text-anchor="middle" opacity="0.5">SCOUT</text>
+    
+    <!-- Cargo/payload bay indicator (small) -->
+    <rect x="50" y="28" width="12" height="8" rx="1" fill="none" stroke="#3a4458" stroke-width="0.5" opacity="0.5"/>
+    <line x1="52" y1="32" x2="60" y2="32" stroke="#3a4458" stroke-width="0.5" opacity="0.3"/>
+  </g>
 </svg>

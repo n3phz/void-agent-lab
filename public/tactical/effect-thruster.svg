@@ -1,47 +1,100 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Pixel-art Thruster Effect: 32x32 logical pixels at 2x scale -->
+  <!-- Palette: Amber/orange (#ff9a3c, #e85a1a, #8a2a0a) for exhaust, White center -->
+  <!-- Two variants: Scout (cyan-blue) and Hauler (amber-orange) -->
   <defs>
-    <radialGradient id="thrusterCore" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#fff"/>
-      <stop offset="40%" stop-color="#ff9a3c"/>
-      <stop offset="80%" stop-color="#e85a1a"/>
-      <stop offset="100%" stop-color="#8a2a0a" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="thrusterGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ff9a3c" stop-opacity="0"/>
-      <stop offset="50%" stop-color="#ff9a3c" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#ff9a3c" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="thrusterPlume" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%" stop-color="#fff" stop-opacity="0.8"/>
-      <stop offset="30%" stop-color="#ff9a3c" stop-opacity="0.5"/>
-      <stop offset="70%" stop-color="#e85a1a" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#8a2a0a" stop-opacity="0"/>
-    </radialGradient>
+    <style>
+      /* Scout variant (cyan/blue exhaust) */
+      .thruster-core-scout { 
+        fill: #fff; opacity: 0.9; 
+      }
+      .thruster-plume-scout { 
+        fill: #00d4ff; opacity: 0.5; 
+      }
+      .thruster-plume-mid-scout { 
+        fill: #00a8cc; opacity: 0.4; 
+      }
+      .thruster-plume-outer-scout { 
+        fill: #006a8a; opacity: 0.2; 
+      }
+      .thruster-particle-scout { 
+        fill: #00d4ff; opacity: 0.7; 
+      }
+      .thruster-glow-scout { 
+        fill: #00d4ff; opacity: 0.25; 
+      }
+
+      /* Hauler variant (amber/orange exhaust) */
+      .thruster-core-hauler { 
+        fill: #fff; opacity: 0.9; 
+      }
+      .thruster-plume-hauler { 
+        fill: #ff9a3c; opacity: 0.5; 
+      }
+      .thruster-plume-mid-hauler { 
+        fill: #e85a1a; opacity: 0.4; 
+      }
+      .thruster-plume-outer-hauler { 
+        fill: #8a2a0a; opacity: 0.2; 
+      }
+      .thruster-particle-hauler { 
+        fill: #ff9a3c; opacity: 0.7; 
+      }
+      .thruster-glow-hauler { 
+        fill: #ff9a3c; opacity: 0.25; 
+      }
+    </style>
   </defs>
-  <!-- Thruster nozzle glow -->
-  <circle cx="32" cy="8" r="10" fill="url(#thrusterGlow)"/>
-  <!-- Main plume -->
-  <ellipse cx="32" cy="40" rx="12" ry="28" fill="url(#thrusterPlume)"/>
-  <!-- Core plume -->
-  <ellipse cx="32" cy="38" rx="6" ry="20" fill="url(#thrusterCore)"/>
-  <!-- Flicker particles -->
-  <g fill="#ffb860" opacity="0.7">
-    <circle cx="28" cy="20" r="2"/>
-    <circle cx="36" cy="22" r="1.5"/>
-    <circle cx="26" cy="30" r="1.5"/>
-    <circle cx="38" cy="32" r="1"/>
-    <circle cx="24" cy="40" r="1"/>
-    <circle cx="40" cy="42" r="1.5"/>
-    <circle cx="30" cy="48" r="2"/>
-    <circle cx="34" cy="52" r="1.5"/>
+
+  <!-- Scout thruster (top half) -->
+  <g id="thruster-scout">
+    <!-- Nozzle glow -->
+    <circle cx="32" cy="12" r="10" class="thruster-glow-scout"/>
+    
+    <!-- Main plume (elongated ellipse) -->
+    <ellipse cx="32" cy="36" rx="10" ry="22" class="thruster-plume-outer-scout"/>
+    <ellipse cx="32" cy="34" rx="8" ry="18" class="thruster-plume-mid-scout"/>
+    <ellipse cx="32" cy="32" rx="5" ry="14" class="thruster-plume-scout"/>
+    
+    <!-- Core plume (white center) -->
+    <ellipse cx="32" cy="30" rx="3" ry="10" class="thruster-core-scout"/>
+    
+    <!-- Flicker particles (scout - cyan) -->
+    <g class="thruster-particle-scout">
+      <circle cx="28" cy="20" r="2"/>
+      <circle cx="36" cy="22" r="1.5"/>
+      <circle cx="26" cy="28" r="1.5"/>
+      <circle cx="38" cy="30" r="1"/>
+      <circle cx="24" cy="36" r="1"/>
+      <circle cx="40" cy="38" r="1.5"/>
+      <circle cx="30" cy="42" r="2"/>
+      <circle cx="34" cy="46" r="1.5"/>
+    </g>
   </g>
-  <!-- Outer glow particles -->
-  <g fill="#ff8020" opacity="0.4">
-    <circle cx="20" cy="25" r="1.5"/>
-    <circle cx="44" cy="28" r="1"/>
-    <circle cx="18" cy="40" r="1.5"/>
-    <circle cx="46" cy="45" r="1"/>
-    <circle cx="22" cy="55" r="1"/>
-    <circle cx="42" cy="58" r="1"/>
+
+  <!-- Hauler thruster (bottom half) -->
+  <g id="thruster-hauler">
+    <!-- Nozzle glow -->
+    <circle cx="32" cy="52" r="10" class="thruster-glow-hauler"/>
+    
+    <!-- Main plume -->
+    <ellipse cx="32" cy="28" rx="10" ry="22" class="thruster-plume-outer-hauler"/>
+    <ellipse cx="32" cy="30" rx="8" ry="18" class="thruster-plume-mid-hauler"/>
+    <ellipse cx="32" cy="32" rx="5" ry="14" class="thruster-plume-hauler"/>
+    
+    <!-- Core plume -->
+    <ellipse cx="32" cy="34" rx="3" ry="10" class="thruster-core-hauler"/>
+    
+    <!-- Flicker particles (hauler - amber) -->
+    <g class="thruster-particle-hauler">
+      <circle cx="28" cy="44" r="2"/>
+      <circle cx="36" cy="42" r="1.5"/>
+      <circle cx="26" cy="36" r="1.5"/>
+      <circle cx="38" cy="34" r="1"/>
+      <circle cx="24" cy="28" r="1"/>
+      <circle cx="40" cy="26" r="1.5"/>
+      <circle cx="30" cy="22" r="2"/>
+      <circle cx="34" cy="18" r="1.5"/>
+    </g>
   </g>
 </svg>

@@ -1,38 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Hostile: red diamond outline, directional/velocity vector, small contact identifier -->
+  <!-- Pixel-art Hostile Marker: 24x24 logical pixels at 2x scale -->
+  <!-- Palette: Red threat (#f44336) -->
   <defs>
-    <linearGradient id="hostileHull" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:0.8"/>
-      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:0.9"/>
-    </linearGradient>
-    <filter id="hostileGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
+    <style>
+      .hostile-glow { fill: #f44336; opacity: 0.15; }
+      .hostile-diamond { fill: none; stroke: #f44336; stroke-width: 2; opacity: 0.8; }
+      .hostile-core { fill: #f44336; }
+      .hostile-core-inner { fill: #a01010; }
+      .hostile-crosshair { fill: none; stroke: #fff; stroke-width: 1.5; opacity: 0.6; }
+      .hostile-warning { fill: #f44336; opacity: 0.7; }
+      .hostile-pulse { fill: none; stroke: #f44336; stroke-width: 1.5; opacity: 0.5; }
+    </style>
   </defs>
-  
-  <!-- Outer diamond - hostile marker -->
-  <polygon points="24,2 46,24 24,46 2,24" 
-           fill="none" stroke="#ff6b6b" stroke-width="2.5" filter="url(#hostileGlow)"/>
-  
-  <!-- Inner diamond - hull -->
-  <polygon points="24,10 36,24 24,38 12,24" 
-           fill="url(#hostileHull)" opacity="0.6" stroke="#cc0000" stroke-width="1" opacity="0.8"/>
-  
-  <!-- Directional/velocity vector - nose cone -->
-  <polygon points="24,2 20,14 28,14" fill="#ff6b6b" opacity="0.9"/>
-  
-  <!-- Threat indicator - small pulsing ring (handled via CSS animation) -->
-  <!-- Core identifier -->
-  <circle cx="24" cy="24" r="4" fill="#cc0000" opacity="0.8"/>
-  
-  <!-- Side threat sensors -->
-  <rect x="6" y="22" width="4" height="4" rx="0.5" fill="#ff6b6b" opacity="0.6"/>
-  <rect x="38" y="22" width="4" height="4" rx="0.5" fill="#ff6b6b" opacity="0.6"/>
-  
-  <!-- Rear engine hint -->
-  <polygon points="20,36 24,42 28,36" fill="#ffb86b" opacity="0.7"/>
+
+  <!-- Glow -->
+  <circle cx="24" cy="24" r="22" class="hostile-glow"/>
+
+  <!-- Outer diamond (hostile marker shape) -->
+  <polygon points="24,4 44,24 24,44 4,24" class="hostile-diamond"/>
+
+  <!-- Core diamond -->
+  <polygon points="24,10 38,24 24,38 10,24" class="hostile-core" opacity="0.8"/>
+
+  <!-- Inner crosshair -->
+  <line x1="24" y1="14" x2="24" y2="34" class="hostile-crosshair"/>
+  <line x1="14" y1="24" x2="34" y2="24" class="hostile-crosshair"/>
+
+  <!-- Warning triangles (4 corners) -->
+  <g class="hostile-warning">
+    <polygon points="24,0 28,8 20,8"/>        <!-- Top -->
+    <polygon points="48,24 40,20 40,28"/>      <!-- Right -->
+    <polygon points="24,48 20,40 28,40"/>      <!-- Bottom -->
+    <polygon points="0,24 8,20 8,28"/>         <!-- Left -->
+  </g>
+
+  <!-- Pulsing ring (animated via CSS/JS) -->
+  <circle cx="24" cy="24" r="16" class="hostile-pulse" id="hostile-pulse-ring"/>
 </svg>
