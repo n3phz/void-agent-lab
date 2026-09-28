@@ -207,7 +207,7 @@ export function TacticalVisualization({
   missionType,
   missionLocation,
   rules,
-  eventLog,
+  eventLog: _eventLog,
   currentTick,
   maxTicks,
   isRunning,
@@ -219,9 +219,11 @@ export function TacticalVisualization({
   anomaliesRequired: _anomaliesRequired,
   agentSurvives: _agentSurvives,
 }: TacticalVisualizationProps) {
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | null>(null);
+  const eventLogRef = useRef<EventRecord[]>([]);
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null);
 
   // ResizeObserver - single source of truth for container dimensions
@@ -366,7 +368,7 @@ export function TacticalVisualization({
       const missionSegmentTicks = maxTicks - travelSegmentTicks;
 
       // Find latest event
-      const latestEvent = eventLog[eventLog.length - 1];
+      const latestEvent = eventLogRef.current[eventLogRef.current.length - 1];
       const eventChanged = latestEvent && latestEvent.event !== prevEventRef.current;
 
       if (eventChanged && latestEvent) {
@@ -444,7 +446,7 @@ export function TacticalVisualization({
           jumpFlash,
           damageFlash,
           successFlash,
-          anomaliesScanned: eventLog.filter(e => e.event === 'ANOMALY_SCANNED').length,
+          anomaliesScanned: eventLogRef.current.filter(e => e.event === 'ANOMALY_SCANNED').length,
         }));
 
         // Initialize flash progress values
@@ -514,7 +516,7 @@ export function TacticalVisualization({
         }
 
         // Animate anomaly scan progress
-        const scannedCount = eventLog.filter(e => e.event === 'ANOMALY_SCANNED').length;
+        const scannedCount = eventLogRef.current.filter(e => e.event === 'ANOMALY_SCANNED').length;
         nextState.anomalies = s.anomalies.map((a, i) => {
           if (i < scannedCount) {
             return { ...a, scanProgress: Math.min(1, a.scanProgress + deltaTime * 0.5) };
@@ -588,7 +590,7 @@ export function TacticalVisualization({
     lastAnimationTime = performance.now();
     animationRef.current = requestAnimationFrame(tick);
     return () => { if (animationRef.current) cancelAnimationFrame(animationRef.current); };
-  }, [isRunning, isComplete, currentTick, maxTicks, eventLog, missionLocation, rules.travelMode]);
+  }, [isRunning, isComplete, currentTick, maxTicks, missionLocation, rules.travelMode]);
 
   // Canvas rendering - single sizing/drawing path
   useEffect(() => {
