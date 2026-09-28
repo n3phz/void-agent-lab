@@ -3135,3 +3135,206 @@ code, kbd, samp, pre {
   pointer-events: none;
   border-radius: var(--panel-radius);
 }
+
+/* ============================================================================
+   MISSION CONTROL 2.0 — Timeline & Tick Visualization
+   ============================================================================ */
+
+/* Mission Timeline */
+.sim__timeline-wrap {
+  background: var(--void-panel-sunken);
+  border: var(--border-width) solid var(--void-metal);
+  border-radius: var(--panel-radius);
+  padding: var(--space-3);
+  overflow: hidden;
+}
+
+.sim__timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.sim__timeline-header > span {
+  font-size: var(--text-xs);
+  color: var(--void-nav);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sim__timeline-ticks {
+  color: var(--text-muted);
+}
+
+.sim__timeline-container {
+  position: relative;
+  padding: var(--space-2) 0;
+}
+
+.sim__timeline-track {
+  position: relative;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border: 1px solid var(--void-metal);
+  overflow: visible;
+}
+
+.sim__timeline-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(100% / 120);
+  transition: background var(--motion-fast) var(--ease-out);
+}
+
+.sim__timeline-seg.is-past {
+  background: rgba(77, 238, 234, 0.25);
+}
+
+.sim__timeline-seg.is-current {
+  background: var(--void-nav);
+  box-shadow: 0 0 8px var(--void-nav);
+}
+
+.sim__timeline-seg.has-event.is-past {
+  background: rgba(77, 238, 234, 0.45);
+}
+
+.sim__timeline-seg.is-significant {
+  width: calc(100% / 120 * 1.5);
+  margin-left: calc(-100% / 120 * 0.25);
+}
+
+/* Event markers on timeline */
+.sim__timeline-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.sim__marker-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--void-caution);
+  box-shadow: 0 0 4px var(--void-caution);
+}
+
+.sim__marker--threat .sim__marker-dot {
+  background: var(--void-danger);
+  box-shadow: 0 0 4px var(--void-danger);
+}
+
+.sim__marker--success .sim__marker-dot {
+  background: var(--void-safe);
+  box-shadow: 0 0 4px var(--void-safe);
+}
+
+.sim__marker--sensor .sim__marker-dot {
+  background: var(--void-nav);
+  box-shadow: 0 0 4px var(--void-nav);
+}
+
+.sim__marker--start .sim__marker-dot,
+.sim__marker--end .sim__marker-dot {
+  background: var(--void-caution);
+  width: 8px;
+  height: 8px;
+}
+
+/* Timeline labels */
+.sim__timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Current tick display */
+.sim__tick-display {
+  text-align: center;
+  padding: var(--space-3);
+  background: linear-gradient(135deg, rgba(77, 238, 234, 0.08), transparent);
+  border: 1px solid var(--void-nav);
+}
+
+.sim__tick-number {
+  font-size: var(--text-3xl);
+  font-weight: var(--fw-bold);
+  color: var(--void-nav);
+  line-height: 1;
+  text-shadow: 0 0 10px rgba(77, 238, 234, 0.5);
+}
+
+.sim__tick-total {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Phase flash animation */
+.sim__phase-flash {
+  animation: void-phase-flash 0.5s ease-out;
+}
+
+@keyframes void-phase-flash {
+  0% { 
+    background: var(--void-nav);
+    color: var(--void-panel);
+  }
+  100% { 
+    background: transparent;
+    color: inherit;
+  }
+}
+
+/* Pulse animation for state changes */
+.sim__pulse-change {
+  animation: void-state-pulse 0.6s ease-out;
+}
+
+@keyframes void-state-pulse {
+  0% { 
+    text-shadow: 0 0 8px currentColor;
+    opacity: 1;
+  }
+  50% { 
+    opacity: 0.6;
+  }
+  100% { 
+    opacity: 1;
+  }
+}
+
+/* Mobile responsive timeline */
+@media (max-width: 900px) {
+  .sim__timeline-track {
+    height: 20px;
+  }
+  
+  .sim__timeline-labels {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sim__tick-display {
+    padding: var(--space-2);
+  }
+  
+  .sim__tick-number {
+    font-size: var(--text-2xl);
+  }
+  
+  .sim__timeline-track {
+    height: 16px;
+  }
+}
