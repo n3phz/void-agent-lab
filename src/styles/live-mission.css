@@ -1,0 +1,663 @@
+/* ============================================================================
+   LIVE MISSION — TACTICAL SIMULATION CONSOLE
+   ============================================================================ */
+.simulation-root { display: flex; flex-direction: column; gap: var(--space-4); width: 100%; }
+
+.sim {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* --- Header --- */
+.sim__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--void-panel);
+  border: 1px solid var(--void-metal);
+  border-radius: var(--panel-radius);
+}
+
+.sim__identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sim__ship-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.sim__ship-name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--fw-bold);
+  color: var(--void-nav);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sim__ship-type {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.sim__mission-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.sim__mission-type {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sim__mission-target {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
+.sim__phase-badge {
+  padding: 2px var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: 2px;
+}
+
+.sim__phase--idle { color: var(--text-muted); border-color: var(--void-metal); }
+.sim__phase--jump { color: var(--void-caution); border-color: var(--void-caution-dim); background: rgba(240, 169, 40, 0.08); }
+.sim__phase--travel { color: var(--void-nav); border-color: var(--void-nav-dim); background: rgba(33, 212, 232, 0.08); }
+.sim__phase--cruise { color: var(--void-caution); border-color: var(--void-caution-dim); background: rgba(240, 169, 40, 0.08); }
+.sim__phase--scan { color: var(--void-safe); border-color: var(--void-safe-dim); background: rgba(38, 217, 120, 0.08); }
+.sim__phase--hostile { color: var(--void-danger); border-color: var(--void-danger-dim); background: rgba(255, 82, 82, 0.08); animation: void-pulse-critical 1.5s ease-in-out infinite; }
+.sim__phase--damage { color: var(--void-danger); border-color: var(--void-danger-dim); background: rgba(255, 82, 82, 0.12); }
+.sim__phase--return { color: var(--void-caution); border-color: var(--void-caution-dim); background: rgba(240, 169, 40, 0.08); }
+.sim__phase--mission { color: var(--void-safe); border-color: var(--void-safe-dim); background: rgba(38, 217, 120, 0.08); }
+
+.sim__clock {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  padding: var(--space-1) var(--space-2);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- Main Deck --- */
+.sim__deck {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+}
+
+.sim__tactical-wrap {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.sim__tactical {
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Scanline effect */
+.sim__tactical::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Instruments Panel --- */
+.sim__instruments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sim__instr-block {
+  background: var(--void-panel);
+  border: 1px solid var(--void-metal);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.sim__instr-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--void-nav);
+  padding: var(--space-2) var(--space-3);
+  background: var(--void-panel-raised);
+  border-bottom: 1px solid var(--void-metal);
+}
+
+/* Tick Display */
+.sim__tick-display {
+  text-align: center;
+  padding: var(--space-3);
+  background: linear-gradient(135deg, rgba(33, 212, 232, 0.06), transparent);
+  border-left: 2px solid var(--void-nav);
+}
+
+.sim__tick-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-4xl);
+  font-weight: var(--fw-bold);
+  color: var(--void-nav);
+  line-height: 1;
+  text-shadow: 0 0 12px var(--void-nav-glow);
+}
+
+.sim__tick-total {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* Bars */
+.sim__bar-group {
+  padding: var(--space-2) var(--space-3);
+}
+
+.sim__bar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-1);
+}
+
+.sim__bar-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sim__bar-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+}
+
+.sim__bar-value--nav { color: var(--void-nav); }
+.sim__bar-value--caution { color: var(--void-caution); }
+.sim__bar-value--danger { color: var(--void-danger); animation: void-pulse-critical 1s ease-in-out infinite; }
+
+.sim__bar-track {
+  height: 5px;
+  background: var(--void-metal-dark);
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--void-metal);
+}
+
+.sim__bar-fill {
+  height: 100%;
+  transition: width var(--motion-normal) var(--ease-out);
+}
+
+.sim__bar-fill--nav { background: var(--void-nav); }
+.sim__bar-fill--caution { background: var(--void-caution); }
+.sim__bar-fill--danger { background: var(--void-danger); animation: void-pulse-critical 1s ease-in-out infinite; }
+
+.sim__bar-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+.sim__rtb-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-caution);
+  font-weight: var(--fw-bold);
+  animation: void-pulse-caution 1.5s ease-in-out infinite;
+}
+
+.sim__critical-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-danger);
+  font-weight: var(--fw-bold);
+  animation: void-pulse-critical 1s ease-in-out infinite;
+}
+
+/* Spec rows */
+.sim__spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-top: 1px solid var(--void-metal);
+}
+
+.sim__spec-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sim__spec-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: var(--fw-semibold);
+}
+
+/* Phase progress */
+.sim__phase-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+}
+
+.sim__phase-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-bold);
+  color: var(--void-nav);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sim__phase-percent {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--fw-bold);
+  color: var(--void-nav);
+}
+
+.sim__progress-track {
+  height: 6px;
+  background: var(--void-metal-dark);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--void-metal);
+  margin: 0 var(--space-3) var(--space-1);
+}
+
+.sim__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--void-nav), var(--void-caution));
+  transition: width var(--motion-slow) var(--ease-out);
+}
+
+.sim__progress-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--space-3) var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* Current event */
+.sim__current-event {
+  padding: var(--space-3);
+  background: rgba(33, 212, 232, 0.04);
+  border-left: 2px solid var(--void-nav);
+}
+
+.sim__event-category {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-nav);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: var(--fw-bold);
+}
+
+.sim__event-text {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin-top: var(--space-1);
+}
+
+.sim__event-detail {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+/* --- Timeline --- */
+.sim__timeline {
+  background: var(--void-panel);
+  border: 1px solid var(--void-metal);
+  border-radius: var(--panel-radius);
+  padding: var(--space-3);
+}
+
+.sim__timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.sim__timeline-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-nav);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sim__timeline-ticks {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.sim__timeline-track {
+  position: relative;
+  height: 20px;
+  background: var(--void-metal-dark);
+  border-radius: 2px;
+  border: 1px solid var(--void-metal);
+  overflow: visible;
+}
+
+.sim__timeline-seg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  transition: background var(--motion-fast) var(--ease-mechanical);
+}
+
+.sim__timeline-seg.is-past { background: rgba(33, 212, 232, 0.2); }
+.sim__timeline-seg.is-current { background: var(--void-nav); box-shadow: 0 0 6px var(--void-nav); }
+.sim__timeline-seg.has-event.is-past { background: rgba(33, 212, 232, 0.4); }
+
+.sim__timeline-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+}
+
+.sim__marker-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.sim__marker--threat .sim__marker-dot { background: var(--void-danger); box-shadow: 0 0 4px var(--void-danger); }
+.sim__marker--success .sim__marker-dot { background: var(--void-safe); box-shadow: 0 0 4px var(--void-safe); }
+.sim__marker--sensor .sim__marker-dot { background: var(--void-nav); box-shadow: 0 0 4px var(--void-nav); }
+.sim__marker--start .sim__marker-dot,
+.sim__marker--end .sim__marker-dot { background: var(--void-caution); width: 8px; height: 8px; }
+
+.sim__timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+/* --- Event Stream --- */
+.sim__stream-wrap {
+  background: var(--void-panel);
+  border: 1px solid var(--void-metal);
+  border-radius: var(--panel-radius);
+  overflow: hidden;
+}
+
+.sim__stream-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: var(--void-panel-raised);
+  border-bottom: 1px solid var(--void-metal);
+}
+
+.sim__stream-title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-nav);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: var(--fw-semibold);
+}
+
+.sim__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sim__speed {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.sim__speed-btn {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--void-metal);
+  border-radius: 2px;
+  background: var(--void-panel-sunken);
+  color: var(--void-nav);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-mechanical);
+}
+
+.sim__speed-btn:hover:not(:disabled) {
+  border-color: var(--void-nav);
+  background: rgba(33, 212, 232, 0.08);
+}
+
+.sim__speed-btn.is-active {
+  background: var(--void-nav);
+  color: var(--void-space);
+  border-color: var(--void-nav);
+}
+
+.sim__abort {
+  padding: var(--space-1) var(--space-3);
+  border-color: var(--void-danger);
+  color: var(--void-danger);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sim__abort:hover { background: rgba(255, 82, 82, 0.1); }
+
+.sim__log {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.sim__empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.sim__entry {
+  display: grid;
+  grid-template-columns: 16px auto 80px 1fr;
+  gap: var(--space-2);
+  align-items: start;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid rgba(33, 212, 232, 0.06);
+  transition: background var(--motion-fast) var(--ease-mechanical);
+}
+
+.sim__entry:last-child { border-bottom: 1px solid rgba(33, 212, 232, 0.06); }
+
+.sim__entry.is-current {
+  background: rgba(33, 212, 232, 0.06);
+}
+
+.sim__icon {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  opacity: 0.6;
+}
+
+.sim__entry.is-current .sim__icon {
+  color: var(--void-nav);
+  opacity: 1;
+}
+
+.sim__tick {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+}
+
+.sim__action {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void-nav);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sim__text {
+  color: var(--text-primary);
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.sim__detail {
+  color: var(--void-caution);
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  padding-top: var(--space-1);
+  border-top: 1px dashed rgba(33, 212, 232, 0.08);
+  margin-top: var(--space-1);
+}
+
+/* --- Pulse Animations --- */
+@keyframes void-pulse-critical {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes void-pulse-caution {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+  .sim__tactical-wrap {
+    grid-template-columns: 1fr;
+  }
+  .sim__instruments {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .sim__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  .sim__ship-line {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .sim__mission-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+  .sim__clock {
+    align-self: flex-start;
+  }
+  .sim__instruments {
+    order: -1;
+  }
+  .sim__log {
+    max-height: 150px;
+  }
+  .sim__entry {
+    grid-template-columns: 16px auto 60px 1fr;
+    gap: var(--space-1);
+    padding: var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .sim__controls {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .sim__abort {
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+  .sim__tick-number {
+    font-size: var(--text-2xl);
+  }
+  .sim__timeline-track {
+    height: 16px;
+  }
+}

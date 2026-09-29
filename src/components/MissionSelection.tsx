@@ -12,6 +12,12 @@ interface MissionSelectionProps {
 const missionCargoRequirement = (type: MissionType): number | null =>
   type === 'SALVAGE' ? 1 : type === 'COURIER' ? 30 : null;
 
+const missionIcon: Record<MissionType, { icon: string; cls: string }> = {
+  PROSPECT: { icon: '◇', cls: 'mo__card-type mo__card-type--prospect' },
+  SALVAGE: { icon: '▲', cls: 'mo__card-type mo__card-type--salvage' },
+  COURIER: { icon: '◆', cls: 'mo__card-type mo__card-type--courier' },
+};
+
 export function MissionSelection({ state, setState }: MissionSelectionProps) {
   const selectedAgent = state.selectedAgentIndex !== null && state.selectedAgentIndex < state.agents.length
     ? state.agents[state.selectedAgentIndex]
@@ -51,156 +57,191 @@ export function MissionSelection({ state, setState }: MissionSelectionProps) {
   return (
     <StationShell
       state={state}
-      statusText="MISSION OPERATIONS — DISPATCH"
+      statusText="MISSION OPERATIONS — CONTRACT BOARD"
       screenClass="mission-root"
     >
-      <div className="ms">
-        {/* Left column: mission list */}
-        <div className="ms__col">
-          <section className="void-panel void-panel--raised panel-enter" style={{ animationDelay: '40ms' }}>
-            <div className="void-panel__header">
-              <h2 className="void-panel__title">MISSION SELECTION</h2>
-            </div>
-            <div className="ms__missions" role="radiogroup" aria-label="Mission selection">
-              {MISSION_TYPES.map((mission) => {
-                const req = missionCargoRequirement(mission.type);
-                const canCargo = selectedAgent ? req === null ? true : selectedAgent.cargo >= req : true;
-                const isSelected = state.selectedMission === mission.type;
-                return (
-                  <button
-                    key={mission.type}
-                    type="button"
-                    className={`ms__card mission-card ${isSelected ? 'is-selected' : ''} ${!canCargo ? 'is-incompatible' : ''}`}
-                    onClick={() => setState(s => ({ ...s, selectedMission: mission.type }))}
-                    disabled={!canCargo}
-                    aria-pressed={isSelected}
-                  >
-                    <div className="ms__card-head">
-                      <span className="ms__card-name">{mission.name}</span>
-                      <span className={`ms__risk ms__risk--${mission.risk}`}>
-                        {mission.risk.toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="ms__card-loc mono">{mission.location}</span>
-                    <p className="ms__card-desc">{mission.description}</p>
-                    <div className="ms__card-stats mono">
-                      <span>REWARD {mission.rewardMin.toLocaleString()}–{mission.rewardMax.toLocaleString()} CR</span>
-                      <span>DURATION {mission.durationMin}–{mission.durationMax} TICKS</span>
-                      {req !== null && <span>CARGO REQ {req}</span>}
-                    </div>
-                    {!canCargo && selectedAgent && (
-                      <p className="ms__card-warn mono">
-                        INSUFFICIENT CARGO CAPACITY ({selectedAgent.cargo} &lt; {req})
-                      </p>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* Right column: deployment brief */}
-        <div className="ms__col">
-          <section className="void-panel void-panel--raised panel-enter ms__brief" style={{ animationDelay: '80ms' }}>
-            <div className="void-panel__header">
-              <h2 className="void-panel__title">DEPLOYMENT BRIEF</h2>
-            </div>
-
-            {/* Agent status */}
-            {selectedAgent ? (
-              <div className="ms__agent">
-                <div className="ms__agent-head">
-                  <span className="ms__agent-name">{getAgentName(selectedAgent)}</span>
-                  {isDestroyed && (
-                    <span className="ms__agent-status ms__agent-status--destroyed">DESTROYED</span>
-                  )}
-                </div>
-                <div className="ms__agent-type mono">{selectedAgent.type} · LEVEL {selectedAgent.level}</div>
-                <div className="ms__agent-meta mono">
-                  <span>HULL {selectedAgent.hullCurrent.toFixed(1)}%</span>
-                  <span>FUEL {selectedAgent.fuel.toFixed(1)}%</span>
-                  <span>CAPACITY {selectedAgent.cargo}</span>
-                </div>
+      <div className="mission-root">
+        <div className="mo">
+          {/* Left: Available Contracts */}
+          <div className="mo__col">
+            <section className="void-panel void-panel--raised panel-enter" style={{ animationDelay: '40ms' }}>
+              <div className="void-panel__header">
+                <h2 className="void-panel__title">AVAILABLE CONTRACTS</h2>
+                <span className="mono" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                  {MISSION_TYPES.filter(m => {
+                    const req = missionCargoRequirement(m.type);
+                    return req === null || (selectedAgent && selectedAgent.cargo >= req);
+                  }).length} / {MISSION_TYPES.length} ACCESSIBLE
+                </span>
               </div>
-            ) : (
-              <div className="ms__empty">No agent selected.</div>
-            )}
+              <div className="mo__contracts" role="radiogroup" aria-label="Mission selection">
+                {MISSION_TYPES.map((mission) => {
+                  const req = missionCargoRequirement(mission.type);
+                  const canCargo = selectedAgent ? req === null ? true : selectedAgent.cargo >= req : true;
+                  const isSelected = state.selectedMission === mission.type;
+                  const iconData = missionIcon[mission.type];
+                  return (
+                    <button
+                      key={mission.type}
+                      type="button"
+                      className={`mo__card${isSelected ? ' is-selected' : ''}`}
+                      onClick={() => setState(s => ({ ...s, selectedMission: mission.type }))}
+                      disabled={!canCargo}
+                      aria-pressed={isSelected}
+                    >
+                      <div className="mo__card-top">
+                        <div className={iconData.cls} aria-hidden="true">
+                          {iconData.icon}
+                        </div>
+                        <div className="mo__card-head">
+                          <span className="mo__card-name">{mission.name}</span>
+                          <span className="mo__card-location mono">→ {mission.location}</span>
+                        </div>
+                        <span className={`mo__card-risk mo__card-risk--${mission.risk}`}>
+                          {mission.risk.toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="mo__card-desc">{mission.description}</p>
+                      <div className="mo__card-stats mono">
+                        <span>REWARD <strong>{mission.rewardMin.toLocaleString()}–{mission.rewardMax.toLocaleString()} CR</strong></span>
+                        <span>DURATION <strong>{mission.durationMin}–{mission.durationMax} TICKS</strong></span>
+                        {req !== null && <span>CARGO REQ <strong>{req}</strong></span>}
+                      </div>
+                      {!canCargo && selectedAgent && (
+                        <p className="mo__card-warn mono">
+                          INSUFFICIENT CARGO CAPACITY ({selectedAgent.cargo} &lt; {req})
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
 
-            {/* Mission details */}
-            {selectedMissionInfo ? (
-              <div className="ms__mission scan-surface" key={selectedMissionInfo.type}>
-                <div className="ms__mission-head">
-                  <span className="ms__mission-name">{selectedMissionInfo.name}</span>
-                  <span className={`ms__risk ms__risk--${selectedMissionInfo.risk}`}>
-                    {selectedMissionInfo.risk.toUpperCase()}
-                  </span>
-                </div>
-                <span className="ms__mission-loc mono">→ {selectedMissionInfo.location}</span>
-                <dl className="ms__specs mono">
-                  <div><dt>RISK</dt><dd>{selectedMissionInfo.risk.toUpperCase()}</dd></div>
-                  <div><dt>REWARD</dt><dd>{selectedMissionInfo.rewardMin.toLocaleString()}–{selectedMissionInfo.rewardMax.toLocaleString()} CR</dd></div>
-                  <div><dt>DURATION</dt><dd>{selectedMissionInfo.durationMin}–{selectedMissionInfo.durationMax} ticks</dd></div>
-                  {selectedMissionInfo.type === 'PROSPECT' && (
-                    <div><dt>OBJECTIVE</dt><dd>Scan 3 anomalies (+150 CR each)</dd></div>
-                  )}
-                  {selectedMissionInfo.type === 'SALVAGE' && (
-                    <div><dt>OBJECTIVE</dt><dd>Recover ≥ 1 cargo unit</dd></div>
-                  )}
-                  {selectedMissionInfo.type === 'COURIER' && (
-                    <div><dt>OBJECTIVE</dt><dd>Deliver 30 goods · pick up 20 metals</dd></div>
-                  )}
-                  {selectedReq !== null && (
-                    <div><dt>CARGO REQ</dt><dd>{selectedReq} units</dd></div>
-                  )}
-                </dl>
-
-                {/* Cargo compatibility */}
-                {selectedAgent && selectedReq !== null && (
-                  <div className={`ms__cargo-check ${cargoIncompatible ? 'is-bad' : 'is-good'}`}>
-                    <div className="ms__cargo-row mono">
-                      <span>CAPACITY {selectedAgent.cargo}</span>
-                      <span>REQ {selectedReq}</span>
+          {/* Right: Contract Briefing */}
+          <div className="mo__col">
+            <section className="mo__brief panel-enter" style={{ animationDelay: '80ms' }}>
+              <div className="mo__brief-header">
+                <span className="mo__brief-title">CONTRACT BRIEFING</span>
+              </div>
+              <div className="mo__brief-body">
+                {/* Agent Status */}
+                {selectedAgent ? (
+                  <div className="mo__agent-status">
+                    <div>
+                      <div className="mo__agent-name">{getAgentName(selectedAgent)}</div>
+                      <div className="mo__agent-type mono">{selectedAgent.type} · LVL {String(selectedAgent.level).padStart(2, '0')}</div>
                     </div>
-                    <div className="ms__cargo-verdict mono">
-                      {cargoIncompatible
-                        ? `INCOMPATIBLE — SHORT BY ${selectedReq - selectedAgent.cargo}`
-                        : `COMPATIBLE — SLACK ${selectedAgent.cargo - selectedReq}`}
+                    <div style={{ textAlign: 'right' }}>
+                      {isDestroyed && (
+                        <div className="mo__agent-destroyed">DESTROYED</div>
+                      )}
+                      <div className="mo__agent-meta mono">
+                        <span>HULL {selectedAgent.hullCurrent.toFixed(1)}%</span>
+                        <span>FUEL {selectedAgent.fuel.toFixed(1)}%</span>
+                        <span>CARGO {selectedAgent.cargo}</span>
+                      </div>
                     </div>
+                  </div>
+                ) : (
+                  <div className="void-empty" style={{ padding: 'var(--space-4)' }}>
+                    <div className="void-empty__icon">◇</div>
+                    <p className="mono" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+                      No agent selected.
+                    </p>
                   </div>
                 )}
 
-                <p className="ms__deploy-note">Deploying launches the live simulation of this mission for the selected agent.</p>
+                {/* Mission Details */}
+                {selectedMissionInfo ? (
+                  <div className="mo__mission-detail">
+                    <div className="mo__mission-name">{selectedMissionInfo.name}</div>
+                    <div className="mo__mission-target mono">→ {selectedMissionInfo.location}</div>
+                    <dl className="mo__mission-specs mono">
+                      <div className="mo__spec">
+                        <dt className="mo__spec-label">RISK</dt>
+                        <dd className="mo__spec-value mo__spec-value--caution">{selectedMissionInfo.risk.toUpperCase()}</dd>
+                      </div>
+                      <div className="mo__spec">
+                        <dt className="mo__spec-label">REWARD</dt>
+                        <dd className="mo__spec-value mo__spec-value--caution">{selectedMissionInfo.rewardMin.toLocaleString()}–{selectedMissionInfo.rewardMax.toLocaleString()} CR</dd>
+                      </div>
+                      <div className="mo__spec">
+                        <dt className="mo__spec-label">DURATION</dt>
+                        <dd className="mo__spec-value">{selectedMissionInfo.durationMin}–{selectedMissionInfo.durationMax} ticks</dd>
+                      </div>
+                      <div className="mo__spec">
+                        <dt className="mo__spec-label">OBJECTIVE</dt>
+                        <dd className="mo__spec-value">
+                          {selectedMissionInfo.type === 'PROSPECT' && 'Scan 3 anomalies (+150 CR each)'}
+                          {selectedMissionInfo.type === 'SALVAGE' && 'Recover ≥ 1 cargo unit'}
+                          {selectedMissionInfo.type === 'COURIER' && 'Deliver 30 goods · pick up 20 metals'}
+                        </dd>
+                      </div>
+                      {selectedReq !== null && (
+                        <div className="mo__spec">
+                          <dt className="mo__spec-label">CARGO REQ</dt>
+                          <dd className="mo__spec-value mo__spec-value--caution">{selectedReq} units</dd>
+                        </div>
+                      )}
+                    </dl>
+
+                    {/* Cargo Check */}
+                    {selectedAgent && selectedReq !== null && (
+                      <div className={`mo__cargo-check ${cargoIncompatible ? 'is-bad' : 'is-good'}`}>
+                        <div className="mo__cargo-row mono">
+                          <span>CAPACITY {selectedAgent.cargo}</span>
+                          <span>REQ {selectedReq}</span>
+                        </div>
+                        <div className="mo__cargo-verdict mono">
+                          {cargoIncompatible
+                            ? `INCOMPATIBLE — SHORT BY ${selectedReq - selectedAgent.cargo}`
+                            : `COMPATIBLE — SLACK ${selectedAgent.cargo - selectedReq}`}
+                        </div>
+                      </div>
+                    )}
+
+                    <p className="mo__note" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-2)' }}>
+                      Deploying launches the live simulation of this mission.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="void-empty" style={{ padding: 'var(--space-4)' }}>
+                    <div className="void-empty__icon">◇</div>
+                    <p className="mono" style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)' }}>
+                      Select a contract to view briefing.
+                    </p>
+                  </div>
+                )}
+
+                {/* Warning */}
+                {deployBlockedReason && (
+                  <p className="mo__warning mono">{deployBlockedReason}</p>
+                )}
+
+                {/* Deploy Button */}
+                <button
+                  className="void-btn void-btn--primary mo__deploy"
+                  onClick={handleDeploy}
+                  disabled={!state.selectedMission || isDestroyed || cargoIncompatible}
+                >
+                  DEPLOY MISSION
+                </button>
               </div>
-            ) : (
-              <div className="ms__empty">Select a mission to view its briefing.</div>
-            )}
-
-            {/* Deploy warning */}
-            {deployBlockedReason && (
-              <p className="ms__warning mono">{deployBlockedReason}</p>
-            )}
-
-            {/* Deploy button */}
-            <button
-              className="void-btn void-btn--primary ms__deploy"
-              onClick={handleDeploy}
-              disabled={!state.selectedMission || isDestroyed || cargoIncompatible}
-            >
-              DEPLOY MISSION
-            </button>
-          </section>
+            </section>
+          </div>
         </div>
-      </div>
 
-      {/* Footer nav */}
-      <div className="ms__nav">
-        <button
-          className="void-btn void-btn--ghost"
-          onClick={() => setState(s => ({ ...s, screen: 'station' }))}
-        >
-          ← RETURN TO STATION
-        </button>
+        {/* Footer Nav */}
+        <div className="mo__nav">
+          <button
+            className="void-btn void-btn--ghost"
+            onClick={() => setState(s => ({ ...s, screen: 'station' }))}
+          >
+            ← RETURN TO STATION
+          </button>
+        </div>
       </div>
     </StationShell>
   );

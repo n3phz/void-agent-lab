@@ -40,9 +40,9 @@ function Stat({
   const token = `--void-${tone}`;
   return (
     <div className="ac__stat">
-      <span className="mono ac__stat-label">{label}</span>
+      <span className="ac__stat-label mono">{label}</span>
       <span
-        className="mono ac__stat-value value-transition"
+        className="ac__stat-value value-transition mono"
         style={{ color: `var(${token})` }}
       >
         {value}
@@ -76,7 +76,7 @@ export function AgentCreation({ state, setState }: AgentCreationProps) {
   return (
     <StationShell
       state={state}
-      statusText="AGENT CREATION — COMMISSIONING"
+      statusText="CREATE AGENT — COMMISSIONING STATION"
       screenClass="creation-root"
     >
       <div className="ac">
@@ -204,9 +204,9 @@ export function AgentCreation({ state, setState }: AgentCreationProps) {
                 ['CARGO', stats.cargo],
                 ['COST', `${stats.cost} CR`],
               ] as const).map(([label, value]) => (
-                <div key={label} className="ac__spec-row">
-                  <dt className="mono">{label}</dt>
-                  <dd className="mono value-transition" style={{ color: label === 'NAV' ? 'var(--void-nav)' : label === 'OPS' ? 'var(--void-caution)' : label === 'COST' || label === 'CARGO' ? 'var(--void-safe)' : undefined }}>
+                <div key={label} className="ac__spec">
+                  <dt className="ac__spec-label mono">{label}</dt>
+                  <dd className={`ac__spec-value mono value-transition${label === 'NAV' ? ' ab__attr-value--nav' : label === 'OPS' ? ' ab__attr-value--caution' : label === 'COST' ? ' ab__attr-value--caution' : ' ab__attr-value--safe'}`}>
                     {value}
                   </dd>
                 </div>

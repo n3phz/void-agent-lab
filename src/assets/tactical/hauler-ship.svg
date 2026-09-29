@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 80" width="144" height="80">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
   <defs>
     <!-- Engine glow filter -->
     <filter id="haulerEngineGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feGaussianBlur stdDeviation="4" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -11,36 +11,37 @@
     
     <!-- Heavy hull gradient -->
     <linearGradient id="haulerHull" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#151a25"/>
-      <stop offset="30%" stop-color="#10141e"/>
-      <stop offset="60%" stop-color="#0c1018"/>
-      <stop offset="100%" stop-color="#080a10"/>
+      <stop offset="0%" stop-color="#2a3244"/>
+      <stop offset="20%" stop-color="#1a1f2e"/>
+      <stop offset="50%" stop-color="#0d1018"/>
+      <stop offset="80%" stop-color="#060810"/>
+      <stop offset="100%" stop-color="#030408"/>
     </linearGradient>
     
     <!-- Cargo module gradient -->
     <linearGradient id="cargoModule" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a1f2e"/>
-      <stop offset="50%" stop-color="#141824"/>
-      <stop offset="100%" stop-color="#0d1018"/>
+      <stop offset="0%" stop-color="#2a3244"/>
+      <stop offset="50%" stop-color="#1a1f2e"/>
+      <stop offset="100%" stop-color="#060810"/>
     </linearGradient>
     
     <!-- Industrial panel lines -->
     <linearGradient id="indPanelLine" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#3a4458"/>
-      <stop offset="50%" stop-color="#4a5870"/>
-      <stop offset="100%" stop-color="#3a4458"/>
+      <stop offset="0%" stop-color="#4a5870"/>
+      <stop offset="50%" stop-color="#5a6878"/>
+      <stop offset="100%" stop-color="#4a5870"/>
     </linearGradient>
     
     <!-- Amber warning lights -->
     <radialGradient id="amberLight" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#f59e0b" stop-opacity="1"/>
-      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#f59e0b" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
     </radialGradient>
     
     <!-- Engine exhaust - amber/orange -->
     <radialGradient id="haulerExhaust" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="1"/>
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.9"/>
       <stop offset="30%" stop-color="#f59e0b" stop-opacity="0.6"/>
       <stop offset="70%" stop-color="#d97706" stop-opacity="0.2"/>
       <stop offset="100%" stop-color="#1a1f2e" stop-opacity="0"/>
@@ -48,160 +49,196 @@
     
     <!-- Bridge glow -->
     <radialGradient id="bridgeGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#4deeea" stop-opacity="0.8"/>
+      <stop offset="0%" stop-color="#4deeea" stop-opacity="0.9"/>
       <stop offset="100%" stop-color="#4deeea" stop-opacity="0"/>
     </radialGradient>
     
     <!-- Cargo bay glow -->
     <radialGradient id="cargoGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Thruster glow -->
+    <radialGradient id="thrusterGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff6b35" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/>
     </radialGradient>
   </defs>
   
   <g filter="url(#haulerEngineGlow)">
     <!-- Main engine exhausts (four large blocks) -->
-    <g opacity="0.7">
-      <ellipse cx="8" cy="20" rx="18" ry="6" fill="url(#haulerExhaust)"/>
-      <ellipse cx="8" cy="30" rx="18" ry="6" fill="url(#haulerExhaust)"/>
-      <ellipse cx="8" cy="50" rx="18" ry="6" fill="url(#haulerExhaust)"/>
-      <ellipse cx="8" cy="60" rx="18" ry="6" fill="url(#haulerExhaust)"/>
+    <g opacity="0.8">
+      <ellipse cx="10" cy="25" rx="30" ry="10" fill="url(#haulerExhaust)"/>
+      <ellipse cx="10" cy="45" rx="30" ry="10" fill="url(#haulerExhaust)"/>
+      <ellipse cx="10" cy="75" rx="30" ry="10" fill="url(#haulerExhaust)"/>
+      <ellipse cx="10" cy="95" rx="30" ry="10" fill="url(#haulerExhaust)"/>
     </g>
     
     <!-- Brighter engine cores -->
-    <ellipse cx="6" cy="20" rx="10" ry="3" fill="#f59e0b" opacity="0.5"/>
-    <ellipse cx="6" cy="30" rx="10" ry="3" fill="#f59e0b" opacity="0.5"/>
-    <ellipse cx="6" cy="50" rx="10" ry="3" fill="#f59e0b" opacity="0.5"/>
-    <ellipse cx="6" cy="60" rx="10" ry="3" fill="#f59e0b" opacity="0.5"/>
+    <ellipse cx="6" cy="25" rx="18" ry="6" fill="#f59e0b" opacity="0.6"/>
+    <ellipse cx="6" cy="45" rx="18" ry="6" fill="#f59e0b" opacity="0.6"/>
+    <ellipse cx="6" cy="75" rx="18" ry="6" fill="#f59e0b" opacity="0.6"/>
+    <ellipse cx="6" cy="95" rx="18" ry="6" fill="#f59e0b" opacity="0.6"/>
+    
+    <!-- Inner thruster glow -->
+    <ellipse cx="4" cy="25" rx="10" ry="4" fill="#ff6b35" opacity="0.4"/>
+    <ellipse cx="4" cy="45" rx="10" ry="4" fill="#ff6b35" opacity="0.4"/>
+    <ellipse cx="4" cy="75" rx="10" ry="4" fill="#ff6b35" opacity="0.4"/>
+    <ellipse cx="4" cy="95" rx="10" ry="4" fill="#ff6b35" opacity="0.4"/>
     
     <!-- Main hull - wide rectangular with blocky profile -->
-    <path d="M 25 10 L 125 10 L 135 22 L 135 58 L 125 70 L 25 70 Z" 
-          fill="url(#haulerHull)" stroke="#2a3244" stroke-width="2"/>
+    <path d="M 45 15 L 160 15 L 175 30 L 175 90 L 160 105 L 45 105 Z" 
+          fill="url(#haulerHull)" stroke="#3a4458" stroke-width="2.5"/>
     
     <!-- Upper hull plating -->
-    <path d="M 25 10 L 120 10 L 128 20 L 128 38 L 120 48 L 25 48 Z" 
-          fill="#1a1f2e" opacity="0.5"/>
+    <path d="M 45 15 L 155 15 L 165 28 L 165 60 L 155 75 L 45 75 Z" 
+          fill="#2a3244" opacity="0.35"/>
     
     <!-- Lower hull plating -->
-    <path d="M 25 42 L 120 42 L 128 52 L 128 70 L 25 70 Z" 
-          fill="#0c1018" opacity="0.5"/>
+    <path d="M 45 65 L 155 65 L 165 78 L 165 105 L 45 105 Z" 
+          fill="#060810" opacity="0.35"/>
     
     <!-- Bridge - raised forward section -->
-    <path d="M 115 18 L 138 18 L 138 30 L 130 42 L 130 38 L 115 38 Z" 
-          fill="#10141e" stroke="#2a3244" stroke-width="1.5"/>
-    <rect x="118" y="22" width="14" height="14" rx="2" fill="#1a1f2e" stroke="#3a4458" stroke-width="0.5"/>
-    <ellipse cx="125" cy="29" rx="5" ry="4" fill="url(#bridgeGlow)"/>
-    <circle cx="125" cy="29" r="2" fill="#4deeea"/>
+    <path d="M 145 22 L 180 22 L 180 42 L 165 62 L 165 52 L 145 52 Z" 
+          fill="#1a1f2e" stroke="#3a4458" stroke-width="2"/>
+    <rect x="148" y="28" width="28" height="18" rx="3" fill="#2a3244" stroke="#4a5870" stroke-width="1"/>
+    <ellipse cx="162" cy="37" rx="10" ry="7" fill="url(#bridgeGlow)"/>
+    <circle cx="162" cy="37" r="4" fill="#4deeea"/>
     
     <!-- Bridge nav lights -->
-    <circle cx="138" cy="24" r="2" fill="url(#amberLight)"/>
-    <circle cx="138" cy="36" r="2" fill="url(#amberLight)"/>
+    <circle cx="180" cy="30" r="3" fill="url(#amberLight)"/>
+    <circle cx="180" cy="30" r="1.5" fill="#f59e0b"/>
+    <circle cx="180" cy="48" r="3" fill="url(#amberLight)"/>
+    <circle cx="180" cy="48" r="1.5" fill="#f59e0b"/>
     
     <!-- Cargo modules - three distinct containers on dorsal hull -->
     <!-- Module 1 (forward) -->
     <g>
-      <rect x="45" y="6" width="28" height="22" rx="2" fill="url(#cargoModule)" stroke="#2a3244" stroke-width="1.5"/>
-      <rect x="48" y="9" width="22" height="16" rx="1" fill="#141824" opacity="0.6"/>
+      <rect x="55" y="8" width="42" height="32" rx="3" fill="url(#cargoModule)" stroke="#3a4458" stroke-width="2"/>
+      <rect x="59" y="12" width="34" height="24" rx="2" fill="#1a1f2e" opacity="0.5"/>
       <!-- Cargo bay doors -->
-      <line x1="50" y1="15" x2="70" y2="15" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
-      <line x1="50" y1="21" x2="70" y2="21" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
+      <line x1="63" y1="20" x2="91" y2="20" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <line x1="63" y1="28" x2="91" y2="28" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <line x1="77" y1="12" x2="77" y2="36" stroke="#4a5870" stroke-width="1" opacity="0.5"/>
       <!-- Guidance lights -->
-      <circle cx="48" cy="9" r="2" fill="url(#amberLight)"/>
-      <circle cx="71" cy="9" r="2" fill="url(#amberLight)"/>
-      <circle cx="48" cy="25" r="2" fill="url(#amberLight)"/>
-      <circle cx="71" cy="25" r="2" fill="url(#amberLight)"/>
+      <circle cx="59" cy="12" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="59" cy="12" r="1.2" fill="#f59e0b"/>
+      <circle cx="93" cy="12" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="93" cy="12" r="1.2" fill="#f59e0b"/>
+      <circle cx="59" cy="36" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="59" cy="36" r="1.2" fill="#f59e0b"/>
+      <circle cx="93" cy="36" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="93" cy="36" r="1.2" fill="#f59e0b"/>
       <!-- Cargo indicator -->
-      <text x="59" y="22" font-family="ui-monospace, Consolas, monospace" font-size="5" fill="#3a4458" text-anchor="middle" opacity="0.5">CARGO-1</text>
+      <text x="76" y="32" font-family="monospace" font-size="7" fill="#5a6878" text-anchor="middle" opacity="0.7">CARGO-1</text>
     </g>
     
     <!-- Module 2 (mid) -->
     <g>
-      <rect x="82" y="6" width="28" height="22" rx="2" fill="url(#cargoModule)" stroke="#2a3244" stroke-width="1.5"/>
-      <rect x="85" y="9" width="22" height="16" rx="1" fill="#141824" opacity="0.6"/>
-      <line x1="87" y1="15" x2="107" y2="15" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
-      <line x1="87" y1="21" x2="107" y2="21" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
-      <circle cx="85" cy="9" r="2" fill="url(#amberLight)"/>
-      <circle cx="108" cy="9" r="2" fill="url(#amberLight)"/>
-      <circle cx="85" cy="25" r="2" fill="url(#amberLight)"/>
-      <circle cx="108" cy="25" r="2" fill="url(#amberLight)"/>
-      <text x="96" y="22" font-family="ui-monospace, Consolas, monospace" font-size="5" fill="#3a4458" text-anchor="middle" opacity="0.5">CARGO-2</text>
+      <rect x="103" y="8" width="42" height="32" rx="3" fill="url(#cargoModule)" stroke="#3a4458" stroke-width="2"/>
+      <rect x="107" y="12" width="34" height="24" rx="2" fill="#1a1f2e" opacity="0.5"/>
+      <line x1="111" y1="20" x2="141" y2="20" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <line x1="111" y1="28" x2="141" y2="28" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <line x1="127" y1="12" x2="127" y2="36" stroke="#4a5870" stroke-width="1" opacity="0.5"/>
+      <circle cx="107" cy="12" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="107" cy="12" r="1.2" fill="#f59e0b"/>
+      <circle cx="145" cy="12" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="145" cy="12" r="1.2" fill="#f59e0b"/>
+      <circle cx="107" cy="36" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="107" cy="36" r="1.2" fill="#f59e0b"/>
+      <circle cx="145" cy="36" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="145" cy="36" r="1.2" fill="#f59e0b"/>
+      <text x="126" y="32" font-family="monospace" font-size="7" fill="#5a6878" text-anchor="middle" opacity="0.7">CARGO-2</text>
     </g>
     
-    <!-- Module 3 (aft) -->
+    <!-- Module 3 (aft lower) -->
     <g>
-      <rect x="30" y="52" width="28" height="22" rx="2" fill="url(#cargoModule)" stroke="#2a3244" stroke-width="1.5"/>
-      <rect x="33" y="55" width="22" height="16" rx="1" fill="#141824" opacity="0.6"/>
-      <line x1="35" y1="61" x2="55" y2="61" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
-      <line x1="35" y1="67" x2="55" y2="67" stroke="#3a4458" stroke-width="1" opacity="0.6"/>
-      <circle cx="33" cy="55" r="2" fill="url(#amberLight)"/>
-      <circle cx="56" cy="55" r="2" fill="url(#amberLight)"/>
-      <circle cx="33" cy="71" r="2" fill="url(#amberLight)"/>
-      <circle cx="56" cy="71" r="2" fill="url(#amberLight)"/>
-      <text x="44" y="68" font-family="ui-monospace, Consolas, monospace" font-size="5" fill="#3a4458" text-anchor="middle" opacity="0.5">CARGO-3</text>
+      <rect x="35" y="78" width="42" height="32" rx="3" fill="url(#cargoModule)" stroke="#3a4458" stroke-width="2"/>
+      <rect x="39" y="82" width="34" height="24" rx="2" fill="#1a1f2e" opacity="0.5"/>
+      <line x1="43" y1="90" x2="71" y2="90" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <line x1="43" y1="98" x2="71" y2="98" stroke="#4a5870" stroke-width="1.5" opacity="0.7"/>
+      <circle cx="39" cy="82" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="39" cy="82" r="1.2" fill="#f59e0b"/>
+      <circle cx="75" cy="82" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="75" cy="82" r="1.2" fill="#f59e0b"/>
+      <circle cx="39" cy="106" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="39" cy="106" r="1.2" fill="#f59e0b"/>
+      <circle cx="75" cy="106" r="2.5" fill="url(#amberLight)"/>
+      <circle cx="75" cy="106" r="1.2" fill="#f59e0b"/>
+      <text x="57" y="102" font-family="monospace" font-size="7" fill="#5a6878" text-anchor="middle" opacity="0.7">CARGO-3</text>
     </g>
     
     <!-- Heavy reinforcement frames -->
-    <path d="M 25 30 L 20 28 L 20 52 L 25 50" fill="none" stroke="#3a4458" stroke-width="3" stroke-linecap="round"/>
-    <path d="M 25 50 L 20 52 L 20 78 L 25 70" fill="none" stroke="#3a4458" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 45 40 L 35 35 L 35 85 L 45 80" fill="none" stroke="#4a5870" stroke-width="4" stroke-linecap="round"/>
+    <path d="M 45 80 L 35 85 L 35 115 L 45 110" fill="none" stroke="#4a5870" stroke-width="4" stroke-linecap="round"/>
     
     <!-- Industrial panel lines - heavy structural details -->
-    <line x1="30" y1="18" x2="110" y2="18" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.6"/>
-    <line x1="30" y1="32" x2="110" y2="32" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.6"/>
-    <line x1="30" y1="46" x2="110" y2="46" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.6"/>
-    <line x1="30" y1="60" x2="110" y2="60" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.6"/>
-    <line x1="30" y1="62" x2="110" y2="62" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.6"/>
+    <line x1="55" y1="22" x2="145" y2="22" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="35" x2="145" y2="35" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="50" x2="145" y2="50" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="65" x2="145" y2="65" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="78" x2="145" y2="78" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="92" x2="145" y2="92" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
+    <line x1="55" y1="100" x2="145" y2="100" stroke="url(#indPanelLine)" stroke-width="1.5" opacity="0.7"/>
     
     <!-- Vertical structural ribs -->
-    <line x1="40" y1="10" x2="40" y2="70" stroke="url(#indPanelLine)" stroke-width="0.5" opacity="0.4"/>
-    <line x1="60" y1="10" x2="60" y2="70" stroke="url(#indPanelLine)" stroke-width="0.5" opacity="0.4"/>
-    <line x1="80" y1="10" x2="80" y2="44" stroke="url(#indPanelLine)" stroke-width="0.5" opacity="0.4"/>
-    <line x1="100" y1="10" x2="100" y2="44" stroke="url(#indPanelLine)" stroke-width="0.5" opacity="0.4"/>
-    <line x1="115" y1="10" x2="115" y2="44" stroke="url(#indPanelLine)" stroke-width="0.5" opacity="0.4"/>
+    <line x1="75" y1="15" x2="75" y2="105" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.5"/>
+    <line x1="100" y1="15" x2="100" y2="105" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.5"/>
+    <line x1="125" y1="15" x2="125" y2="75" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.5"/>
+    <line x1="150" y1="15" x2="150" y2="75" stroke="url(#indPanelLine)" stroke-width="1" opacity="0.5"/>
     
     <!-- Heavy rivet suggestion dots -->
-    <g fill="#3a4458" opacity="0.3">
-      <circle cx="30" cy="18" r="1.5"/>
-      <circle cx="30" cy="32" r="1.5"/>
-      <circle cx="30" cy="46" r="1.5"/>
-      <circle cx="30" cy="60" r="1.5"/>
-      <circle cx="60" cy="18" r="1.5"/>
-      <circle cx="60" cy="32" r="1.5"/>
-      <circle cx="60" cy="46" r="1.5"/>
-      <circle cx="60" cy="60" r="1.5"/>
-      <circle cx="90" cy="18" r="1.5"/>
-      <circle cx="90" cy="32" r="1.5"/>
-      <circle cx="90" cy="46" r="1.5"/>
-      <circle cx="90" cy="60" r="1.5"/>
-      <circle cx="120" cy="18" r="1.5"/>
-      <circle cx="120" cy="32" r="1.5"/>
-      <circle cx="120" cy="46" r="1.5"/>
+    <g fill="#4a5870" opacity="0.5">
+      <circle cx="55" cy="22" r="2"/>
+      <circle cx="55" cy="35" r="2"/>
+      <circle cx="55" cy="50" r="2"/>
+      <circle cx="55" cy="65" r="2"/>
+      <circle cx="55" cy="78" r="2"/>
+      <circle cx="55" cy="92" r="2"/>
+      <circle cx="80" cy="22" r="2"/>
+      <circle cx="80" cy="35" r="2"/>
+      <circle cx="80" cy="50" r="2"/>
+      <circle cx="80" cy="65" r="2"/>
+      <circle cx="80" cy="78" r="2"/>
+      <circle cx="80" cy="92" r="2"/>
+      <circle cx="110" cy="22" r="2"/>
+      <circle cx="110" cy="35" r="2"/>
+      <circle cx="110" cy="50" r="2"/>
+      <circle cx="110" cy="65" r="2"/>
+      <circle cx="110" cy="78" r="2"/>
+      <circle cx="110" cy="92" r="2"/>
+      <circle cx="140" cy="22" r="2"/>
+      <circle cx="140" cy="35" r="2"/>
+      <circle cx="140" cy="50" r="2"/>
+      <circle cx="140" cy="65" r="2"/>
     </g>
     
     <!-- Docking clamps / hardpoints -->
-    <g stroke="#3a4458" stroke-width="2" fill="none">
+    <g stroke="#4a5870" stroke-width="2.5" fill="none">
       <!-- Port side -->
-      <path d="M 25 25 L 15 20" stroke-linecap="round"/>
-      <path d="M 25 55 L 15 60" stroke-linecap="round"/>
+      <path d="M 45 35 L 30 28" stroke-linecap="round"/>
+      <path d="M 45 85 L 30 92" stroke-linecap="round"/>
       <!-- Starboard side -->
-      <path d="M 135 22 L 145 17" stroke-linecap="round"/>
-      <path d="M 135 58 L 145 63" stroke-linecap="round"/>
+      <path d="M 175 30 L 192 23" stroke-linecap="round"/>
+      <path d="M 175 90 L 192 97" stroke-linecap="round"/>
     </g>
     
     <!-- Cargo bay door mechanism (lower rear) -->
     <g>
-      <rect x="35" y="66" width="20" height="4" rx="1" fill="#0a0c12" stroke="#f59e0b" stroke-width="1" opacity="0.8"/>
-      <rect x="35" y="70" width="20" height="4" rx="1" fill="#0a0c12" stroke="#f59e0b" stroke-width="1" opacity="0.8"/>
-      <circle cx="37" cy="68" r="1" fill="url(#amberLight)"/>
-      <circle cx="53" cy="68" r="1" fill="url(#amberLight)"/>
+      <rect x="45" y="100" width="30" height="6" rx="2" fill="#060810" stroke="#f59e0b" stroke-width="1.5" opacity="0.9"/>
+      <rect x="45" y="107" width="30" height="6" rx="2" fill="#060810" stroke="#f59e0b" stroke-width="1.5" opacity="0.9"/>
+      <circle cx="48" cy="103" r="1.5" fill="url(#amberLight)"/>
+      <circle cx="72" cy="103" r="1.5" fill="url(#amberLight)"/>
     </g>
     
     <!-- Hull identification -->
-    <text x="72" y="42" font-family="ui-monospace, Consolas, monospace" font-size="6" fill="#3a4458" text-anchor="middle" opacity="0.4">HAULER</text>
+    <text x="100" y="60" font-family="monospace" font-size="10" fill="#4a5870" text-anchor="middle" opacity="0.6">HAULER</text>
     
     <!-- Scale reference marks -->
-    <g stroke="#3a4458" stroke-width="0.5" opacity="0.2">
-      <line x1="25" y1="8" x2="135" y2="8"/>
-      <line x1="25" y1="72" x2="135" y2="72"/>
+    <g stroke="#4a5870" stroke-width="1" opacity="0.3">
+      <line x1="45" y1="12" x2="175" y2="12"/>
+      <line x1="45" y1="108" x2="175" y2="108"/>
     </g>
   </g>
 </svg>

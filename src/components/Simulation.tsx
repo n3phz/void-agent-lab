@@ -4,9 +4,9 @@ import { THRESHOLDS } from '../core/types';
 import type { GameState } from '../gameState';
 import { getMission, getAgentName, applyMissionResults } from '../gameState';
 import { TacticalVisualization } from '../core/tacticalVisualization';
-import { StationShell } from './StationShell';
 import { Station } from './Station';
 import { MissionReport } from './MissionReport';
+import { StationShell } from './StationShell';
 
 interface SimulationProps {
   state: GameState;
@@ -58,27 +58,20 @@ const getCategoryLabel = (category: string): string => {
   }
 };
 
-// Get significant tick markers for the timeline
 const getSignificantTicks = (missionObj: { type: string; risk: string }, maxTicks: number) => {
   const markers = [];
-  
-  // Always show these key moments
   markers.push({ tick: 1, label: 'DEPART', type: 'start' });
   markers.push({ tick: Math.floor(maxTicks * 0.15), label: 'CRUISE', type: 'normal' });
   markers.push({ tick: Math.floor(maxTicks * 0.3), label: 'SCAN', type: 'sensor' });
   markers.push({ tick: Math.floor(maxTicks * 0.5), label: 'APPROACH', type: 'normal' });
-  
-  // Conditional markers based on mission
   if (missionObj.risk !== 'low') {
     markers.push({ tick: Math.floor(maxTicks * 0.6), label: 'CONTACT', type: 'threat' });
     markers.push({ tick: Math.floor(maxTicks * 0.7), label: 'ENGAGE', type: 'threat' });
   }
-  
   markers.push({ tick: Math.floor(maxTicks * 0.75), label: 'OBJECTIVE', type: 'mission' });
   markers.push({ tick: Math.floor(maxTicks * 0.85), label: 'COMPLETE', type: 'success' });
   markers.push({ tick: Math.floor(maxTicks * 0.9), label: 'RETURN', type: 'normal' });
   markers.push({ tick: maxTicks - 1, label: 'ARRIVE', type: 'end' });
-  
   return markers;
 };
 
@@ -101,26 +94,19 @@ export function Simulation({ state, setState }: SimulationProps) {
   const missionObj = useMemo(() => (mission ? getMission(mission) : null), [mission]);
   const maxTicks = 120;
 
-  // Fuel threshold and return state
   const fuelThreshold = THRESHOLDS[rules.fuelThreshold];
   const isReturning = agent ? agent.fuel <= fuelThreshold : false;
 
-  // Track hull/fuel changes for pulse effects
   useEffect(() => {
     if (!agent) return;
-    if (prevHull !== null && agent.hullCurrent !== prevHull) {
-      setPrevHull(agent.hullCurrent);
-    }
-    if (prevFuel !== null && agent.fuel !== prevFuel) {
-      setPrevFuel(agent.fuel);
-    }
+    if (prevHull !== null && agent.hullCurrent !== prevHull) setPrevHull(agent.hullCurrent);
+    if (prevFuel !== null && agent.fuel !== prevFuel) setPrevFuel(agent.fuel);
   }, [agent?.hullCurrent, agent?.fuel, prevHull, prevFuel]);
 
   useEffect(() => {
     setSpeed(state.simulationSpeed);
   }, [state.simulationSpeed]);
 
-  // Phase state derived from simulation progress
   const phaseState = useMemo(() => {
     if (tickCount === 0) return 'IDLE';
     if (isReturning) return 'RETURN';
@@ -131,25 +117,19 @@ export function Simulation({ state, setState }: SimulationProps) {
     return 'MISSION';
   }, [tickCount, maxTicks, isReturning]);
 
-  // Detect phase transitions
-  const isPhaseChanged = useMemo(() => {
-    return prevPhase !== phaseState && tickCount > 0;
-  }, [prevPhase, phaseState, tickCount]);
+  const isPhaseChanged = useMemo(() => prevPhase !== phaseState && tickCount > 0, [prevPhase, phaseState, tickCount]);
 
   useEffect(() => {
     setPrevPhase(phaseState);
   }, [phaseState]);
 
-  // Generate significant tick markers
   const significantTicks = useMemo(() => {
     if (!missionObj) return [];
     return getSignificantTicks(missionObj, maxTicks);
   }, [missionObj, maxTicks]);
 
-  // Auto-start the presentation when entering the Simulation screen.
   useEffect(() => {
     if (!agent || !mission || !missionObj || state.simulationResult || hasStartedRef.current) return;
-
     hasStartedRef.current = true;
     setIsRunning(true);
     setTickCount(0);
@@ -159,29 +139,20 @@ export function Simulation({ state, setState }: SimulationProps) {
     setPrevFuel(null);
     setPrevPhase('IDLE');
     eventIdRef.current = 0;
-
-    // Initial event
     addEvent('NAV', 'JUMP INITIATED', `${mission} → ${missionObj.location}`);
   }, [agent, mission, missionObj, state.simulationResult]);
 
-  // Presentation only: advance progress without executing gameplay logic.
   useEffect(() => {
     if (!isRunning || !agent || !mission || !missionObj || state.simulationResult) return;
-
-    const ticksPerSecond = speed;
     const interval = setInterval(() => {
       setTickCount(prev => (prev < maxTicks ? prev + 1 : prev));
-    }, 1000 / ticksPerSecond);
-
+    }, 1000 / speed);
     return () => clearInterval(interval);
   }, [isRunning, speed, agent, mission, missionObj, state.simulationResult]);
 
-  // Generate events based on tick progression
   useEffect(() => {
     if (!isRunning || tickCount === 0 || !missionObj) return;
-
-    const newEvents: Array<{ id: number; tick: number; action: string; event: string; detail?: string; category: string; isCurrent: boolean }> = [];
-
+    const newEvents: typeof events = [];
     if (tickCount === 1) {
       newEvents.push(createEvent('NAV', 'JUMP', `Course plotted to ${missionObj.location}`));
     } else if (tickCount === Math.floor(maxTicks * 0.15)) {
@@ -203,7 +174,6 @@ export function Simulation({ state, setState }: SimulationProps) {
     } else if (tickCount === Math.floor(maxTicks * 0.9)) {
       newEvents.push(createEvent('NAV', 'RETURN', 'Return vector plotted to station'));
     }
-
     if (newEvents.length > 0) {
       setEvents(prev => {
         const updated = prev.map(e => ({ ...e, isCurrent: false }));
@@ -214,14 +184,10 @@ export function Simulation({ state, setState }: SimulationProps) {
 
   useEffect(() => {
     setProgressPercent(Math.min((tickCount / maxTicks) * 100, 100));
-
     if (tickCount < maxTicks || hasCompletedRef.current || state.simulationResult) return;
-
     hasCompletedRef.current = true;
     setIsRunning(false);
-
     if (!agent || !missionObj) return;
-
     const result = simulateMission(agent, missionObj, rules, state.simulationSeed);
     setState(s => {
       if (s.simulationResult || !s.agents[s.selectedAgentIndex ?? 0]) return s;
@@ -246,23 +212,18 @@ export function Simulation({ state, setState }: SimulationProps) {
     ]);
   };
 
-  // Get current event tick markers for timeline
-  const eventTicks = useMemo(() => {
-    return events.filter(e => e.tick > 0).map(e => e.tick);
-  }, [events]);
+  const eventTicks = useMemo(() => events.filter(e => e.tick > 0).map(e => e.tick), [events]);
 
-  // Generate tick segments for timeline visualization
   const tickSegments = useMemo(() => {
     const segments = [];
     for (let i = 0; i < maxTicks; i++) {
       const isPast = i < tickCount;
       const isCurrent = i === tickCount;
       const hasEvent = eventTicks.includes(i);
-      const isSignificant = significantTicks.some(st => st.tick === i);
-      segments.push({ tick: i, isPast, isCurrent, hasEvent, isSignificant });
+      segments.push({ tick: i, isPast, isCurrent, hasEvent });
     }
     return segments;
-  }, [tickCount, eventTicks, significantTicks, maxTicks]);
+  }, [tickCount, eventTicks, maxTicks]);
 
   if (!agent || !mission || !missionObj) {
     return <Station state={state} setState={setState} />;
@@ -274,36 +235,36 @@ export function Simulation({ state, setState }: SimulationProps) {
 
   const agentName = getAgentName(agent);
   const latestEvent = events[events.length - 1];
-
-  // Format tick as mission time
   const missionTime = `${String(Math.floor(tickCount / 60)).padStart(2, '0')}:${String(tickCount % 60).padStart(2, '0')}`;
 
   return (
     <StationShell
       state={state}
-      statusText="LIVE MISSION — MISSION CONTROL"
+      statusText="LIVE MISSION — TACTICAL SIMULATION"
       screenClass="simulation-root"
     >
       <div className="sim">
-        {/* Header identity bar */}
+        {/* Header */}
         <header className="sim__header">
           <div className="sim__identity">
-            <div className="sim__identity-ship">
+            <div className="sim__ship-line">
               <span className="sim__ship-name">{agentName}</span>
               <span className="sim__ship-type mono">{agent.type} · LVL {String(agent.level).padStart(2, '0')}</span>
             </div>
-            <div className="sim__mission-strip">
+            <div className="sim__mission-line">
               <span className="sim__mission-type mono">{mission} OPERATION</span>
               <span className="sim__mission-target">{missionObj.location}</span>
-              <span className={`sim__phase-badge sim__phase--${getPhaseBadgeClass(phaseState)} mono${isPhaseChanged ? ' sim__phase-flash' : ''}`}>{phaseState}</span>
+              <span className={`sim__phase-badge sim__phase--${getPhaseBadgeClass(phaseState)} mono${isPhaseChanged ? ' sim__phase-flash' : ''}`}>
+                {phaseState}
+              </span>
             </div>
           </div>
-          <div className="sim__mission-clock mono">T+{missionTime}</div>
+          <div className="sim__clock mono">T+{missionTime}</div>
         </header>
 
-        {/* Main tactical + telemetry */}
+        {/* Main Deck */}
         <main className="sim__deck">
-          {/* Tactical visualization */}
+          {/* Tactical + Instruments */}
           <section className="sim__tactical-wrap">
             <section className="sim__tactical panel-enter" style={{ animationDelay: '40ms' }}>
               <div className="tactical-visualization-container">
@@ -335,9 +296,9 @@ export function Simulation({ state, setState }: SimulationProps) {
               </div>
             </section>
 
-            {/* Right-side instrument panel */}
+            {/* Instruments Panel */}
             <aside className="sim__instruments panel-enter" style={{ animationDelay: '80ms' }}>
-              {/* Current Tick Display */}
+              {/* Tick Display */}
               <div className="sim__instr-block sim__tick-display">
                 <div className="sim__instr-title mono">CURRENT TICK</div>
                 <div className="sim__tick-number mono">{String(tickCount).padStart(3, '0')}</div>
@@ -347,55 +308,51 @@ export function Simulation({ state, setState }: SimulationProps) {
               {/* Vessel Status */}
               <div className="sim__instr-block">
                 <div className="sim__instr-title mono">VESSEL STATUS</div>
-                
                 <div className="sim__bar-group">
                   <div className="sim__bar-row">
                     <span className="sim__bar-label mono">HULL</span>
-                    <span className={`sim__bar-value mono${agent.hullCurrent < 30 ? ' sim__critical' : ''}${prevHull !== null && agent.hullCurrent !== prevHull ? ' sim__pulse-change' : ''}`}>
+                    <span className={`sim__bar-value mono${agent.hullCurrent < 30 ? ' sim__bar-value--danger' : agent.hullCurrent < 60 ? ' sim__bar-value--caution' : ' sim__bar-value--nav'}`}>
                       {agent.hullCurrent.toFixed(1)}%
                     </span>
                   </div>
                   <div className="sim__bar-track">
-                    <div 
-                      className={`sim__bar-fill${agent.hullCurrent < 30 ? ' sim__fill-critical' : agent.hullCurrent < 60 ? ' sim__fill-caution' : ''}`}
+                    <div
+                      className={`sim__bar-fill${agent.hullCurrent < 30 ? ' sim__bar-fill--danger' : agent.hullCurrent < 60 ? ' sim__bar-fill--caution' : ' sim__bar-fill--nav'}`}
                       style={{ width: `${Math.max(0, Math.min(100, agent.hullCurrent))}%` }}
                     />
                   </div>
                   <div className="sim__bar-meta mono">
                     <span>MAX {agent.hull}</span>
-                    {agent.hullCurrent < 30 && <span className="sim__critical-label">CRITICAL</span>}
+                    {agent.hullCurrent < 30 && <span className="sim__critical-label mono">CRITICAL</span>}
                   </div>
                 </div>
-
                 <div className="sim__bar-group">
                   <div className="sim__bar-row">
                     <span className="sim__bar-label mono">FUEL</span>
-                    <span className={`sim__bar-value mono${agent.fuel < fuelThreshold ? ' sim__caution' : ''}${prevFuel !== null && agent.fuel !== prevFuel ? ' sim__pulse-change' : ''}`}>
+                    <span className={`sim__bar-value mono${agent.fuel < fuelThreshold ? ' sim__bar-value--caution' : ' sim__bar-value--nav'}`}>
                       {agent.fuel.toFixed(1)}%
                     </span>
                   </div>
                   <div className="sim__bar-track">
-                    <div 
-                      className={`sim__bar-fill${agent.fuel < fuelThreshold ? ' sim__fill-caution' : ' sim__fill-normal'}`}
+                    <div
+                      className={`sim__bar-fill${agent.fuel < fuelThreshold ? ' sim__bar-fill--caution' : ' sim__bar-fill--nav'}`}
                       style={{ width: `${Math.max(0, Math.min(100, agent.fuel))}%` }}
                     />
                   </div>
                   <div className="sim__bar-meta mono">
                     <span>THR {fuelThreshold}%</span>
-                    {isReturning && <span className="sim__rtb-label">RTB</span>}
+                    {isReturning && <span className="sim__rtb-label mono">RTB</span>}
                   </div>
                 </div>
-
                 <div className="sim__spec-row">
                   <span className="sim__spec-label mono">CARGO</span>
                   <span className="sim__spec-value mono">{agent.cargoUsed} / {agent.cargo}</span>
                 </div>
               </div>
 
-              {/* Navigation & Operations */}
+              {/* Navigation */}
               <div className="sim__instr-block">
                 <div className="sim__instr-title mono">NAVIGATION</div>
-                
                 <div className="sim__spec-row">
                   <span className="sim__spec-label mono">MODE</span>
                   <span className="sim__spec-value mono">{rules.travelMode ?? 'BALANCED'}</span>
@@ -413,16 +370,13 @@ export function Simulation({ state, setState }: SimulationProps) {
               {/* Mission Progress */}
               <div className="sim__instr-block">
                 <div className="sim__instr-title mono">MISSION</div>
-                
                 <div className="sim__phase-display">
                   <span className="sim__phase-label mono">{phaseState}</span>
                   <span className="sim__phase-percent mono">{Math.round(progressPercent)}%</span>
                 </div>
-                
                 <div className="sim__progress-track">
                   <div className="sim__progress-fill" style={{ width: `${progressPercent}%` }} />
                 </div>
-                
                 <div className="sim__progress-ticks mono">
                   <span>{tickCount}</span>
                   <span>/</span>
@@ -430,68 +384,57 @@ export function Simulation({ state, setState }: SimulationProps) {
                 </div>
               </div>
 
-              {/* Current Activity */}
+              {/* Current Event */}
               {latestEvent && (
-                <div className="sim__instr-block sim__current-event-block">
+                <div className="sim__current-event">
                   <div className="sim__instr-title mono">CURRENT</div>
-                  <div className="sim__current-event">
-                    <span className="sim__event-category mono">{getCategoryLabel(latestEvent.category)}</span>
-                    <span className="sim__event-text">{latestEvent.event}</span>
-                    {latestEvent.detail && (
-                      <span className="sim__event-detail mono">{latestEvent.detail}</span>
-                    )}
-                  </div>
+                  <span className="sim__event-category mono">{getCategoryLabel(latestEvent.category)}</span>
+                  <span className="sim__event-text">{latestEvent.event}</span>
+                  {latestEvent.detail && <span className="sim__event-detail mono">{latestEvent.detail}</span>}
                 </div>
               )}
             </aside>
           </section>
 
-          {/* Mission Timeline */}
-          <section className="sim__timeline-wrap panel-enter" style={{ animationDelay: '100ms' }}>
+          {/* Timeline */}
+          <section className="sim__timeline panel-enter" style={{ animationDelay: '100ms' }}>
             <div className="sim__timeline-header">
-              <span className="mono">MISSION TIMELINE</span>
-              <span className="mono sim__timeline-ticks">{tickCount} / {maxTicks} TICKS</span>
+              <span className="sim__timeline-title mono">MISSION TIMELINE</span>
+              <span className="sim__timeline-ticks mono">{tickCount} / {maxTicks} TICKS</span>
             </div>
-            <div className="sim__timeline-container">
-              <div className="sim__timeline-track">
-                {tickSegments.map((seg) => (
-                  <div
-                    key={seg.tick}
-                    className={`sim__timeline-seg${seg.isPast ? ' is-past' : ''}${seg.isCurrent ? ' is-current' : ''}${seg.hasEvent ? ' has-event' : ''}${seg.isSignificant ? ' is-significant' : ''}`}
-                    title={`Tick ${seg.tick}`}
-                  />
-                ))}
-                {/* Event markers */}
-                {significantTicks.map((marker) => {
-                  const seg = tickSegments[marker.tick];
-                  if (!seg) return null;
-                  return (
-                    <div
-                      key={`marker-${marker.tick}`}
-                      className={`sim__timeline-marker sim__marker--${marker.type}`}
-                      style={{ left: `${(marker.tick / maxTicks) * 100}%` }}
-                      title={`${marker.label}: Tick ${marker.tick}`}
-                    >
-                      <span className="sim__marker-dot" />
-                    </div>
-                  );
-                })}
-              </div>
-              {/* Timeline labels */}
-              <div className="sim__timeline-labels mono">
-                <span>DEPART</span>
-                <span>CRUISE</span>
-                <span>SCAN</span>
-                <span>OBJECTIVE</span>
-                <span>ARRIVE</span>
-              </div>
+            <div className="sim__timeline-track">
+              {tickSegments.map((seg) => (
+                <div
+                  key={seg.tick}
+                  className={`sim__timeline-seg${seg.isPast ? ' is-past' : ''}${seg.isCurrent ? ' is-current' : ''}${seg.hasEvent ? ' has-event' : ''}`}
+                  style={{ left: `${(seg.tick / maxTicks) * 100}%`, width: `${100 / maxTicks}%` }}
+                  title={`Tick ${seg.tick}`}
+                />
+              ))}
+              {significantTicks.map((marker) => (
+                <div
+                  key={`marker-${marker.tick}`}
+                  className={`sim__timeline-marker sim__marker--${marker.type}`}
+                  style={{ left: `${(marker.tick / maxTicks) * 100}%` }}
+                  title={`${marker.label}: Tick ${marker.tick}`}
+                >
+                  <span className="sim__marker-dot" />
+                </div>
+              ))}
+            </div>
+            <div className="sim__timeline-labels mono">
+              <span>DEPART</span>
+              <span>CRUISE</span>
+              <span>SCAN</span>
+              <span>OBJECTIVE</span>
+              <span>ARRIVE</span>
             </div>
           </section>
 
-          {/* Bottom: Event stream + controls */}
+          {/* Event Stream */}
           <section className="sim__stream-wrap panel-enter" style={{ animationDelay: '120ms' }}>
             <div className="sim__stream-header">
-              <span className="mono">EVENT LOG</span>
+              <span className="sim__stream-title mono">EVENT LOG</span>
               <div className="sim__controls">
                 <div className="sim__speed" role="group" aria-label="Simulation speed">
                   {[1, 5, 10].map((v) => (
@@ -517,7 +460,6 @@ export function Simulation({ state, setState }: SimulationProps) {
                 </button>
               </div>
             </div>
-
             <ol className="sim__log mono">
               {events.length === 0 ? (
                 <li className="sim__empty mono">Awaiting mission start...</li>
