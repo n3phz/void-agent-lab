@@ -75,7 +75,9 @@ export function StationShell({ children, state, statusText, screenClass }: Stati
         </div>
       </header>
 
-      <main className="void-shell__main">{children}</main>
+      <main className="void-shell__main">
+        {children}
+      </main>
 
       <footer className="void-shell__footer">
         <div className="void-shell__footer-left">

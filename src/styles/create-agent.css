@@ -161,8 +161,6 @@
 
 .ac__preview {
   align-self: start;
-  max-height: 65vh;
-  overflow-y: auto;
 }
 
 .ac__vessel-stage {

@@ -1,130 +1,86 @@
-/* Base reset + design tokens (shared by all screens) */
-:root {
-  --text: #9ca3af;
-  --text-h: #f3f4f6;
-  --bg: #0a0a0f;
-  --border: #2e303a;
-  --code-bg: #1f2028;
-  --accent: #c084fc;
-  --accent-bg: rgba(192, 132, 252, 0.1);
-  --accent-border: rgba(192, 132, 252, 0.3);
-  --social-bg: rgba(47, 48, 58, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+/* ============================================================================
+   VOID // AGENT LAB — BASE RESET
+   ============================================================================ */
 
-  /* VOID THEME - PHASE 0 */
-  --void-black: #0A0A0A;
-  --void-panel: #1E1E1E;
-  --void-subpanel: #2B2B2B;
-  --void-metal: #4A4A4A;
-  
-  /* SEMANTIC COLORS */
-  --void-nav: #6ECFF6;
-  --void-threat: #FF6B6B;
-  --void-scan: #A8E6CF;
-  --void-success: #8FBC8F;
-  --void-warning: #FFB86B;
-  
-  /* TYPOGRAPHY */
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'IBM Plex Sans', 'IBM Plex Sans', var(--sans);
-  --heading-weight: 600;
-  --mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
-
-  /* GAMWIDE VISUAL SYSTEM — VOID // AGENT LAB */
-  /* Phase 5A Station Command palette (now shared) */
-  --void-bg-deep: #030407;
-  --void-metal-dark: #0f131a;
-  --void-metal-mid: #181e29;
-  --void-metal-plate: #222a38;
-  --void-metal-border: #333f52;
-  --void-metal-highlight: #4a5b75;
-  
-  /* CRT Phosphor Colors */
-  --phosphor-cyan: #4deeea;
-  --phosphor-cyan-dim: #1f7a78;
-  --phosphor-amber: #f59e0b;
-  --phosphor-amber-dim: #854d0e;
-  --phosphor-green: #22c55e;
-  --phosphor-green-dim: #14532d;
-  --phosphor-red: #ef4444;
-  --phosphor-red-dim: #7f1d1d;
-  
-  /* Text Hierarchy */
-  --text-main: #e2e8f0;
-  --text-dim: #94a3b8;
-  --text-muted: #64748b;
-
-  font: 16px/145% var(--sans);
-  letter-spacing: 0;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 15px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, :before, :after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+html {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
+  height: 100%;
   margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #05070a;
+  color: #e8ecf1;
+  font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  color: #e8ecf1;
 }
 
-/* Heading sizes are owned by each screen's own stylesheet rules. */
-h1 {
+p,
+dl,
+dd,
+dt {
   margin: 0;
 }
 
-h2 {
+ul,
+ol {
   margin: 0;
+  padding: 0;
 }
 
-p {
-  margin: 0;
+button {
+  font: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }
 
 code {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+  font-family: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05070a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2d42;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2a3d58;
+}
+
+:focus-visible {
+  outline: 2px solid #21d4e8;
+  outline-offset: 1px;
 }
